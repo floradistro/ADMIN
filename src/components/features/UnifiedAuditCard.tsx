@@ -150,10 +150,10 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
   const isUserOperation = log.user_name && log.user_name !== 'System';
 
   return (
-    <div className={`mb-2 rounded-lg transition-all border-b border-b-white/[0.02] ${
+    <div className={`transition-all border-b border-b-white/[0.02] ${
       isExpanded 
-        ? 'bg-black/40 border border-white/[0.08]' 
-        : 'border border-white/[0.02] bg-black/20 hover:bg-black/30'
+        ? 'bg-white/[0.02]' 
+        : 'bg-black/20 hover:bg-black/30'
     }`}>
       {/* Main Row */}
       <div className="flex items-center gap-3 p-3">
@@ -174,31 +174,31 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
 
         {/* Product Name */}
         <div className="flex-1 min-w-0">
-          <div className="text-neutral-300 text-sm font-medium truncate">
+          <div className="text-white/70 text-sm truncate">
             {log.product_name}
           </div>
-          <div className="text-xs text-neutral-500 mt-0.5">
-            <span className={timestampInfo.isValid ? '' : 'text-red-400'}>
+          <div className="text-xs text-white/40 mt-0.5 font-mono">
+            <span className={timestampInfo.isValid ? '' : 'text-red-400/60'}>
               {timestampInfo.relative}
             </span>
             {log.location_name && ` • ${log.location_name}`}
             {log.user_name && log.user_name !== 'System' && (
-              <span className="font-medium"> • {log.user_name}</span>
+              <span className="text-white/50"> • {log.user_name}</span>
             )}
           </div>
         </div>
 
         {/* Movement Type Badge */}
-        <div className="px-2 py-1 rounded border text-xs font-medium text-white/40 border-white/[0.08]">
+        <div className="px-2.5 py-1 rounded-md text-[11px] font-light uppercase tracking-wider text-white/50 bg-white/[0.02]">
           {movementInfo.type}
         </div>
 
         {/* Change Amount */}
         {log.change_amount !== undefined && log.change_amount !== 0 && (
-          <div className={`px-2 py-1 rounded text-xs font-bold bg-white/[0.03] ${
+          <div className={`px-2.5 py-1 rounded-md text-xs font-mono ${
             log.change_amount > 0 
-              ? 'text-green-400' 
-              : 'text-red-400'
+              ? 'text-green-400/40' 
+              : 'text-red-400/40'
           }`}>
             {log.change_amount > 0 ? '+' : ''}{log.change_amount}
           </div>
@@ -206,7 +206,7 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
 
         {/* Batch Indicator */}
         {log.batch_id && (
-          <div className="px-2 py-1 bg-white/[0.03] text-white/30 rounded text-xs font-medium">
+          <div className="px-2.5 py-1 text-white/30 rounded-md text-[11px] font-mono">
             Batch #{log.batch_id}
           </div>
         )}
@@ -215,7 +215,7 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
       {/* Notes Row */}
       {log.notes && (
         <div className="px-3 pb-2">
-          <div className="text-xs text-neutral-400 italic">
+          <div className="text-xs text-white/30 italic">
             {log.notes}
           </div>
         </div>
@@ -223,7 +223,7 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
 
       {/* Expanded Details */}
       {isExpanded && (
-        <div className="border-t border-white/[0.02] bg-black/30 p-4">
+        <div className="border-t border-white/[0.02] bg-white/[0.01] p-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 divide-x divide-white/[0.02]">
             
             {/* Basic Information */}
@@ -270,21 +270,21 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
                 {log.batch_id && (
                   <div className="text-xs">
                     <span className="text-neutral-500">Batch ID:</span>
-                    <span className="text-neutral-300 ml-2">#{log.batch_id}</span>
+                    <span className="text-neutral-300 ml-2 font-mono">#{log.batch_id}</span>
                   </div>
                 )}
                 
                 {log.reference_type && log.reference_id && (
                   <div className="text-xs">
                     <span className="text-neutral-500">Reference:</span>
-                    <span className="text-neutral-300 ml-2">{log.reference_type} #{log.reference_id}</span>
+                    <span className="text-neutral-300 ml-2 font-mono">{log.reference_type} #{log.reference_id}</span>
                   </div>
                 )}
                 
                 {log.ip_address && (
                   <div className="text-xs">
                     <span className="text-neutral-500">IP Address:</span>
-                    <span className="text-neutral-300 ml-2">{log.ip_address}</span>
+                    <span className="text-neutral-300 ml-2 font-mono">{log.ip_address}</span>
                   </div>
                 )}
               </div>
@@ -318,8 +318,8 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
 
           {/* Sales Information */}
           {log.operation === 'sale' && log.metadata && (
-            <div className="mt-4 p-3 bg-green-900/10 rounded border border-green-500/20">
-              <h6 className="text-xs font-medium text-green-400 uppercase tracking-wide mb-2">Sale Details</h6>
+            <div className="mt-4 p-3 bg-white/[0.01] rounded border border-white/[0.03]">
+              <h6 className="text-xs font-medium text-white/40 uppercase tracking-wide mb-2">Sale Details</h6>
               {(() => {
                 try {
                   const meta = typeof log.metadata === 'string' ? JSON.parse(log.metadata) : log.metadata;
@@ -331,7 +331,7 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
                       </div>
                       <div>
                         <span className="text-neutral-500">Total:</span>
-                        <div className="text-green-400 font-bold">${meta.total}</div>
+                        <div className="text-green-400/60 font-mono">${meta.total}</div>
                       </div>
                       <div>
                         <span className="text-neutral-500">Payment:</span>

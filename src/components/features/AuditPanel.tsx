@@ -289,7 +289,7 @@ export function AuditPanel({ isOpen, onClose, isDropdown = false }: AuditPanelPr
             <p className="text-xs text-neutral-500 mt-1">Activity will appear here as inventory changes are made</p>
           </div>
         ) : (
-          <div className={`space-y-2 ${isDropdown ? 'p-4' : 'p-2'}`}>
+          <div className={isDropdown ? '' : 'space-y-2 p-2'}>
             {(() => {
               // Track which entries have been processed as part of batches
               const processedIds = new Set<number | string>();
