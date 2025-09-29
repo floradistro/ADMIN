@@ -1,0 +1,32 @@
+{
+  "name": "PORTAL Admin",
+  "short_name": "PORTAL Admin",
+  "description": "Professional Admin Portal system for Flora Distribution",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#171717",
+  "theme_color": "#171717",
+  "orientation": "landscape",
+  "icons": [
+    {
+      "src": "/logonew.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logonew.png", 
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "shopping"],
+  "screenshots": [
+    {
+      "src": "/logonew.png",
+      "sizes": "1280x720",
+      "type": "image/png"
+    }
+  ]
+}
