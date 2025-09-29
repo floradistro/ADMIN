@@ -411,6 +411,21 @@ export function CategoryManagement({
               onToggleExpand={toggleCategoryExpansion}
               onUpdateCategory={updateCategory}
             />
+
+            {/* Add New Category Form */}
+            {showAddForm && (
+              <CategoryCreateForm
+                formData={formData}
+                parentOptions={parentOptions}
+                isSubmitting={isSubmitting}
+                onSubmit={handleFormSubmit}
+                onCancel={() => {
+                  setShowAddForm(false);
+                  resetForm();
+                }}
+                onUpdateFormData={updateFormData}
+              />
+            )}
           </div>
           </div>
         </div>
@@ -550,20 +565,6 @@ function CategoryManagementPanel({
         jsonLoading={jsonLoading}
       />
 
-      {/* Add New Category Form */}
-      {showAddForm && (
-        <CategoryCreateForm
-          formData={formData}
-          parentOptions={parentOptions}
-          isSubmitting={isSubmitting}
-          onSubmit={handleFormSubmit}
-          onCancel={() => {
-            setShowAddForm(false);
-            resetForm();
-          }}
-          onUpdateFormData={updateFormData}
-        />
-      )}
 
       {/* Bulk Unit Assignment - Appears after controls */}
       {selectedCategories.size > 0 && showBulkUnitAssign && (
