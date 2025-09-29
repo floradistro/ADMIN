@@ -222,7 +222,7 @@ export function AuditPanel({ isOpen, onClose, isDropdown = false }: AuditPanelPr
   return (
     <div className={isDropdown ? "flex flex-col h-full w-full" : "w-96 bg-black border-r border-white/[0.08] flex flex-col h-full"}>
       {/* Header */}
-      <div className={`flex items-center justify-between p-4 border-b border-white/[0.08] ${isDropdown ? 'bg-neutral-900/60' : 'bg-neutral-900/50'}`}>
+      <div className={`flex items-center justify-between p-4 border-b border-white/[0.05] ${isDropdown ? 'bg-black/60' : 'bg-black/50'}`}>
         <div className="flex items-center gap-3">
           <svg className="w-5 h-5 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -263,7 +263,7 @@ export function AuditPanel({ isOpen, onClose, isDropdown = false }: AuditPanelPr
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto bg-black/20">
         {loading && auditLogs.length === 0 ? (
           <div className="p-6 text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-400 mx-auto mb-3"></div>
@@ -347,7 +347,7 @@ export function AuditPanel({ isOpen, onClose, isDropdown = false }: AuditPanelPr
 
       {/* Footer */}
       {auditLogs.length > 0 && (
-        <div className="p-4 border-t border-white/[0.08] bg-neutral-900/30">
+        <div className="p-4 border-t border-white/[0.05] bg-black/60">
           <div className="flex items-center justify-between text-xs text-neutral-500">
             <span>
               {(() => {
