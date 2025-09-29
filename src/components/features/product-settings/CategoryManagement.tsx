@@ -8,7 +8,7 @@ import { DeleteConfirmDialog } from '../../ui/DeleteConfirmDialog';
 import { ToggleSwitch } from '../../ui/ToggleSwitch';
 import { JsonPopout } from '../../ui/JsonPopout';
 import { BlueprintAssignmentDisplay } from './BlueprintAssignmentDisplay';
-import { useCategoriesManager } from '../../../hooks/useCategoriesManager';
+import { useCategoriesManager, CategoryFormData } from '../../../hooks/useCategoriesManager';
 import { CategoryFilterSettings } from '../../../hooks/useProductSettings';
 import { CategoryCreateRequest, WooCategory, categoriesService } from '../../../services/categories-service';
 
@@ -535,6 +535,8 @@ function CategoryManagementPanel({
 
         onSelectAll={onSelectAll}
         onAddNew={() => {
+          resetForm();
+          setShowAddForm(true);
         }}
         onBulkDelete={onBulkDelete}
         onBulkAssignUnit={onBulkAssignUnit}
@@ -544,6 +546,21 @@ function CategoryManagementPanel({
         onJsonImport={onJsonImport}
         jsonLoading={jsonLoading}
       />
+
+      {/* Add New Category Form */}
+      {showAddForm && (
+        <CategoryCreateForm
+          formData={formData}
+          parentOptions={parentOptions}
+          isSubmitting={isSubmitting}
+          onSubmit={handleFormSubmit}
+          onCancel={() => {
+            setShowAddForm(false);
+            resetForm();
+          }}
+          onUpdateFormData={updateFormData}
+        />
+      )}
 
       {/* Bulk Unit Assignment - Appears after controls */}
       {selectedCategories.size > 0 && showBulkUnitAssign && (
@@ -1248,4 +1265,187 @@ const CategoryItem = React.memo(function CategoryItem({
     </div>
   );
 });
+
+// Category Create Form Component
+interface CategoryCreateFormProps {
+  formData: CategoryFormData;
+  parentOptions: { value: string; label: string }[];
+  isSubmitting: boolean;
+  onSubmit: (e: React.FormEvent) => void;
+  onCancel: () => void;
+  onUpdateFormData: (updates: Partial<CategoryFormData>) => void;
+}
+
+function CategoryCreateForm({
+  formData,
+  parentOptions,
+  isSubmitting,
+  onSubmit,
+  onCancel,
+  onUpdateFormData
+}: CategoryCreateFormProps) {
+  return (
+    <div className="mb-4 bg-neutral-800/30 border border-white/[0.04] rounded-lg p-4">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-sm font-medium text-neutral-300">Create New Category</h3>
+        <button
+          onClick={onCancel}
+          className="p-1 text-neutral-400 hover:text-white hover:bg-neutral-700/50 rounded smooth-hover"
+          title="Close"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form onSubmit={onSubmit} className="space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          {/* Column 1: Basic Details */}
+          <div className="space-y-3">
+            <div className="text-neutral-500 font-medium text-xs mb-3">Basic Details</div>
+            
+            <div>
+              <label className="block text-neutral-400 text-xs mb-2">Name *</label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => onUpdateFormData({ name: e.target.value })}
+                className="w-full px-3 py-2 bg-neutral-900/40 border border-neutral-800/40 rounded text-neutral-300 placeholder-neutral-500 focus:border-neutral-700 focus:outline-none text-sm"
+                placeholder="Category name"
+                required
+                autoFocus
+              />
+            </div>
+
+            <div>
+              <label className="block text-neutral-400 text-xs mb-2">Slug</label>
+              <input
+                type="text"
+                value={formData.slug}
+                onChange={(e) => onUpdateFormData({ slug: e.target.value })}
+                className="w-full px-3 py-2 bg-neutral-900/40 border border-neutral-800/40 rounded text-neutral-300 placeholder-neutral-500 focus:border-neutral-700 focus:outline-none text-sm"
+                placeholder="category-slug (auto-generated if empty)"
+              />
+            </div>
+
+            <div>
+              <label className="block text-neutral-400 text-xs mb-2">Parent Category</label>
+              <select
+                value={formData.parent.toString()}
+                onChange={(e) => onUpdateFormData({ parent: parseInt(e.target.value) || 0 })}
+                className="w-full px-3 py-2 bg-neutral-900/40 border border-neutral-800/40 rounded text-neutral-300 focus:border-neutral-700 focus:outline-none text-sm"
+              >
+                {parentOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Column 2: Display Settings */}
+          <div className="space-y-3">
+            <div className="text-neutral-500 font-medium text-xs mb-3">Display Settings</div>
+
+            <div>
+              <label className="block text-neutral-400 text-xs mb-2">Display Type</label>
+              <select
+                value={formData.display}
+                onChange={(e) => onUpdateFormData({ display: e.target.value as any })}
+                className="w-full px-3 py-2 bg-neutral-900/40 border border-neutral-800/40 rounded text-neutral-300 focus:border-neutral-700 focus:outline-none text-sm"
+              >
+                <option value="default">Default</option>
+                <option value="products">Products</option>
+                <option value="subcategories">Subcategories</option>
+                <option value="both">Both</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-neutral-400 text-xs mb-2">Unit of Measurement</label>
+              <select
+                value={formData.unit}
+                onChange={(e) => onUpdateFormData({ unit: e.target.value })}
+                className="w-full px-3 py-2 bg-neutral-900/40 border border-neutral-800/40 rounded text-neutral-300 focus:border-neutral-700 focus:outline-none text-sm"
+              >
+                <option value="units">Units</option>
+                <option value="grams">Grams (g)</option>
+                <option value="ounces">Ounces (oz)</option>
+                <option value="pounds">Pounds (lb)</option>
+                <option value="kilograms">Kilograms (kg)</option>
+                <option value="eighths">Eighths (1/8 oz)</option>
+                <option value="quarters">Quarters (1/4 oz)</option>
+                <option value="halves">Halves (1/2 oz)</option>
+                <option value="pieces">Pieces</option>
+                <option value="milligrams">Milligrams (mg)</option>
+                <option value="milliliters">Milliliters (mL)</option>
+                <option value="liters">Liters (L)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-neutral-400 text-xs mb-2">Category Image</label>
+              <ImageUpload
+                currentImage={formData.image?.src}
+                onImageUploaded={(imageUrl: string, mediaId: number) => {
+                  onUpdateFormData({ 
+                    image: { 
+                      id: mediaId, 
+                      src: imageUrl, 
+                      name: `category-${mediaId}`, 
+                      alt: formData.name || 'Category image' 
+                    } 
+                  });
+                }}
+                onRemove={() => onUpdateFormData({ image: null })}
+                className="w-full"
+              />
+            </div>
+          </div>
+
+          {/* Column 3: Description */}
+          <div className="space-y-3">
+            <div className="text-neutral-500 font-medium text-xs mb-3">Description</div>
+            
+            <div>
+              <label className="block text-neutral-400 text-xs mb-2">Description</label>
+              <textarea
+                value={formData.description}
+                onChange={(e) => onUpdateFormData({ description: e.target.value })}
+                className="w-full px-3 py-2 bg-neutral-900/40 border border-neutral-800/40 rounded text-neutral-300 placeholder-neutral-500 focus:border-neutral-700 focus:outline-none text-sm resize-vertical"
+                rows={6}
+                placeholder="Category description..."
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-2 pt-3 border-t border-white/[0.04]">
+          <Button
+            type="submit"
+            variant="primary"
+            size="sm"
+            disabled={isSubmitting || !formData.name.trim()}
+            className="text-xs"
+          >
+            {isSubmitting ? 'Creating...' : 'Create Category'}
+          </Button>
+          <Button
+            type="button"
+            onClick={onCancel}
+            variant="secondary"
+            size="sm"
+            disabled={isSubmitting}
+            className="text-xs"
+          >
+            Cancel
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+}
 

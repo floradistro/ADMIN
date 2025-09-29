@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Location, LocationUpdateData, locationsService } from '../../services/locations-service';
-import { Button, IconButton, LoadingSpinner, LocationCreateDropdown } from '../ui';
+import { Badge, Button, IconButton, LoadingSpinner, LocationCreateDropdown } from '../ui';
 import { LocationTable } from './LocationTable';
 import { DeveloperTools } from './DeveloperTools';
 
@@ -48,6 +48,7 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
   const [categoriesLoading, setCategoriesLoading] = useState(false);
   const [categoriesError, setCategoriesError] = useState<string | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<any | null>(null);
+  const [selectedCategories, setSelectedCategories] = useState<Set<number>>(new Set());
   const [editingCategory, setEditingCategory] = useState<any | null>(null);
   const [showCategoryEditor, setShowCategoryEditor] = useState(false);
   const [expandedCards, setExpandedCards] = useState<Set<number>>(new Set());
@@ -652,7 +653,8 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
 
   const handleSaveCategory = async (updatedCategory: any) => {
     try {
-      console.log('💾 Saving category:', updatedCategory.id);
+      const isNewCategory = updatedCategory.id === 0;
+      console.log(isNewCategory ? '💾 Creating new category' : '💾 Updating category:', updatedCategory.id);
       
       const saveData = {
         name: updatedCategory.name,
@@ -666,8 +668,12 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
       
       console.log('📤 Sending category save data:', saveData);
 
-      const response = await fetch(`/api/flora/categories/${updatedCategory.id}`, {
-        method: 'PUT',
+      // Use POST for new categories, PUT for existing ones
+      const url = isNewCategory ? '/api/flora/categories' : `/api/flora/categories/${updatedCategory.id}`;
+      const method = isNewCategory ? 'POST' : 'PUT';
+
+      const response = await fetch(url, {
+        method: method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -678,7 +684,7 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
 
       if (response.ok) {
         const responseData = await response.json();
-        console.log('✅ Category save successful:', responseData);
+        console.log(isNewCategory ? '✅ Category created successfully:' : '✅ Category updated successfully:', responseData);
         
         // Refresh the categories
         await loadCategories();
@@ -687,18 +693,116 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
         setEditingCategory(null);
       } else {
         const errorText = await response.text();
-        console.error('❌ Failed to save category:', response.status, errorText);
-        alert(`Failed to save category: ${errorText}`);
+        console.error(`❌ Failed to ${isNewCategory ? 'create' : 'update'} category:`, response.status, errorText);
+        alert(`Failed to ${isNewCategory ? 'create' : 'update'} category: ${errorText}`);
       }
     } catch (error) {
-      console.error('❌ Error saving category:', error);
-      alert(`Error saving category: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error(`❌ Error ${updatedCategory.id === 0 ? 'creating' : 'updating'} category:`, error);
+      alert(`Error ${updatedCategory.id === 0 ? 'creating' : 'updating'} category: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
   const handleCloseCategoryEditor = () => {
     setShowCategoryEditor(false);
     setEditingCategory(null);
+  };
+
+  const handleCreateCategory = () => {
+    // Create a new empty category object for creation
+    const newCategory = {
+      id: 0, // 0 indicates this is a new category
+      name: '',
+      slug: '',
+      parent: 0,
+      description: '',
+      display: 'default',
+      image: null,
+      menu_order: 0,
+      count: 0,
+      unit: 'units'
+    };
+    setEditingCategory(newCategory);
+    setShowCategoryEditor(true);
+  };
+
+  const handleSelectCategory = (categoryId: number) => {
+    setSelectedCategories(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(categoryId)) {
+        newSet.delete(categoryId);
+      } else {
+        newSet.add(categoryId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleSelectAllCategories = () => {
+    if (selectedCategories.size === categories.length) {
+      // Deselect all
+      setSelectedCategories(new Set());
+    } else {
+      // Select all
+      setSelectedCategories(new Set(categories.map(cat => cat.id)));
+    }
+  };
+
+  const handleDeleteSelectedCategories = async () => {
+    if (selectedCategories.size === 0) return;
+
+    const selectedCategoryList = categories.filter(cat => selectedCategories.has(cat.id));
+    const selectedCategoryNames = selectedCategoryList.map(cat => cat.name).join(', ');
+
+    // Check for system categories that can't be deleted
+    const systemCategories = selectedCategoryList.filter(cat => 
+      cat.slug === 'uncategorized' || 
+      cat.name.toLowerCase().includes('uncategorized') || 
+      cat.id === 15
+    );
+
+    if (systemCategories.length > 0) {
+      alert('Cannot delete system categories like "Uncategorized". Please deselect them and try again.');
+      return;
+    }
+
+    const confirmDelete = confirm(
+      `Are you sure you want to delete ${selectedCategories.size} categor${selectedCategories.size === 1 ? 'y' : 'ies'}?\n\n${selectedCategoryNames}\n\nProducts in these categories will be moved to "Uncategorized".`
+    );
+
+    if (!confirmDelete) return;
+
+    try {
+      console.log('🗑️ Deleting categories:', Array.from(selectedCategories));
+
+      const response = await fetch('/api/flora/categories', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'delete',
+          categoryIds: Array.from(selectedCategories),
+        }),
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log('✅ Categories deleted successfully:', responseData);
+        
+        // Clear selection and refresh categories
+        setSelectedCategories(new Set());
+        await loadCategories();
+        
+        alert(`Successfully deleted ${selectedCategories.size} categor${selectedCategories.size === 1 ? 'y' : 'ies'}.`);
+      } else {
+        const errorText = await response.text();
+        console.error('❌ Failed to delete categories:', response.status, errorText);
+        alert(`Failed to delete categories: ${errorText}`);
+      }
+    } catch (error) {
+      console.error('❌ Error deleting categories:', error);
+      alert(`Error deleting categories: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   };
 
 
@@ -1527,19 +1631,68 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
                   <div className="lg:col-span-2">
                     <div className="bg-neutral-800/50 rounded-lg border border-white/[0.08] p-4">
                       <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-medium text-neutral-200">All Categories</h3>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={loadCategories}
-                          disabled={categoriesLoading}
-                          className="flex items-center gap-2"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                          </svg>
-                          {categoriesLoading ? 'Loading...' : 'Refresh'}
-                        </Button>
+                        <div className="flex items-center gap-3">
+                          <h3 className="text-lg font-medium text-neutral-200">All Categories</h3>
+                          {selectedCategories.size > 0 && (
+                            <Badge variant="info" size="sm">
+                              {selectedCategories.size} selected
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {categories.length > 0 && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={handleSelectAllCategories}
+                              className="flex items-center gap-2"
+                              title={selectedCategories.size === categories.length ? "Deselect All" : "Select All"}
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                              </svg>
+                              {selectedCategories.size === categories.length ? 'Deselect All' : 'Select All'}
+                            </Button>
+                          )}
+                          {selectedCategories.size > 0 && (
+                            <Button
+                              variant="danger"
+                              size="sm"
+                              onClick={handleDeleteSelectedCategories}
+                              className="flex items-center gap-2"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                              Delete ({selectedCategories.size})
+                            </Button>
+                          )}
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={handleCreateCategory}
+                            className="flex items-center gap-2"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            Add Category
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={loadCategories}
+                            disabled={categoriesLoading}
+                            className="flex items-center gap-2"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            {categoriesLoading ? 'Loading...' : 'Refresh'}
+                          </Button>
+                        </div>
                       </div>
                       
                       {categoriesLoading ? (
@@ -1565,35 +1718,50 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
                           {categories.map((category) => (
                             <div
                               key={category.id}
-                              onClick={() => setSelectedCategory(category)}
-                              className={`p-4 rounded border transition-colors cursor-pointer ${
-                                selectedCategory?.id === category.id
-                                  ? 'bg-neutral-700/70 border-white/[0.15] ring-1 ring-white/[0.1]'
-                                  : 'bg-neutral-700/50 border-white/[0.06] hover:border-white/[0.12]'
+                              className={`p-4 rounded-lg border-b border-white/[0.02] transition-colors ${
+                                selectedCategories.has(category.id)
+                                  ? 'bg-neutral-800/50 border-l-4 border-l-neutral-400'
+                                  : selectedCategory?.id === category.id
+                                    ? 'bg-neutral-700/70 border border-white/[0.15]'
+                                    : 'bg-neutral-700/50 border border-white/[0.06] hover:border-white/[0.12]'
                               }`}
                             >
                               <div className="flex items-center justify-between">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-3 mb-2">
-                                    <div className="w-3 h-3 rounded-full bg-neutral-400"></div>
-                                    <h4 className="text-sm font-medium text-neutral-300">
-                                      {category.name}
-                                    </h4>
-                                    <span className="px-2 py-1 text-xs bg-neutral-600/50 text-neutral-400 rounded">
-                                      {category.unit || 'units'}
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-2 text-xs text-neutral-500">
-                                    <span>{category.count || 0} products</span>
-                                    {category.parent > 0 && (
-                                      <span>• Child category</span>
+                                <div className="flex items-center gap-3 flex-1">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedCategories.has(category.id)}
+                                    onChange={(e) => {
+                                      e.stopPropagation();
+                                      handleSelectCategory(category.id);
+                                    }}
+                                    className="w-4 h-4 rounded border-neutral-600 bg-neutral-700 text-blue-500 focus:ring-blue-500 focus:ring-offset-0"
+                                  />
+                                  <div 
+                                    className="flex-1 cursor-pointer"
+                                    onClick={() => setSelectedCategory(category)}
+                                  >
+                                    <div className="flex items-center gap-3 mb-2">
+                                      <div className="w-3 h-3 rounded-full bg-neutral-400"></div>
+                                      <h4 className="text-sm font-medium text-neutral-300">
+                                        {category.name}
+                                      </h4>
+                                      <span className="px-2 py-1 text-xs bg-neutral-600/50 text-neutral-400 rounded">
+                                        {category.unit || 'units'}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center gap-2 text-xs text-neutral-500">
+                                      <span>{category.count || 0} products</span>
+                                      {category.parent > 0 && (
+                                        <span>• Child category</span>
+                                      )}
+                                    </div>
+                                    {category.description && (
+                                      <p className="text-xs text-neutral-500 mt-1 line-clamp-2">
+                                        {category.description}
+                                      </p>
                                     )}
                                   </div>
-                                  {category.description && (
-                                    <p className="text-xs text-neutral-500 mt-1 line-clamp-2">
-                                      {category.description}
-                                    </p>
-                                  )}
                                 </div>
                                 <div className="flex items-center gap-1">
                                   <button
