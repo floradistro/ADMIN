@@ -31,10 +31,10 @@ export function AuditDropdown({ isOpen, onClose }: AuditDropdownProps) {
   return (
     <div 
       ref={dropdownRef}
-      className="absolute right-0 top-full mt-1 w-96 max-h-[600px] bg-neutral-900/95 border border-white/[0.08] rounded-lg shadow-2xl backdrop-blur-sm z-50 overflow-hidden"
+      className="absolute right-0 top-full mt-1 w-[600px] max-h-[80vh] bg-neutral-900/95 border border-white/[0.08] rounded-lg shadow-2xl backdrop-blur-sm z-50 overflow-hidden"
     >
       {/* Dropdown content - reuse AuditPanel but styled for dropdown */}
-      <div className="p-0 h-full max-h-[600px] overflow-y-auto scrollable-container">
+      <div className="p-0 h-full max-h-[80vh] overflow-y-auto scrollable-container">
         <AuditPanel
           isOpen={true}
           onClose={onClose}

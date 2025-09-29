@@ -220,7 +220,7 @@ export function AuditPanel({ isOpen, onClose, isDropdown = false }: AuditPanelPr
   if (!isOpen) return null;
 
   return (
-    <div className={isDropdown ? "flex flex-col h-full" : "w-96 bg-black border-r border-white/[0.08] flex flex-col h-full"}>
+    <div className={isDropdown ? "flex flex-col h-full w-full" : "w-96 bg-black border-r border-white/[0.08] flex flex-col h-full"}>
       {/* Header */}
       <div className={`flex items-center justify-between p-4 border-b border-white/[0.08] ${isDropdown ? 'bg-neutral-900/60' : 'bg-neutral-900/50'}`}>
         <div className="flex items-center gap-3">
@@ -289,7 +289,7 @@ export function AuditPanel({ isOpen, onClose, isDropdown = false }: AuditPanelPr
             <p className="text-xs text-neutral-500 mt-1">Activity will appear here as inventory changes are made</p>
           </div>
         ) : (
-          <div className="space-y-1 p-2">
+          <div className={`space-y-2 ${isDropdown ? 'p-4' : 'p-2'}`}>
             {(() => {
               // Track which entries have been processed as part of batches
               const processedIds = new Set<number | string>();
