@@ -60,16 +60,6 @@ interface UnifiedAuditCardProps {
 export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: UnifiedAuditCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Debug first few entries
-  if (typeof log.id === 'number' && log.id > 1000) {
-    console.log('UnifiedAuditCard received:', {
-      id: log.id,
-      user_name: log.user_name,
-      operation: log.operation,
-      notes: log.notes?.substring(0, 50)
-    });
-  }
-
   const handleToggleExpand = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     setIsExpanded(!isExpanded);
@@ -189,7 +179,7 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
             </span>
             {log.location_name && ` • ${log.location_name}`}
             {log.user_name && log.user_name !== 'System' && (
-              <span className="text-green-400 font-medium"> • {log.user_name}</span>
+              <span className="font-medium"> • {log.user_name}</span>
             )}
           </div>
         </div>
@@ -268,9 +258,7 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
               <div className="space-y-2">
                 <div className="text-xs">
                   <span className="text-neutral-500">Staff:</span>
-                  <span className={`ml-2 font-medium ${
-                    log.user_name && log.user_name !== 'System' ? 'text-green-400' : 'text-neutral-500'
-                  }`}>
+                  <span className="ml-2 font-medium text-neutral-300">
                     {log.user_name || 'System'}
                   </span>
                 </div>
