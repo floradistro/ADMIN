@@ -387,6 +387,10 @@ export function CategoryManagement({
               parentOptions={parentOptions}
               onSelectCategory={selectCategory}
               onSelectAll={selectAllCategories}
+              onAddNew={() => {
+                resetForm();
+                setShowAddForm(true);
+              }}
               onEditCategory={(category) => {
                 startEditCategory(category);
               }}
@@ -475,6 +479,7 @@ interface CategoryManagementPanelProps {
 
   onSelectCategory: (id: number) => void;
   onSelectAll: () => void;
+  onAddNew: () => void;
   onEditCategory: (category: WooCategory) => void;
   onDeleteCategory: (category: WooCategory) => void;
   onBulkDelete: () => void;
@@ -504,6 +509,7 @@ function CategoryManagementPanel({
   parentOptions,
   onSelectCategory,
   onSelectAll,
+  onAddNew,
   onEditCategory,
   onDeleteCategory,
   onBulkDelete,
@@ -534,10 +540,7 @@ function CategoryManagementPanel({
         loading={loading}
 
         onSelectAll={onSelectAll}
-        onAddNew={() => {
-          resetForm();
-          setShowAddForm(true);
-        }}
+        onAddNew={onAddNew}
         onBulkDelete={onBulkDelete}
         onBulkAssignUnit={onBulkAssignUnit}
         onRefresh={onRefresh}
