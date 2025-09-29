@@ -150,7 +150,7 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
   const isUserOperation = log.user_name && log.user_name !== 'System';
 
   return (
-    <div className={`mb-2 rounded-lg transition-all ${
+    <div className={`mb-2 rounded-lg transition-all border-b border-b-white/[0.02] ${
       isExpanded 
         ? 'bg-black/40 border border-white/[0.08]' 
         : 'border border-white/[0.02] bg-black/20 hover:bg-black/30'
@@ -223,8 +223,8 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
 
       {/* Expanded Details */}
       {isExpanded && (
-        <div className="border-t border-white/[0.03] bg-black/30 p-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="border-t border-white/[0.02] bg-black/30 p-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 divide-x divide-white/[0.02]">
             
             {/* Basic Information */}
             <div className="space-y-3">
@@ -256,7 +256,7 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
             </div>
 
             {/* User & System Information */}
-            <div className="space-y-3">
+            <div className="space-y-3 pl-4">
               <h6 className="text-xs font-medium text-white/40 uppercase tracking-wider">User Info</h6>
               
               <div className="space-y-2">

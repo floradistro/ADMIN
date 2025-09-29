@@ -37,7 +37,7 @@ export const BatchAuditCard = React.memo(function BatchAuditCard({ batchId, entr
   return (
     <div className="mb-2">
       {/* Batch Summary Card */}
-      <div className={`rounded-lg transition-all ${
+      <div className={`rounded-lg transition-all border-b border-b-white/[0.02] ${
         isExpanded 
           ? 'bg-black/40 border border-white/[0.08]' 
           : 'border border-white/[0.02] bg-black/20 hover:bg-black/30'
@@ -107,8 +107,8 @@ export const BatchAuditCard = React.memo(function BatchAuditCard({ batchId, entr
 
         {/* Batch Notes */}
         {firstEntry.notes && (
-          <div className="px-3 pb-2">
-            <div className="text-xs text-neutral-500 pl-9">
+          <div className="px-3 pb-2 border-t border-white/[0.02]">
+            <div className="text-xs text-neutral-500 pl-9 pt-2">
               {firstEntry.notes}
             </div>
           </div>
