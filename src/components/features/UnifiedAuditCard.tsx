@@ -60,6 +60,11 @@ interface UnifiedAuditCardProps {
 export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: UnifiedAuditCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // Debug: Log user_name values to console
+  if (log.user_name && log.user_name !== 'System') {
+    console.log('Audit card user_name:', log.user_name, 'type:', typeof log.user_name, 'operation:', log.operation);
+  }
+
   const handleToggleExpand = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     setIsExpanded(!isExpanded);
@@ -147,7 +152,7 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
   const timestampInfo = getTimestampInfo(log.created_at || log.timestamp);
 
   // Determine if this is a user operation vs system operation
-  const isUserOperation = log.user_name && log.user_name !== 'System' && log.user_name !== false && log.user_name !== null;
+  const isUserOperation = log.user_name && log.user_name !== 'System' && log.user_name !== false && log.user_name !== null && log.user_name !== 'false';
 
   return (
     <div className="mb-2 bg-neutral-900/40 hover:bg-neutral-800/40 border border-white/[0.04] rounded-lg transition-all">
@@ -178,8 +183,8 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
               {timestampInfo.relative}
             </span>
             {log.location_name && ` • ${log.location_name}`}
-            {isUserOperation && (
-              <span className="text-neutral-300 font-medium"> • {log.user_name}</span>
+            {log.user_name && log.user_name !== 'System' && (
+              <span className="text-green-400 font-medium"> • {log.user_name}</span>
             )}
           </div>
         </div>
@@ -258,8 +263,12 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
               <div className="space-y-2">
                 <div className="text-xs">
                   <span className="text-neutral-500">Staff:</span>
-                  <span className={`ml-2 font-medium ${isUserOperation ? 'text-neutral-200' : 'text-neutral-500'}`}>
-                    {log.user_name || 'System'}
+                  <span className={`ml-2 font-medium ${
+                    log.user_name && log.user_name !== 'System' && log.user_name !== false && log.user_name !== null && log.user_name !== 'false'
+                      ? 'text-green-400' 
+                      : 'text-neutral-500'
+                  }`}>
+                    {log.user_name && log.user_name !== false && log.user_name !== null && log.user_name !== 'false' ? log.user_name : 'System'}
                   </span>
                 </div>
                 

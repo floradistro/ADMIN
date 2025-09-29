@@ -70,7 +70,13 @@ export function AuditPanel({ isOpen, onClose, isDropdown = false }: AuditPanelPr
     try {
       // Fetch audit logs and conversion history in parallel
       const [auditResponse, conversionResponse] = await Promise.all([
-        fetch(`/api/audit?limit=100&_t=${Date.now()}`),
+        fetch(`/api/audit?limit=100&_t=${Date.now()}`, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        }),
         fetch(`/api/flora/conversions?limit=20&_t=${Date.now()}`)
       ]);
       
