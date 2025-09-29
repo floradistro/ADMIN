@@ -272,129 +272,40 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
 
         {/* Product Info */}
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="text-neutral-400 text-xs truncate product-name">
-              {getDisplayProductName(log.product_name)}
-            </div>
-            <div className={`px-2 py-0.5 rounded-full text-xs font-medium ${getOperationColor()} bg-current bg-opacity-10`}>
+          <div className="text-neutral-400 text-xs truncate flex items-center gap-2 product-name">
+            {getDisplayProductName(log.product_name)}
+            <span className={`px-2 py-0.5 rounded text-xs ${getOperationColor()} bg-current bg-opacity-10`}>
               {getMovementType()}
-            </div>
+            </span>
             {log.recipe_name && (
               <span className="text-xs text-neutral-500 bg-neutral-800/30 px-1.5 py-0.5 rounded">
                 {log.recipe_name}
               </span>
             )}
           </div>
-          
-          {/* Staff Member & Details */}
           <div className="text-xs text-neutral-500 mt-0.5" title={timestampInfo.isValid ? timestampInfo.absolute : 'Invalid timestamp'}>
             <span className={timestampInfo.isValid ? 'text-neutral-500' : 'text-red-400'}>
               {timestampInfo.relative}
             </span>
-            
-            {/* Staff Member - Always show user name prominently */}
-            <span className="ml-2 font-medium inline-flex items-center gap-1">
-              {log.user_name && log.user_name !== 'System' && log.user_name !== false && log.user_name !== null ? (
-                <>
-                  <svg className="w-3 h-3 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  <span className="text-neutral-200">{log.user_name}</span>
-                </>
-              ) : (
-                <>
-                  <svg className="w-3 h-3 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
-                  </svg>
-                  <span className="text-neutral-500">System</span>
-                </>
-              )}
-            </span>
-            
             {log.location_name && ` • ${log.location_name}`}
-            {log.batch_id && (
-              <span className="ml-2 px-1.5 py-0.5 bg-blue-900/30 text-blue-300 rounded text-xs font-medium">
-                Batch #{log.batch_id}
-              </span>
-            )}
-            {log.reference_type && log.reference_id && ` • ${log.reference_type} #${log.reference_id}`}
+            {log.user_name && log.user_name !== 'System' && ` • ${log.user_name}`}
+            {log.batch_id && ` • Batch #${log.batch_id}`}
           </div>
-          
-          {/* Operation-specific summary */}
-          <div className="text-xs text-neutral-600 mt-1">
-            {/* Show the reason if available, otherwise show generic description */}
-            {log.notes ? (
-              <span className="text-neutral-400 font-medium">{log.notes}</span>
-            ) : (
-              getMainDescription()
-            )}
-            
-            {log.change_amount !== undefined && log.change_amount !== 0 && (
-              <span className={`ml-2 px-1.5 py-0.5 rounded text-xs font-medium ${
-                log.change_amount > 0 
-                  ? 'bg-green-900/30 text-green-400' 
-                  : 'bg-red-900/30 text-red-400'
-              }`}>
-                {log.change_amount > 0 ? '+' : ''}{log.change_amount}
-              </span>
-            )}
-          </div>
+          {log.notes && (
+            <div className="text-xs text-neutral-400 mt-1">{log.notes}</div>
+          )}
         </div>
 
-        {/* Status & Alerts */}
+        {/* Change Amount */}
         <div className="flex items-center gap-2">
-          {/* Operation Icon with color coding */}
-          <div className={`flex items-center justify-center w-8 h-8 rounded-lg bg-neutral-800/30 ${getOperationColor()}`} title={`${log.operation || log.action} operation`}>
-            {getOperationIcon()}
-          </div>
-          
-          {/* Status Indicators */}
-          {log.conversion_status && (
-            <div className={`flex items-center justify-center w-5 h-5 rounded ${
-              log.conversion_status === 'completed'
-                ? 'text-green-400'
-                : log.conversion_status === 'cancelled' || log.conversion_status === 'failed'
-                ? 'text-red-400'
-                : 'text-yellow-400'
-            }`} title={log.conversion_status}>
-              {log.conversion_status === 'completed' ? (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              ) : log.conversion_status === 'cancelled' || log.conversion_status === 'failed' ? (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              ) : (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              )}
-            </div>
-          )}
-          
-          {/* Additional Indicators */}
-          {log.batch_id && (
-            <div className="flex items-center justify-center w-5 h-5 rounded bg-blue-900/30 text-blue-400 text-xs font-bold" title={`Batch operation #${log.batch_id}`}>
-              B
-            </div>
-          )}
-          
-          {log.user_agent && log.user_agent !== 'node' && (
-            <div className="flex items-center justify-center w-5 h-5 rounded bg-purple-900/30 text-purple-400 text-xs" title="Manual operation (user interface)">
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </div>
-          )}
-          
-          {/* Expand indicator for entries with detailed information */}
-          {(log.notes || log.batch_id || log.ip_address || log.user_agent || log.metadata) && (
-            <div className="flex items-center justify-center w-5 h-5 rounded bg-neutral-700/50 text-neutral-400 text-xs" title="Click to expand for more details">
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
+          {log.change_amount !== undefined && log.change_amount !== 0 && (
+            <span className={`px-2 py-1 rounded text-xs font-medium ${
+              log.change_amount > 0 
+                ? 'bg-green-900/30 text-green-400' 
+                : 'bg-red-900/30 text-red-400'
+            }`}>
+              {log.change_amount > 0 ? '+' : ''}{log.change_amount}
+            </span>
           )}
         </div>
       </div>
