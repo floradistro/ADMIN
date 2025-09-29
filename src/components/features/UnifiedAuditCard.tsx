@@ -152,8 +152,8 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
   return (
     <div className={`mb-2 rounded-lg transition-all ${
       isExpanded 
-        ? 'bg-neutral-800/50 border-l-4 border-l-neutral-400' 
-        : 'border border-white/[0.04] bg-neutral-900/40 hover:bg-neutral-800/40'
+        ? 'bg-black/40 border border-white/[0.08]' 
+        : 'border border-white/[0.02] bg-black/20 hover:bg-black/30'
     }`}>
       {/* Main Row */}
       <div className="flex items-center gap-3 p-3">
@@ -189,13 +189,13 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
         </div>
 
         {/* Movement Type Badge */}
-        <div className={`px-2 py-1 rounded border text-xs font-medium ${movementInfo.color}`}>
+        <div className="px-2 py-1 rounded border text-xs font-medium text-white/40 border-white/[0.08]">
           {movementInfo.type}
         </div>
 
         {/* Change Amount */}
         {log.change_amount !== undefined && log.change_amount !== 0 && (
-          <div className={`px-2 py-1 rounded text-xs font-bold bg-neutral-800/30 ${
+          <div className={`px-2 py-1 rounded text-xs font-bold bg-white/[0.03] ${
             log.change_amount > 0 
               ? 'text-green-400' 
               : 'text-red-400'
@@ -206,7 +206,7 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
 
         {/* Batch Indicator */}
         {log.batch_id && (
-          <div className="px-2 py-1 bg-neutral-800/30 text-neutral-400 rounded text-xs font-medium">
+          <div className="px-2 py-1 bg-white/[0.03] text-white/30 rounded text-xs font-medium">
             Batch #{log.batch_id}
           </div>
         )}
@@ -223,12 +223,12 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
 
       {/* Expanded Details */}
       {isExpanded && (
-        <div className="border-t border-white/[0.04] bg-neutral-900/20 p-4">
+        <div className="border-t border-white/[0.03] bg-black/30 p-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             
             {/* Basic Information */}
             <div className="space-y-3">
-              <h6 className="text-xs font-medium text-neutral-400 uppercase tracking-wide">Details</h6>
+              <h6 className="text-xs font-medium text-white/40 uppercase tracking-wider">Details</h6>
               
               <div className="space-y-2">
                 <div className="text-xs">
@@ -257,7 +257,7 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
 
             {/* User & System Information */}
             <div className="space-y-3">
-              <h6 className="text-xs font-medium text-neutral-400 uppercase tracking-wide">User Info</h6>
+              <h6 className="text-xs font-medium text-white/40 uppercase tracking-wider">User Info</h6>
               
               <div className="space-y-2">
                 <div className="text-xs">
@@ -294,7 +294,7 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
           {/* Inventory Changes */}
           {(log.old_quantity !== undefined || log.new_quantity !== undefined) && (
             <div className="mt-4 p-3 bg-neutral-800/30 rounded border border-white/[0.04]">
-              <h6 className="text-xs font-medium text-neutral-400 uppercase tracking-wide mb-2">Inventory Changes</h6>
+              <h6 className="text-xs font-medium text-white/40 uppercase tracking-wider mb-2">Inventory Changes</h6>
               <div className="grid grid-cols-3 gap-4 text-xs">
                 <div>
                   <span className="text-neutral-500">Previous:</span>
@@ -415,7 +415,7 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
           {/* Technical Details */}
           {(log.user_agent || log.ip_address || log.metadata) && (
             <div className="mt-4 p-3 bg-neutral-800/30 rounded border border-white/[0.04]">
-              <h6 className="text-xs font-medium text-neutral-400 uppercase tracking-wide mb-2">Technical Info</h6>
+              <h6 className="text-xs font-medium text-white/40 uppercase tracking-wider mb-2">Technical Info</h6>
               <div className="space-y-1 text-xs">
                 {log.user_agent && (
                   <div>

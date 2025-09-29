@@ -39,8 +39,8 @@ export const BatchAuditCard = React.memo(function BatchAuditCard({ batchId, entr
       {/* Batch Summary Card */}
       <div className={`rounded-lg transition-all ${
         isExpanded 
-          ? 'bg-neutral-800/50 border-l-4 border-l-neutral-400' 
-          : 'border border-white/[0.04] bg-neutral-900/40 hover:bg-neutral-800/40'
+          ? 'bg-black/40 border border-white/[0.08]' 
+          : 'border border-white/[0.02] bg-black/20 hover:bg-black/30'
       }`}>
         <div className="flex items-center gap-3 p-3">
           {/* Expand Button */}
@@ -59,8 +59,8 @@ export const BatchAuditCard = React.memo(function BatchAuditCard({ batchId, entr
           </button>
 
           {/* Batch Icon */}
-          <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-neutral-800/50 rounded">
-            <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center bg-white/[0.03] rounded">
+            <svg className="w-4 h-4 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} 
                 d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
             </svg>
@@ -84,13 +84,13 @@ export const BatchAuditCard = React.memo(function BatchAuditCard({ batchId, entr
           </div>
 
           {/* Operation Type Badge */}
-          <div className="px-2 py-1 rounded border text-xs font-medium text-neutral-400 border-neutral-700/50">
+          <div className="px-2 py-1 rounded border text-xs font-medium text-white/40 border-white/[0.08]">
             {operationType}
           </div>
 
           {/* Total Change Amount */}
           {totalChangeAmount !== 0 && (
-            <div className={`px-2 py-1 rounded text-xs font-bold bg-neutral-800/30 ${
+            <div className={`px-2 py-1 rounded text-xs font-bold bg-white/[0.03] ${
               totalChangeAmount > 0 
                 ? 'text-green-400' 
                 : 'text-red-400'
@@ -100,7 +100,7 @@ export const BatchAuditCard = React.memo(function BatchAuditCard({ batchId, entr
           )}
 
           {/* Item Count Badge */}
-          <div className="px-2 py-1 bg-neutral-800/30 text-neutral-400 rounded text-xs font-medium">
+          <div className="px-2 py-1 bg-white/[0.03] text-white/40 rounded text-xs font-medium">
             {totalProducts} items
           </div>
         </div>
@@ -117,7 +117,7 @@ export const BatchAuditCard = React.memo(function BatchAuditCard({ batchId, entr
 
       {/* Expanded Individual Entries */}
       {isExpanded && (
-        <div className="ml-6 mt-2 space-y-1 animate-in slide-in-from-top-1 duration-200 pl-3 border-l-2 border-white/[0.06]">
+        <div className="ml-6 mt-2 space-y-1 animate-in slide-in-from-top-1 duration-200 pl-3 border-l border-white/[0.03]">
           {entries.map((entry) => (
             <div key={entry.id} className="opacity-95 scale-[0.97] hover:scale-[0.99] transition-transform">
               <UnifiedAuditCard log={entry} />
