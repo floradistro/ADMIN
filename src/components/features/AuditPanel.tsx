@@ -291,27 +291,52 @@ export function AuditPanel({ isOpen, onClose, isDropdown = false }: AuditPanelPr
         ) : (
           <div className="space-y-1 p-2">
             {(() => {
-              const grouped = groupLogsByBatch(auditLogs);
+              // Track which entries have been processed as part of batches
+              const processedIds = new Set<number | string>();
               const elements: React.ReactNode[] = [];
               
-              // Add batch cards first
-              grouped.batched.forEach((entries, batchId) => {
-                // Only group if there are multiple entries in the batch
-                if (entries.length > 1) {
-                  elements.push(
-                    <BatchAuditCard key={`batch-${batchId}`} batchId={batchId} entries={entries} />
-                  );
-                } else {
-                  // Single entry batches are shown as regular cards
-                  entries.forEach(log => {
-                    elements.push(<UnifiedAuditCard key={log.id} log={log as any} />);
-                  });
+              // First pass: identify all batch entries
+              const batchMap = new Map<string, AuditLogEntry[]>();
+              auditLogs.forEach(log => {
+                const batchId = (log as any).batch_id;
+                if (batchId) {
+                  if (!batchMap.has(batchId)) {
+                    batchMap.set(batchId, []);
+                  }
+                  batchMap.get(batchId)!.push(log);
                 }
               });
               
-              // Add unbatched entries
-              grouped.unbatched.forEach(log => {
-                elements.push(<UnifiedAuditCard key={log.id} log={log as any} />);
+              // Second pass: render in original order, but group batches
+              auditLogs.forEach(log => {
+                // Skip if already processed as part of a batch
+                if (processedIds.has(log.id)) {
+                  return;
+                }
+                
+                const batchId = (log as any).batch_id;
+                if (batchId && batchMap.has(batchId)) {
+                  const batchEntries = batchMap.get(batchId)!;
+                  // Only create batch card if there are multiple entries
+                  if (batchEntries.length > 1) {
+                    // Mark all batch entries as processed
+                    batchEntries.forEach(entry => processedIds.add(entry.id));
+                    // Add the batch card
+                    elements.push(
+                      <BatchAuditCard key={`batch-${batchId}`} batchId={batchId} entries={batchEntries} />
+                    );
+                    // Remove from map so we don't process again
+                    batchMap.delete(batchId);
+                  } else {
+                    // Single entry batch - show as regular card
+                    elements.push(<UnifiedAuditCard key={log.id} log={log as any} />);
+                    processedIds.add(log.id);
+                  }
+                } else {
+                  // No batch - show as regular card
+                  elements.push(<UnifiedAuditCard key={log.id} log={log as any} />);
+                  processedIds.add(log.id);
+                }
               });
               
               return elements;
@@ -324,7 +349,23 @@ export function AuditPanel({ isOpen, onClose, isDropdown = false }: AuditPanelPr
       {auditLogs.length > 0 && (
         <div className="p-4 border-t border-white/[0.08] bg-neutral-900/30">
           <div className="flex items-center justify-between text-xs text-neutral-500">
-            <span>{auditLogs.length} entries loaded</span>
+            <span>
+              {(() => {
+                // Count unique batches and unbatched entries
+                const batchIds = new Set<string>();
+                let unbatchedCount = 0;
+                auditLogs.forEach(log => {
+                  const batchId = (log as any).batch_id;
+                  if (batchId) {
+                    batchIds.add(batchId);
+                  } else {
+                    unbatchedCount++;
+                  }
+                });
+                const totalItems = batchIds.size + unbatchedCount;
+                return `${totalItems} items (${auditLogs.length} total entries)`;
+              })()}
+            </span>
             <span>Auto-refresh: 10s</span>
           </div>
         </div>
