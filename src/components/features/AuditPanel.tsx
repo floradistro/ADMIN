@@ -147,10 +147,6 @@ export function AuditPanel({ isOpen, onClose, isDropdown = false }: AuditPanelPr
         return 0;
       });
 
-      // Debug: Log what data we're setting
-      console.log('AuditPanel setting logs:', allLogs.length, 'entries');
-      console.log('User entries:', allLogs.filter(log => log.user_name && log.user_name !== 'System').length);
-      console.log('Sample user entry:', allLogs.find(log => log.user_name && log.user_name !== 'System'));
 
       setAuditLogs(allLogs);
       setLastRefresh(new Date());

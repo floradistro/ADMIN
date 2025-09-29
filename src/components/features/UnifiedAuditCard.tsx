@@ -60,8 +60,6 @@ interface UnifiedAuditCardProps {
 export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: UnifiedAuditCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Debug: Log all user_name values to console
-  console.log('Audit card - ID:', log.id, 'user_name:', log.user_name, 'type:', typeof log.user_name, 'operation:', log.operation, 'notes:', log.notes);
 
   const handleToggleExpand = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
@@ -150,7 +148,7 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
   const timestampInfo = getTimestampInfo(log.created_at || log.timestamp);
 
   // Determine if this is a user operation vs system operation
-  const isUserOperation = log.user_name && log.user_name !== 'System' && log.user_name !== false && log.user_name !== null && log.user_name !== 'false';
+  const isUserOperation = log.user_name && log.user_name !== 'System';
 
   return (
     <div className="mb-2 bg-neutral-900/40 hover:bg-neutral-800/40 border border-white/[0.04] rounded-lg transition-all">
@@ -262,11 +260,9 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
                 <div className="text-xs">
                   <span className="text-neutral-500">Staff:</span>
                   <span className={`ml-2 font-medium ${
-                    log.user_name && log.user_name !== 'System' && log.user_name !== false && log.user_name !== null && log.user_name !== 'false'
-                      ? 'text-green-400' 
-                      : 'text-neutral-500'
+                    log.user_name && log.user_name !== 'System' ? 'text-green-400' : 'text-neutral-500'
                   }`}>
-                    {log.user_name && log.user_name !== false && log.user_name !== null && log.user_name !== 'false' ? log.user_name : 'System'}
+                    {log.user_name || 'System'}
                   </span>
                 </div>
                 

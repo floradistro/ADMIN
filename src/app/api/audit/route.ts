@@ -360,17 +360,31 @@ export async function GET(request: NextRequest) {
     userEntries.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     systemEntries.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-    // Mix the entries to show sales, user activities, and some system activities
+    // Prioritize user activities and sales at the top
     const requestedLimit = parseInt(limit);
-    const salesLimit = Math.min(salesEntries.length, Math.ceil(requestedLimit * 0.4)); // 40% sales
-    const userLimit = Math.min(userEntries.length, Math.ceil(requestedLimit * 0.4)); // 40% user activities
-    const systemLimit = Math.max(0, requestedLimit - salesLimit - userLimit); // 20% system
+    const salesLimit = Math.min(salesEntries.length, Math.ceil(requestedLimit * 0.5)); // 50% sales
+    const userLimit = Math.min(userEntries.length, Math.ceil(requestedLimit * 0.4)); // 40% user activities  
+    const systemLimit = Math.max(0, requestedLimit - salesLimit - userLimit); // 10% system
 
+    // Create mixed data with user activities first
     const mixedData = [
       ...salesEntries.slice(0, salesLimit),
       ...userEntries.slice(0, userLimit),
       ...systemEntries.slice(0, systemLimit)
-    ].sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    ];
+
+    // Sort by user priority first, then by timestamp
+    mixedData.sort((a: any, b: any) => {
+      // Prioritize user activities over system
+      const aIsUser = a.operation === 'sale' || (a.user_name && a.user_name !== 'System');
+      const bIsUser = b.operation === 'sale' || (b.user_name && b.user_name !== 'System');
+      
+      if (aIsUser && !bIsUser) return -1;
+      if (!aIsUser && bIsUser) return 1;
+      
+      // If both are same type, sort by timestamp
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    });
     
 
     const jsonResponse = NextResponse.json({
