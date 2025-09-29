@@ -191,10 +191,10 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
 
         {/* Change Amount */}
         {log.change_amount !== undefined && log.change_amount !== 0 && (
-          <div className={`px-2 py-1 rounded text-xs font-bold ${
+          <div className={`px-2 py-1 rounded text-xs font-bold bg-neutral-800/30 ${
             log.change_amount > 0 
-              ? 'bg-neutral-800/30 text-neutral-300' 
-              : 'bg-neutral-800/30 text-neutral-400'
+              ? 'text-green-400' 
+              : 'text-red-400'
           }`}>
             {log.change_amount > 0 ? '+' : ''}{log.change_amount}
           </div>
