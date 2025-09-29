@@ -150,15 +150,11 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
   const isUserOperation = log.user_name && log.user_name !== 'System';
 
   return (
-    <div className={`mb-2 border rounded-lg transition-all duration-200 relative ${
+    <div className={`mb-2 rounded-lg transition-all ${
       isExpanded 
-        ? 'bg-neutral-700/40 border-neutral-500/40 shadow-xl ring-2 ring-neutral-600/30 scale-[1.01]' 
-        : 'bg-neutral-900/40 hover:bg-neutral-800/40 border-white/[0.04]'
+        ? 'bg-neutral-800/50 border-l-4 border-l-neutral-400' 
+        : 'border border-white/[0.04] bg-neutral-900/40 hover:bg-neutral-800/40'
     }`}>
-      {/* Active Indicator Bar */}
-      {isExpanded && (
-        <div className="absolute left-0 top-0 bottom-0 w-1 bg-neutral-400 rounded-l-lg" />
-      )}
       {/* Main Row */}
       <div className="flex items-center gap-3 p-3">
         {/* Expand Button */}
@@ -227,7 +223,7 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
 
       {/* Expanded Details */}
       {isExpanded && (
-        <div className="border-t-2 border-neutral-600/30 bg-neutral-800/30 p-4">
+        <div className="border-t border-white/[0.04] bg-neutral-900/20 p-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             
             {/* Basic Information */}
