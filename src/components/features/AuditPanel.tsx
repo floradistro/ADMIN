@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { UnifiedAuditCard } from './UnifiedAuditCard';
+import { BatchAuditCard } from './BatchAuditCard';
 import { varianceHistoryService } from '../../services/variance-history-service';
 
 interface AuditLogEntry {
@@ -21,6 +22,7 @@ interface AuditLogEntry {
   timestamp: string;
   created_at: string;
   notes?: string;
+  batch_id?: string;
   
   // Transfer fields
   from_location_name?: string;
@@ -59,6 +61,29 @@ export function AuditPanel({ isOpen, onClose, isDropdown = false }: AuditPanelPr
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+  
+  // Group logs by batch_id for display
+  const groupLogsByBatch = (logs: AuditLogEntry[]) => {
+    const grouped: { batched: Map<string, AuditLogEntry[]>, unbatched: AuditLogEntry[] } = {
+      batched: new Map(),
+      unbatched: []
+    };
+    
+    logs.forEach(log => {
+      // Type assertion to access batch_id
+      const batchId = (log as any).batch_id;
+      if (batchId) {
+        if (!grouped.batched.has(batchId)) {
+          grouped.batched.set(batchId, []);
+        }
+        grouped.batched.get(batchId)!.push(log);
+      } else {
+        grouped.unbatched.push(log);
+      }
+    });
+    
+    return grouped;
+  };
 
   // Fetch unified audit logs (general audit + conversion history)
   const fetchAuditLogs = async () => {
@@ -265,9 +290,32 @@ export function AuditPanel({ isOpen, onClose, isDropdown = false }: AuditPanelPr
           </div>
         ) : (
           <div className="space-y-1 p-2">
-            {auditLogs.map((log) => (
-              <UnifiedAuditCard key={log.id} log={log} />
-            ))}
+            {(() => {
+              const grouped = groupLogsByBatch(auditLogs);
+              const elements: React.ReactNode[] = [];
+              
+              // Add batch cards first
+              grouped.batched.forEach((entries, batchId) => {
+                // Only group if there are multiple entries in the batch
+                if (entries.length > 1) {
+                  elements.push(
+                    <BatchAuditCard key={`batch-${batchId}`} batchId={batchId} entries={entries} />
+                  );
+                } else {
+                  // Single entry batches are shown as regular cards
+                  entries.forEach(log => {
+                    elements.push(<UnifiedAuditCard key={log.id} log={log as any} />);
+                  });
+                }
+              });
+              
+              // Add unbatched entries
+              grouped.unbatched.forEach(log => {
+                elements.push(<UnifiedAuditCard key={log.id} log={log as any} />);
+              });
+              
+              return elements;
+            })()}
           </div>
         )}
       </div>
