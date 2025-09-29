@@ -74,21 +74,21 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
         const poMatch = log.notes.match(/PO-(\d+)/i);
         return {
           type: poMatch ? `Restock (PO-${poMatch[1]})` : 'Restock',
-          color: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+          color: 'text-neutral-400 border-neutral-700/50',
           icon: '📦'
         };
       }
       if (reason.includes('audit')) {
         return {
           type: 'Audit',
-          color: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
+          color: 'text-neutral-400 border-neutral-700/50',
           icon: '📋'
         };
       }
       if (reason.includes('sale')) {
         return {
           type: 'Sale',
-          color: 'bg-green-500/10 text-green-400 border-green-500/20',
+          color: 'text-neutral-400 border-neutral-700/50',
           icon: '💰'
         };
       }
@@ -100,44 +100,44 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
       case 'sale':
         return {
           type: 'Sale',
-          color: 'bg-green-500/10 text-green-400 border-green-500/20',
+          color: 'text-neutral-400 border-neutral-700/50',
           icon: '💰'
         };
       case 'stock_transfer':
         return {
           type: 'Transfer',
-          color: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+          color: 'text-neutral-400 border-neutral-700/50',
           icon: '🔄'
         };
       case 'stock_conversion':
         return {
           type: 'Conversion',
-          color: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+          color: 'text-neutral-400 border-neutral-700/50',
           icon: '⚡'
         };
       case 'inventory_update':
         return {
           type: 'Adjustment',
-          color: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+          color: 'text-neutral-400 border-neutral-700/50',
           icon: '⚖️'
         };
       case 'assign_tax':
       case 'remove_tax':
         return {
           type: 'Tax Update',
-          color: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+          color: 'text-neutral-400 border-neutral-700/50',
           icon: '🏷️'
         };
       case 'cost_updated':
         return {
           type: 'Cost Update',
-          color: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+          color: 'text-neutral-400 border-neutral-700/50',
           icon: '💲'
         };
       default:
         return {
           type: 'System',
-          color: 'bg-neutral-500/10 text-neutral-400 border-neutral-500/20',
+          color: 'text-neutral-400 border-neutral-700/50',
           icon: '⚙️'
         };
     }
@@ -193,8 +193,8 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
         {log.change_amount !== undefined && log.change_amount !== 0 && (
           <div className={`px-2 py-1 rounded text-xs font-bold ${
             log.change_amount > 0 
-              ? 'bg-green-900/30 text-green-400' 
-              : 'bg-red-900/30 text-red-400'
+              ? 'bg-neutral-800/30 text-neutral-300' 
+              : 'bg-neutral-800/30 text-neutral-400'
           }`}>
             {log.change_amount > 0 ? '+' : ''}{log.change_amount}
           </div>
@@ -202,7 +202,7 @@ export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: Un
 
         {/* Batch Indicator */}
         {log.batch_id && (
-          <div className="px-2 py-1 bg-blue-900/30 text-blue-300 rounded text-xs font-medium">
+          <div className="px-2 py-1 bg-neutral-800/30 text-neutral-400 rounded text-xs font-medium">
             Batch #{log.batch_id}
           </div>
         )}
