@@ -124,30 +124,14 @@ export function AuditPanel({ isOpen, onClose, isDropdown = false }: AuditPanelPr
             completed_at: conv.completed_at
           }));
 
+          // Add conversions at the end, not the beginning, to preserve API order
           allLogs = [...allLogs, ...conversionLogs];
         } catch (convError) {
         }
       }
 
-      // Sort all logs by timestamp (most recent first) and prioritize user activities
-      allLogs.sort((a, b) => {
-        const aTime = new Date(a.created_at || a.timestamp).getTime();
-        const bTime = new Date(b.created_at || b.timestamp).getTime();
-        
-        // First sort by time
-        if (bTime !== aTime) return bTime - aTime;
-        
-        // Then prioritize sales and user activities over system activities
-        const aIsUserActivity = a.operation === 'sale' || (a.user_name && a.user_name !== 'System');
-        const bIsUserActivity = b.operation === 'sale' || (b.user_name && b.user_name !== 'System');
-        
-        if (aIsUserActivity && !bIsUserActivity) return -1;
-        if (!aIsUserActivity && bIsUserActivity) return 1;
-        
-        return 0;
-      });
-
-
+      // The API already sorts and prioritizes user activities, so we don't need to re-sort
+      // Just set the logs as they come from the API
       setAuditLogs(allLogs);
       setLastRefresh(new Date());
     } catch (err) {
