@@ -60,10 +60,8 @@ interface UnifiedAuditCardProps {
 export const UnifiedAuditCard = React.memo(function UnifiedAuditCard({ log }: UnifiedAuditCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Debug: Log user_name values to console
-  if (log.user_name && log.user_name !== 'System') {
-    console.log('Audit card user_name:', log.user_name, 'type:', typeof log.user_name, 'operation:', log.operation);
-  }
+  // Debug: Log all user_name values to console
+  console.log('Audit card - ID:', log.id, 'user_name:', log.user_name, 'type:', typeof log.user_name, 'operation:', log.operation, 'notes:', log.notes);
 
   const handleToggleExpand = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
