@@ -37,7 +37,11 @@ export const BatchAuditCard = React.memo(function BatchAuditCard({ batchId, entr
   return (
     <div className="mb-2">
       {/* Batch Summary Card */}
-      <div className="bg-neutral-900/40 hover:bg-neutral-800/40 border border-white/[0.04] rounded-lg transition-all">
+      <div className={`border rounded-lg transition-all ${
+        isExpanded 
+          ? 'bg-neutral-800/60 border-white/[0.12] shadow-lg ring-1 ring-white/[0.05]' 
+          : 'bg-neutral-900/40 hover:bg-neutral-800/40 border-white/[0.04]'
+      }`}>
         <div className="flex items-center gap-3 p-3">
           {/* Expand Button */}
           <button
@@ -113,9 +117,9 @@ export const BatchAuditCard = React.memo(function BatchAuditCard({ batchId, entr
 
       {/* Expanded Individual Entries */}
       {isExpanded && (
-        <div className="ml-6 mt-1 space-y-1 animate-in slide-in-from-top-1 duration-200">
+        <div className="ml-6 mt-2 space-y-1 animate-in slide-in-from-top-1 duration-200 pl-3 border-l-2 border-white/[0.06]">
           {entries.map((entry) => (
-            <div key={entry.id} className="opacity-90 scale-[0.98]">
+            <div key={entry.id} className="opacity-95 scale-[0.98] hover:scale-100 transition-transform">
               <UnifiedAuditCard log={entry} />
             </div>
           ))}
