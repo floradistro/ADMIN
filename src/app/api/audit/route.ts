@@ -57,28 +57,55 @@ export async function GET(request: NextRequest) {
       params.append('location_id', location_id);
     }
 
+    // Fetch both audit data and sales orders in parallel
     const auditUrl = `${FLORA_API_URL}/wp-json/flora-im/v1/audit?${params}`;
+    const ordersUrl = `${FLORA_API_URL}/wp-json/flora-im/v1/orders?consumer_key=${WC_CONSUMER_KEY}&consumer_secret=${WC_CONSUMER_SECRET}&limit=50&orderby=date_created&order=DESC`;
 
-    const fetchResponse = await fetch(auditUrl, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache, no-store, must-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-      },
-      cache: 'no-store',
-    });
+    const [auditResponse, ordersResponse] = await Promise.all([
+      fetch(auditUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+        cache: 'no-store',
+      }),
+      fetch(ordersUrl, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0',
+        },
+        cache: 'no-store',
+      })
+    ]);
 
-    if (!fetchResponse.ok) {
+    if (!auditResponse.ok) {
       return NextResponse.json({
         success: false,
         data: [],
-        error: `Magic2 API error: ${fetchResponse.status}`
+        error: `Magic2 API error: ${auditResponse.status}`
       });
     }
 
-    const rawData = await fetchResponse.json();
+    const rawData = await auditResponse.json();
+    let salesData: any[] = [];
+
+    // Add sales data if available
+    if (ordersResponse.ok) {
+      try {
+        const ordersResult = await ordersResponse.json();
+        if (ordersResult.data && Array.isArray(ordersResult.data)) {
+          salesData = ordersResult.data;
+        }
+      } catch (ordersError) {
+        console.warn('Failed to fetch sales orders:', ordersError);
+      }
+    }
     
     // Debug: Log the first record to see what we're getting
     if (rawData.length > 0) {
@@ -132,7 +159,72 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Transform the data to match our frontend interface
+    // Transform sales orders to audit format
+    const transformedSales = salesData.map((order: any) => {
+      const employeeName = order.employee_name || 'Unknown Staff';
+      const employeeId = order.employee_id || 0;
+      const locationName = order.meta_data?.find((meta: any) => meta.key === '_pos_location_name')?.value || 'Unknown Location';
+      const paymentMethod = order.payment_method_title || order.payment_method || 'Unknown';
+      const customerName = `${order.billing?.first_name || ''} ${order.billing?.last_name || ''}`.trim() || 'POS Customer';
+      
+      // Calculate total items sold
+      const totalItems = order.line_items?.reduce((sum: number, item: any) => {
+        const actualQuantity = item.meta_data?.find((meta: any) => meta.key === '_actual_quantity')?.value || 0;
+        return sum + parseFloat(actualQuantity);
+      }, 0) || 0;
+
+      return {
+        id: parseInt(order.id),
+        product_id: 0,
+        location_id: parseInt(order.meta_data?.find((meta: any) => meta.key === '_flora_location_id')?.value || '0'),
+        product_name: order.line_items?.length === 1 
+          ? order.line_items[0].name 
+          : `${order.line_items?.length || 0} items`,
+        product_image: null,
+        location_name: locationName,
+        old_quantity: 0,
+        new_quantity: 0,
+        change_amount: -totalItems, // Negative because items were sold
+        operation: 'sale',
+        action: 'sale',
+        reference_id: parseInt(order.id),
+        reference_type: 'order',
+        notes: `${paymentMethod} sale to ${customerName}`,
+        user_id: parseInt(employeeId),
+        user_name: employeeName,
+        ip_address: null,
+        user_agent: 'POS System',
+        metadata: JSON.stringify({
+          order_number: order.number,
+          total: order.total,
+          subtotal: order.subtotal,
+          tax_total: order.tax_total,
+          payment_method: paymentMethod,
+          customer_name: customerName,
+          items_count: order.line_items?.length || 0,
+          total_quantity: totalItems
+        }),
+        batch_id: null,
+        timestamp: order.date_created,
+        created_at: order.date_created,
+        details: {
+          order_id: order.id,
+          order_number: order.number,
+          customer_name: customerName,
+          employee_name: employeeName,
+          location_name: locationName,
+          total: order.total,
+          payment_method: paymentMethod,
+          items: order.line_items?.map((item: any) => ({
+            name: item.name,
+            quantity: item.meta_data?.find((meta: any) => meta.key === '_actual_quantity')?.value || 0,
+            price: item.meta_data?.find((meta: any) => meta.key === '_actual_price')?.value || 0
+          })) || []
+        }
+      };
+    });
+
+    // Transform the audit data to match our frontend interface
     const transformedData = rawData.map((entry: any) => {
       let details: any = {};
       try {
@@ -238,8 +330,12 @@ export async function GET(request: NextRequest) {
     if (transformedData.length > 0) {
     }
 
-    // Filter out entries with no quantity changes, but include transfers and conversions
-    const filteredData = transformedData.filter((entry: any) => 
+    // Combine sales data with audit data
+    const allEntries = [...transformedSales, ...transformedData];
+
+    // Filter out entries with no quantity changes, but include sales, transfers and conversions
+    const filteredData = allEntries.filter((entry: any) => 
+      entry.operation === 'sale' ||
       Math.abs(entry.change_amount) > 0 || 
       entry.operation === 'stock_transfer' || 
       entry.operation === 'stock_conversion' ||
@@ -250,40 +346,31 @@ export async function GET(request: NextRequest) {
       entry.action === 'remove_tax'
     );
 
-    // Separate user and system entries
+    // Separate sales, user entries, and system entries
+    const salesEntries = filteredData.filter((entry: any) => entry.operation === 'sale');
     const userEntries = filteredData.filter((entry: any) => 
-      entry.user_name && entry.user_name !== 'System' && entry.user_name !== false
+      entry.operation !== 'sale' && entry.user_name && entry.user_name !== 'System' && entry.user_name !== false
     );
     const systemEntries = filteredData.filter((entry: any) => 
-      !entry.user_name || entry.user_name === 'System' || entry.user_name === false
+      entry.operation !== 'sale' && (!entry.user_name || entry.user_name === 'System' || entry.user_name === false)
     );
 
     // Sort each group by timestamp
+    salesEntries.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     userEntries.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     systemEntries.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-    // Mix the entries to show both user and system activities
+    // Mix the entries to show sales, user activities, and some system activities
     const requestedLimit = parseInt(limit);
-    
-    // If we have user entries, ensure at least 40% of results are user entries
-    let finalData: any[] = [];
-    if (userEntries.length > 0) {
-      const userLimit = Math.min(userEntries.length, Math.max(1, Math.ceil(requestedLimit * 0.4)));
-      const systemLimit = Math.max(0, requestedLimit - userLimit);
-      
-      finalData = [
-        ...userEntries.slice(0, userLimit),
-        ...systemEntries.slice(0, systemLimit)
-      ];
-    } else {
-      // If no user entries, just show system entries
-      finalData = systemEntries.slice(0, requestedLimit);
-    }
+    const salesLimit = Math.min(salesEntries.length, Math.ceil(requestedLimit * 0.4)); // 40% sales
+    const userLimit = Math.min(userEntries.length, Math.ceil(requestedLimit * 0.4)); // 40% user activities
+    const systemLimit = Math.max(0, requestedLimit - salesLimit - userLimit); // 20% system
 
-    // Sort by timestamp (newest first)
-    const mixedData = finalData.sort((a: any, b: any) => 
-      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    );
+    const mixedData = [
+      ...salesEntries.slice(0, salesLimit),
+      ...userEntries.slice(0, userLimit),
+      ...systemEntries.slice(0, systemLimit)
+    ].sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
     
 
     const jsonResponse = NextResponse.json({

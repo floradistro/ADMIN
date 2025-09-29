@@ -68,11 +68,10 @@ export function AuditPanel({ isOpen, onClose, isDropdown = false }: AuditPanelPr
     setError(null);
 
     try {
-      // Fetch audit logs, conversion history, and POS sales in parallel
-      const [auditResponse, conversionResponse, ordersResponse] = await Promise.all([
-        fetch(`/api/audit?limit=50&_t=${Date.now()}`),
-        fetch(`/api/flora/conversions?limit=20&_t=${Date.now()}`),
-        fetch(`/api/flora/orders?limit=30&_t=${Date.now()}`)
+      // Fetch audit logs and conversion history in parallel
+      const [auditResponse, conversionResponse] = await Promise.all([
+        fetch(`/api/audit?limit=100&_t=${Date.now()}`),
+        fetch(`/api/flora/conversions?limit=20&_t=${Date.now()}`)
       ]);
       
       if (!auditResponse.ok) {
@@ -85,18 +84,6 @@ export function AuditPanel({ isOpen, onClose, isDropdown = false }: AuditPanelPr
       // Add general audit logs
       if (auditData.success && auditData.data) {
         allLogs = [...auditData.data];
-      }
-
-      // Add POS sales orders if available
-      if (ordersResponse.ok) {
-        try {
-          const ordersData = await ordersResponse.json();
-          if (ordersData.success && ordersData.data) {
-            allLogs = [...allLogs, ...ordersData.data];
-          }
-        } catch (ordersError) {
-          console.warn('Failed to fetch orders data:', ordersError);
-        }
       }
 
       // Add conversion history if available
