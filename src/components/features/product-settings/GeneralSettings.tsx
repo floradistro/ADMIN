@@ -1,12 +1,12 @@
 import React from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { TabHero } from '../../ui/TabHero';
-import { ProductDisplaySettings, InventorySettings } from '../../../hooks/useProductSettings';
+import { DisplaySettings, InventorySettings } from '../../../hooks/useProductSettings';
 
 interface GeneralSettingsProps {
-  displaySettings: ProductDisplaySettings;
+  displaySettings: DisplaySettings;
   inventorySettings: InventorySettings;
-  onDisplaySettingsChange: (updates: Partial<ProductDisplaySettings>) => void;
+  onDisplaySettingsChange: (updates: Partial<DisplaySettings>) => void;
   onInventorySettingsChange: (updates: Partial<InventorySettings>) => void;
 }
 

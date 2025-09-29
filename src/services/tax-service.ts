@@ -45,6 +45,7 @@ export interface UpdateTaxRateData extends Partial<CreateTaxRateData> {
 }
 
 export interface LocationTaxMapping {
+  id?: number;
   location_id: number;
   tax_rate_id: number;
   is_default: boolean;
