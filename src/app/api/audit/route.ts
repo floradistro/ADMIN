@@ -38,11 +38,13 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const limit = searchParams.get('limit') || '50';
     const offset = searchParams.get('offset') || '0';
+    // Fetch more entries to ensure we get user activities mixed with system activities
+    const fetchLimit = Math.max(parseInt(limit) * 5, 500);
     const location_id = searchParams.get('location_id');
 
     // Build Magic2 audit API URL
     const params = new URLSearchParams({
-      limit,
+      limit: fetchLimit.toString(),
       offset,
       consumer_key: WC_CONSUMER_KEY,
       consumer_secret: WC_CONSUMER_SECRET,
@@ -174,12 +176,21 @@ export async function GET(request: NextRequest) {
         new_quantity: newQty,
         change_amount: changeAmount,
         operation: entry.action || 'inventory_update',
+        action: entry.action || 'inventory_update',
         reference_id: parseInt(entry.reference_id) || null,
-        notes: entry.reason || null,
+        reference_type: entry.reference_type || null,
+        notes: details.reason || entry.reason || null,
         user_id: parseInt(entry.user_id) || 0,
-        user_name: entry.user_name || details.user_name || 'System',
+        user_name: (details.user_name && details.user_name !== false) ? details.user_name : 
+                  (entry.user_name && entry.user_name !== false) ? entry.user_name : 'System',
+        ip_address: entry.ip_address || details.ip_address || null,
+        user_agent: entry.user_agent || details.user_agent || null,
+        metadata: entry.metadata || null,
+        batch_id: entry.batch_id || null,
         timestamp: entry.created_at,
-        created_at: entry.created_at
+        created_at: entry.created_at,
+        // Include raw details for additional context
+        details: details
       };
 
       // Add transfer-specific fields for stock transfers
@@ -233,14 +244,52 @@ export async function GET(request: NextRequest) {
       entry.operation === 'stock_transfer' || 
       entry.operation === 'stock_conversion' ||
       entry.action === 'stock_conversion' ||
-      entry.action === 'stock_conversion_to'
+      entry.action === 'stock_conversion_to' ||
+      entry.action === 'cost_updated' ||
+      entry.action === 'assign_tax' ||
+      entry.action === 'remove_tax'
+    );
+
+    // Separate user and system entries
+    const userEntries = filteredData.filter((entry: any) => 
+      entry.user_name && entry.user_name !== 'System' && entry.user_name !== false
+    );
+    const systemEntries = filteredData.filter((entry: any) => 
+      !entry.user_name || entry.user_name === 'System' || entry.user_name === false
+    );
+
+    // Sort each group by timestamp
+    userEntries.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    systemEntries.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+
+    // Mix the entries to show both user and system activities
+    const requestedLimit = parseInt(limit);
+    
+    // If we have user entries, ensure at least 40% of results are user entries
+    let finalData: any[] = [];
+    if (userEntries.length > 0) {
+      const userLimit = Math.min(userEntries.length, Math.max(1, Math.ceil(requestedLimit * 0.4)));
+      const systemLimit = Math.max(0, requestedLimit - userLimit);
+      
+      finalData = [
+        ...userEntries.slice(0, userLimit),
+        ...systemEntries.slice(0, systemLimit)
+      ];
+    } else {
+      // If no user entries, just show system entries
+      finalData = systemEntries.slice(0, requestedLimit);
+    }
+
+    // Sort by timestamp (newest first)
+    const mixedData = finalData.sort((a: any, b: any) => 
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     );
     
 
     const jsonResponse = NextResponse.json({
       success: true,
-      data: filteredData,
-      total: filteredData.length
+      data: mixedData,
+      total: mixedData.length
     });
 
     // Disable caching for real-time audit data

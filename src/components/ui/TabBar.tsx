@@ -39,6 +39,7 @@ export function TabBar({ tabs, onTabClick, onTabClose, onTabMinimize }: TabBarPr
       }
       
       // Double-click on any tab - close it
+      console.log('Double-tap detected, closing tab:', tabId);
       onTabClose(tabId);
     } else {
       // Single click - set a timeout to handle it after double-click window
@@ -56,7 +57,7 @@ export function TabBar({ tabs, onTabClick, onTabClose, onTabMinimize }: TabBarPr
         clickTimeoutRef.current = null;
       }, 300);
     }
-  }, [onTabClick, onTabMinimize, tabs]);
+  }, [onTabClick, onTabClose, onTabMinimize]);
 
   const handleTabClose = useCallback((tabId: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -65,6 +66,7 @@ export function TabBar({ tabs, onTabClick, onTabClose, onTabMinimize }: TabBarPr
 
   const handleTabMinimize = useCallback((tabId: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     onTabMinimize(tabId);
   }, [onTabMinimize]);
 

@@ -68,10 +68,11 @@ export function AuditPanel({ isOpen, onClose, isDropdown = false }: AuditPanelPr
     setError(null);
 
     try {
-      // Fetch both general audit logs and conversion history in parallel
-      const [auditResponse, conversionResponse] = await Promise.all([
-        fetch(`/api/audit?limit=30&_t=${Date.now()}`),
-        fetch(`/api/flora/conversions?limit=20&_t=${Date.now()}`)
+      // Fetch audit logs, conversion history, and POS sales in parallel
+      const [auditResponse, conversionResponse, ordersResponse] = await Promise.all([
+        fetch(`/api/audit?limit=50&_t=${Date.now()}`),
+        fetch(`/api/flora/conversions?limit=20&_t=${Date.now()}`),
+        fetch(`/api/flora/orders?limit=30&_t=${Date.now()}`)
       ]);
       
       if (!auditResponse.ok) {
@@ -84,6 +85,18 @@ export function AuditPanel({ isOpen, onClose, isDropdown = false }: AuditPanelPr
       // Add general audit logs
       if (auditData.success && auditData.data) {
         allLogs = [...auditData.data];
+      }
+
+      // Add POS sales orders if available
+      if (ordersResponse.ok) {
+        try {
+          const ordersData = await ordersResponse.json();
+          if (ordersData.success && ordersData.data) {
+            allLogs = [...allLogs, ...ordersData.data];
+          }
+        } catch (ordersError) {
+          console.warn('Failed to fetch orders data:', ordersError);
+        }
       }
 
       // Add conversion history if available
@@ -123,8 +136,23 @@ export function AuditPanel({ isOpen, onClose, isDropdown = false }: AuditPanelPr
         }
       }
 
-      // Sort all logs by timestamp (most recent first)
-      allLogs.sort((a, b) => new Date(b.created_at || b.timestamp).getTime() - new Date(a.created_at || a.timestamp).getTime());
+      // Sort all logs by timestamp (most recent first) and prioritize user activities
+      allLogs.sort((a, b) => {
+        const aTime = new Date(a.created_at || a.timestamp).getTime();
+        const bTime = new Date(b.created_at || b.timestamp).getTime();
+        
+        // First sort by time
+        if (bTime !== aTime) return bTime - aTime;
+        
+        // Then prioritize sales and user activities over system activities
+        const aIsUserActivity = a.operation === 'sale' || (a.user_name && a.user_name !== 'System');
+        const bIsUserActivity = b.operation === 'sale' || (b.user_name && b.user_name !== 'System');
+        
+        if (aIsUserActivity && !bIsUserActivity) return -1;
+        if (!aIsUserActivity && bIsUserActivity) return 1;
+        
+        return 0;
+      });
 
       setAuditLogs(allLogs);
       setLastRefresh(new Date());
