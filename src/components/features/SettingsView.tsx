@@ -1900,6 +1900,7 @@ interface PricingRuleEditorProps {
 function PricingRuleEditor({ rule, onSave, onClose }: PricingRuleEditorProps) {
   const [editedRule, setEditedRule] = useState({ ...rule });
   const [isSaving, setIsSaving] = useState(false);
+  const dialogs = useDialogs();
 
   const handleTierChange = (index: number, field: string, value: string | number) => {
     const updatedBreaks = [...editedRule.breaks];
