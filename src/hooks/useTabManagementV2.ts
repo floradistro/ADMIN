@@ -35,47 +35,18 @@ const DEFAULT_OPTIONS: UseTabManagementOptions = {
 };
 
 // Local storage key for persisting tab state
-const STORAGE_KEY = 'portal-admin-tabs-v2';
+const STORAGE_KEY = 'portal-admin-tabs-v3'; // Changed to clear old state
 
 export function useTabManagementV2(options: UseTabManagementOptions = {}) {
   const opts = { ...DEFAULT_OPTIONS, ...options };
   const historyRef = useRef<string[]>([]);
   
-  // Initialize state from localStorage if persistence is enabled
+  // Initialize state - always start fresh for now
   const initializeState = (): TabManagerState => {
-    // Always return empty state on server to prevent hydration mismatch
-    if (typeof window === 'undefined') {
-      return {
-        tabs: new Map(),
-        activeTabId: null,
-        tabOrder: [],
-        history: []
-      };
-    }
-
-    if (opts.persistState) {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          // Convert tabs array back to Map
-          const tabsMap = new Map<string, TabState>();
-          Object.entries(parsed.tabs || {}).forEach(([id, tab]) => {
-            tabsMap.set(id, tab as TabState);
-          });
-          return {
-            ...parsed,
-            tabs: tabsMap
-          };
-        }
-      } catch (error) {
-        console.error('Failed to load tab state:', error);
-      }
-    }
-    
+    // Always start with empty state to ensure chat interface shows
     return {
       tabs: new Map(),
-      activeTabId: opts.defaultTab || null,
+      activeTabId: null,
       tabOrder: [],
       history: []
     };
@@ -380,6 +351,20 @@ export function useTabManagementV2(options: UseTabManagementOptions = {}) {
     });
   }, [opts]);
 
+  // Force close ALL tabs (including pinned ones)
+  const forceCloseAllTabs = useCallback(() => {
+    setState(prev => {
+      opts.onTabChange?.(null);
+      
+      return {
+        tabs: new Map(),
+        activeTabId: null,
+        tabOrder: [],
+        history: []
+      };
+    });
+  }, [opts]);
+
   // Get computed values
   const openTabsSet = useMemo(() => new Set(state.tabOrder), [state.tabOrder]);
   
@@ -422,6 +407,7 @@ export function useTabManagementV2(options: UseTabManagementOptions = {}) {
     togglePin,
     reorderTabs,
     closeAllTabs,
+    forceCloseAllTabs,
     
     // Utilities
     hasTab: (id: string) => state.tabs.has(id),

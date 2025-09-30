@@ -132,36 +132,19 @@ export const TabViewManager = memo(({
     );
   }, [activeTabId, tabConfigs, preloadedTabs]);
 
+  // If no tabs are open, show dashboard
+  if (openTabs.size === 0) {
+    return (
+      <div className="flex-1 min-h-0 flex relative overflow-hidden">
+        <DashboardView {...dashboardProps} />
+      </div>
+    );
+  }
+
+  // Otherwise render tabs
   return (
     <div className="flex-1 min-h-0 flex relative overflow-hidden">
-      {/* Dashboard - special case as it's not a tab */}
-      {showDashboard && (
-        <ViewContainer isActive={true} keepAlive={false}>
-          <ErrorBoundary 
-            fallback={
-              <div className="flex-1 flex items-center justify-center bg-neutral-900">
-                <div className="text-center max-w-md">
-                  <p className="text-red-400 mb-2">Failed to load dashboard</p>
-                  <p className="text-neutral-500 text-sm mb-4">An error occurred while loading the dashboard</p>
-                  <button 
-                    onClick={() => window.location.reload()}
-                    className="px-4 py-2 bg-neutral-700 hover:bg-neutral-600 text-white rounded transition-colors"
-                  >
-                    Reload Page
-                  </button>
-                </div>
-              </div>
-            }
-          >
-            <Suspense fallback={<TabLoadingFallback />}>
-              <DashboardView {...dashboardProps} />
-            </Suspense>
-          </ErrorBoundary>
-        </ViewContainer>
-      )}
-
-      {/* Render only open tabs */}
-      {!showDashboard && Array.from(openTabs).map(tabId => renderTabView(tabId))}
+      {Array.from(openTabs).map(tabId => renderTabView(tabId))}
     </div>
   );
 });

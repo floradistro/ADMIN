@@ -26,10 +26,11 @@ interface HeaderProps {
   onTabClick?: (tabId: string) => void;
   onTabClose?: (tabId: string) => void;
   onTabMinimize?: (tabId: string) => void;
+  onCloseAllTabs?: () => void;
   activeTabId?: string;
 }
 
-export function Header({ filterState, viewState, onFilterChange, onViewChange, onAuditToggle, onSettingsToggle, activeSettingsTab, onSettingsTabChange, onNavigateToSettings, onProductsToggle, onCustomersToggle, onCoaToggle, onMediaToggle, onReportsToggle, onRefresh, tabs = [], onTabClick, onTabClose, onTabMinimize, activeTabId }: HeaderProps) {
+export function Header({ filterState, viewState, onFilterChange, onViewChange, onAuditToggle, onSettingsToggle, activeSettingsTab, onSettingsTabChange, onNavigateToSettings, onProductsToggle, onCustomersToggle, onCoaToggle, onMediaToggle, onReportsToggle, onRefresh, tabs = [], onTabClick, onTabClose, onTabMinimize, onCloseAllTabs, activeTabId }: HeaderProps) {
   const [isAuditDropdownOpen, setIsAuditDropdownOpen] = useState(false);
   const [isViewsDropdownOpen, setIsViewsDropdownOpen] = useState(false);
   const [isFilesDropdownOpen, setIsFilesDropdownOpen] = useState(false);
@@ -43,12 +44,14 @@ export function Header({ filterState, viewState, onFilterChange, onViewChange, o
         {/* Left section - Tabs */}
         <div className="flex items-stretch flex-shrink-0 h-full pl-4 pt-1">
           {tabs.length > 0 && onTabClick && onTabClose && onTabMinimize && (
-            <TabBar
-              tabs={tabs}
-              onTabClick={onTabClick}
-              onTabClose={onTabClose}
-              onTabMinimize={onTabMinimize}
-            />
+            <>
+              <TabBar
+                tabs={tabs}
+                onTabClick={onTabClick}
+                onTabClose={onTabClose}
+                onTabMinimize={onTabMinimize}
+              />
+            </>
           )}
         </div>
         

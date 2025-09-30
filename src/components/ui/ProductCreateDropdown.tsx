@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Button, Input, TextArea, Select } from './';
+import { Button, Input, TextArea, Select, AlertDialog } from './';
 import { categoriesService } from '../../services/categories-service';
+import { useDialogs } from '../../hooks/useDialogs';
 
 interface ProductCreateDropdownProps {
   isOpen: boolean;
@@ -27,6 +28,9 @@ export function ProductCreateDropdown({
   const [loadingBlueprint, setLoadingBlueprint] = useState(false);
   const [isCreatingProduct, setIsCreatingProduct] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  
+  // Dialog management
+  const dialogs = useDialogs();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -193,7 +197,7 @@ export function ProductCreateDropdown({
         .filter(name => name.length > 0);
       
       if (productNames.length === 0) {
-        alert('Please enter at least one product name');
+        dialogs.showWarning('No Products', 'Please enter at least one product name');
         setIsCreatingProduct(false);
         return;
       }
@@ -275,10 +279,14 @@ export function ProductCreateDropdown({
         message += failedProducts.map(p => `• ${p.name}: ${p.error}`).join('\n');
       }
       
-      alert(message);
+      if (failedProducts.length > 0) {
+        dialogs.showWarning('Partial Success', message);
+      } else {
+        dialogs.showSuccess('Success', message);
+      }
       
     } catch (error) {
-      alert(`❌ Failed to create products: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      dialogs.showError('Error', `Failed to create products: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsCreatingProduct(false);
     }
@@ -463,6 +471,15 @@ export function ProductCreateDropdown({
           </form>
         </div>
       )}
+      
+      {/* Dialog Components */}
+      <AlertDialog
+        isOpen={dialogs.alertDialog.isOpen}
+        onClose={dialogs.closeAlert}
+        title={dialogs.alertDialog.title}
+        message={dialogs.alertDialog.message}
+        variant={dialogs.alertDialog.variant}
+      />
     </div>
   );
 }

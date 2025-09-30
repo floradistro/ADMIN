@@ -8,6 +8,7 @@ import { ProductTableRow } from './ProductTableRow';
 import { BulkActionPanel } from './BulkActionPanel';
 import { FloraLocation } from '../../services/inventory-service';
 import { useColumnManager } from '../../hooks/useColumnManager';
+import { useProductContext } from '../../contexts/ProductContext';
 
 
 interface ProductListProps {
@@ -55,6 +56,9 @@ export function ProductList({
   bulkEditProductIds,
   onBulkEditChange
 }: ProductListProps) {
+  
+  // Get dialogs from product context
+  const { dialogs } = useProductContext();
   
   // Column management (passed from parent)
   const {
@@ -144,7 +148,7 @@ export function ProductList({
 
   const handleBulkActionClick = (action: 'update' | 'transfer' | 'convert') => {
     if (selectedProducts.size === 0) {
-      alert('Please select products first');
+      dialogs.showWarning('No Selection', 'Please select products first');
       return;
     }
     

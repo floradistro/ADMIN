@@ -114,6 +114,7 @@ export function AppContent() {
     activateTab,
     toggleMinimize,
     togglePin,
+    forceCloseAllTabs,
   } = useTabManagementV2({
     defaultTab: undefined,
     persistState: isHydrated, // Only persist after hydration
@@ -166,6 +167,19 @@ export function AppContent() {
     setMounted(true);
     setIsHydrated(true);
   }, []);
+
+  // Add keyboard shortcut for closing all tabs (Cmd/Ctrl + Shift + W)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === 'W') {
+        e.preventDefault();
+        forceCloseAllTabs();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [forceCloseAllTabs]);
 
   // Initialize data
   useEffect(() => {
@@ -314,8 +328,8 @@ export function AppContent() {
     handleOrdersToggle, handleCoaToggle, handleMediaToggle, handleReportsToggle
   ]);
 
-  // Show dashboard when no tabs are open (only after hydration)
-  const showDashboard = isHydrated && openTabsSet.size === 0;
+  // Show dashboard when no tabs are open
+  const showDashboard = openTabsSet.size === 0;
 
   return (
     <BulkEditFieldProvider>
@@ -350,6 +364,7 @@ export function AppContent() {
           onTabClick={activateTab}
           onTabClose={closeTab}
           onTabMinimize={toggleMinimize}
+          onCloseAllTabs={forceCloseAllTabs}
           activeTabId={activeTabId || ''}
         />
 

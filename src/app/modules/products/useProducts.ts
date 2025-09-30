@@ -5,6 +5,7 @@ import { categoriesService } from '../../../services/categories-service';
 import { useColumnManager } from '../../../hooks/useColumnManager';
 import { usePagination } from '../../../hooks/usePagination';
 import { useBulkActions } from '../../../hooks/useBulkActions';
+import { useDialogs } from '../../../hooks/useDialogs';
 
 export type ProductGridTab = 'products' | 'settings' | 'general' | 'categories' | 'blueprints' | 'fields' | 'pricing' | 'recipes';
 
@@ -28,6 +29,9 @@ export function useProducts() {
   const [locations, setLocations] = useState<Location[]>([]);
   const [floraLocations, setFloraLocations] = useState<FloraLocation[]>([]);
   const [categories, setCategories] = useState<Array<{id: number, name: string}>>([]);
+  
+  // Dialog management
+  const dialogs = useDialogs();
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [aggregateChildren, setAggregateChildren] = useState(false);
@@ -306,59 +310,68 @@ export function useProducts() {
   // Handle bulk delete
   const handleBulkDelete = useCallback(async (selectedProductsList: Product[]) => {
     if (selectedProductsList.length === 0) {
-      alert('No products selected for deletion');
+      dialogs.showError('No Selection', 'No products selected for deletion');
       return;
     }
 
-    const confirmed = confirm(`Are you sure you want to delete ${selectedProductsList.length} product(s)? This action cannot be undone.`);
-    if (!confirmed) return;
-
-    try {
-      setIsLoading(true);
-      
-      const results = [];
-      const errors = [];
-      
-      for (const product of selectedProductsList) {
+    const productNames = selectedProductsList.map(p => p.name).join(', ');
+    const message = `Are you sure you want to delete ${selectedProductsList.length} product(s)?\n\nProducts to delete:\n${productNames}\n\nThis action cannot be undone.`;
+    
+    dialogs.showDangerConfirm(
+      'Delete Products',
+      message,
+      async () => {
         try {
-          const response = await fetch(`/api/products/${product.id}`, {
-            method: 'DELETE',
-          });
+          setIsLoading(true);
           
-          if (!response.ok) {
-            const errorText = await response.text();
-            // console.error(`❌ Delete API error for product ${product.name}:`, {
-            //   status: response.status,
-            //   statusText: response.statusText,
-            //   error: errorText
-            // });
-            errors.push(`${product.name}: ${response.status} ${response.statusText}`);
+          const results = [];
+          const errors = [];
+          
+          for (const product of selectedProductsList) {
+            try {
+              const response = await fetch(`/api/products/${product.id}`, {
+                method: 'DELETE',
+              });
+              
+              if (!response.ok) {
+                const errorText = await response.text();
+                errors.push(`${product.name}: ${response.status} ${response.statusText}`);
+              } else {
+                results.push(product.id);
+              }
+            } catch (error) {
+              errors.push(`${product.name}: Network error`);
+            }
+          }
+          
+          // Refresh the product list
+          await fetchProducts(1, true);
+          
+          // Report results
+          if (errors.length > 0) {
+            dialogs.showWarning(
+              'Partial Success',
+              `Deleted ${results.length} products successfully. Failed to delete ${errors.length} products:\n${errors.join('\n')}`
+            );
           } else {
-            results.push(product.id);
+            dialogs.showSuccess(
+              'Success',
+              `Successfully deleted ${results.length} product(s)`
+            );
           }
         } catch (error) {
-          // console.error(`❌ Network error deleting product ${product.name}:`, error);
-          errors.push(`${product.name}: Network error`);
+          dialogs.showError(
+            'Error',
+            `Error deleting products: ${error instanceof Error ? error.message : 'Unknown error'}`
+          );
+        } finally {
+          setIsLoading(false);
         }
-      }
-      
-      // Refresh the product list
-      await fetchProducts(1, true);
-      
-      // Report results
-      if (errors.length > 0) {
-        // console.error('Some products failed to delete:', errors);
-        alert(`Deleted ${results.length} products successfully. Failed to delete ${errors.length} products:\n${errors.join('\n')}`);
-      } else {
-        alert(`Successfully deleted ${results.length} product(s)`);
-      }
-    } catch (error) {
-      // console.error('Error deleting products:', error);
-      alert(`Error deleting products: ${error instanceof Error ? error.message : 'Unknown error'}`);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [fetchProducts]);
+      },
+      'Delete',
+      'Cancel'
+    );
+  }, [fetchProducts, dialogs]);
 
   // Generate category options from loaded categories
   const categoryOptions = useMemo(() => {
@@ -484,6 +497,8 @@ export function useProducts() {
     handleBulkDelete,
     initializeProducts,
     
+    // Dialog components and state
+    dialogs,
 
     setSelectedProducts: bulkActions.setSelectedProducts,
   };

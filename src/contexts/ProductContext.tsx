@@ -6,6 +6,8 @@ import { FloraLocation } from '../services/inventory-service';
 import { useProducts, ProductGridTab } from '../app/modules/products/useProducts';
 import { useBulkActions } from '../hooks/useBulkActions';
 import { usePagination } from '../hooks/usePagination';
+import { useDialogs } from '../hooks/useDialogs';
+import { AlertDialog, ConfirmDialog } from '../components/ui';
 
 interface ProductContextType {
   // Data
@@ -59,6 +61,9 @@ interface ProductContextType {
   handleSyncProducts: () => Promise<void>;
   handleBulkDelete: (products: Product[]) => Promise<void>;
   initializeProducts: () => Promise<void>;
+  
+  // Dialog management
+  dialogs: ReturnType<typeof useDialogs>;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -73,6 +78,26 @@ export function ProductProvider({ children }: ProductProviderProps) {
   return (
     <ProductContext.Provider value={productsHook}>
       {children}
+      
+      {/* Dialog Components */}
+      <AlertDialog
+        isOpen={productsHook.dialogs.alertDialog.isOpen}
+        onClose={productsHook.dialogs.closeAlert}
+        title={productsHook.dialogs.alertDialog.title}
+        message={productsHook.dialogs.alertDialog.message}
+        variant={productsHook.dialogs.alertDialog.variant}
+      />
+      
+      <ConfirmDialog
+        isOpen={productsHook.dialogs.confirmDialog.isOpen}
+        onClose={productsHook.dialogs.closeConfirm}
+        onConfirm={productsHook.dialogs.handleConfirm}
+        title={productsHook.dialogs.confirmDialog.title}
+        message={productsHook.dialogs.confirmDialog.message}
+        variant={productsHook.dialogs.confirmDialog.variant}
+        confirmText={productsHook.dialogs.confirmDialog.confirmText}
+        cancelText={productsHook.dialogs.confirmDialog.cancelText}
+      />
     </ProductContext.Provider>
   );
 }

@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { Location, LocationUpdateData, locationsService } from '../../services/locations-service';
-import { Badge, Button, IconButton, LoadingSpinner, LocationCreateDropdown } from '../ui';
+import { Badge, Button, IconButton, LoadingSpinner, LocationCreateDropdown, AlertDialog, ConfirmDialog } from '../ui';
 import { LocationTable } from './LocationTable';
 import { DeveloperTools } from './DeveloperTools';
+import { useDialogs } from '../../hooks/useDialogs';
 
 interface SettingsViewProps {
   onClose?: () => void;
@@ -18,6 +19,9 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
   const [locations, setLocations] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Dialog management
+  const dialogs = useDialogs();
   
   // Blueprint-related state
   const [blueprints, setBlueprints] = useState<any[]>([]);
@@ -306,20 +310,16 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
       return;
     }
     
-    const confirmDelete = confirm(
-      `Are you sure you want to delete ${selectedLocations.size} location${selectedLocations.size > 1 ? 's' : ''}?\n\n` +
-      `Locations to delete:\n${selectedLocationNames}\n\n` +
-      `This action cannot be undone.`
-    );
-    
-    if (!confirmDelete) return;
-    
     const deletingIds = Array.from(selectedLocations);
     
-    // Optimistic update - remove from UI immediately
-    setLocations(prev => prev.filter(loc => !selectedLocations.has(loc.id)));
-    setSelectedLocations(new Set());
-    setMessage({ type: 'success', text: `Deleting ${deletingIds.length} location${deletingIds.length > 1 ? 's' : ''}...` });
+    dialogs.showDangerConfirm(
+      'Delete Locations',
+      `Are you sure you want to delete ${selectedLocations.size} location${selectedLocations.size > 1 ? 's' : ''}?\n\nLocations to delete:\n${selectedLocationNames}\n\nThis action cannot be undone.`,
+      async () => {
+        // Optimistic update - remove from UI immediately
+        setLocations(prev => prev.filter(loc => !selectedLocations.has(loc.id)));
+        setSelectedLocations(new Set());
+        setMessage({ type: 'success', text: `Deleting ${deletingIds.length} location${deletingIds.length > 1 ? 's' : ''}...` });
     
     try {
       // Delete each location
@@ -354,6 +354,10 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
       setMessage({ type: 'error', text: `Failed to delete locations: ${errorMessage}` });
       setTimeout(() => setMessage(null), 5000);
     }
+      },
+      'Delete',
+      'Cancel'
+    );
   };
 
 
@@ -565,11 +569,11 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
       } else {
         const errorText = await response.text();
         console.error('❌ Failed to save pricing rule:', response.status, errorText);
-        alert(`Failed to save pricing rule: ${errorText}`);
+        dialogs.showError('Save Failed', `Failed to save pricing rule: ${errorText}`);
       }
     } catch (error) {
       console.error('❌ Error saving pricing rule:', error);
-      alert(`Error saving pricing rule: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      dialogs.showError('Error', `Error saving pricing rule: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -632,11 +636,11 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
       } else {
         const errorText = await response.text();
         console.error('❌ Failed to save field:', response.status, errorText);
-        alert(`Failed to save field: ${errorText}`);
+        dialogs.showError('Save Failed', `Failed to save field: ${errorText}`);
       }
     } catch (error) {
       console.error('❌ Error saving field:', error);
-      alert(`Error saving field: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      dialogs.showError('Error', `Error saving field: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -694,11 +698,11 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
       } else {
         const errorText = await response.text();
         console.error(`❌ Failed to ${isNewCategory ? 'create' : 'update'} category:`, response.status, errorText);
-        alert(`Failed to ${isNewCategory ? 'create' : 'update'} category: ${errorText}`);
+        dialogs.showError('Save Failed', `Failed to ${isNewCategory ? 'create' : 'update'} category: ${errorText}`);
       }
     } catch (error) {
       console.error(`❌ Error ${updatedCategory.id === 0 ? 'creating' : 'updating'} category:`, error);
-      alert(`Error ${updatedCategory.id === 0 ? 'creating' : 'updating'} category: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      dialogs.showError('Error', `Error ${updatedCategory.id === 0 ? 'creating' : 'updating'} category: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 
@@ -761,15 +765,14 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
     );
 
     if (systemCategories.length > 0) {
-      alert('Cannot delete system categories like "Uncategorized". Please deselect them and try again.');
+      dialogs.showError('Cannot Delete', 'Cannot delete system categories like "Uncategorized". Please deselect them and try again.');
       return;
     }
 
-    const confirmDelete = confirm(
-      `Are you sure you want to delete ${selectedCategories.size} categor${selectedCategories.size === 1 ? 'y' : 'ies'}?\n\n${selectedCategoryNames}\n\nProducts in these categories will be moved to "Uncategorized".`
-    );
-
-    if (!confirmDelete) return;
+    dialogs.showDangerConfirm(
+      'Delete Categories',
+      `Are you sure you want to delete ${selectedCategories.size} categor${selectedCategories.size === 1 ? 'y' : 'ies'}?\n\n${selectedCategoryNames}\n\nProducts in these categories will be moved to "Uncategorized".`,
+      async () => {
 
     try {
       console.log('🗑️ Deleting categories:', Array.from(selectedCategories));
@@ -793,16 +796,20 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
         setSelectedCategories(new Set());
         await loadCategories();
         
-        alert(`Successfully deleted ${selectedCategories.size} categor${selectedCategories.size === 1 ? 'y' : 'ies'}.`);
+        dialogs.showSuccess('Success', `Successfully deleted ${selectedCategories.size} categor${selectedCategories.size === 1 ? 'y' : 'ies'}.`);
       } else {
         const errorText = await response.text();
         console.error('❌ Failed to delete categories:', response.status, errorText);
-        alert(`Failed to delete categories: ${errorText}`);
+        dialogs.showError('Delete Failed', `Failed to delete categories: ${errorText}`);
       }
     } catch (error) {
       console.error('❌ Error deleting categories:', error);
-      alert(`Error deleting categories: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      dialogs.showError('Error', `Error deleting categories: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
+      },
+      'Delete',
+      'Cancel'
+    );
   };
 
 
@@ -848,18 +855,8 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
           {/* Locations Toolbar - Icon-only style matching products view */}
           <div className="px-4 py-1 border-b border-white/[0.04] bg-neutral-900 flex-shrink-0">
               <div className="flex items-center justify-between w-full">
-                {/* Left section - Locations Icon and Count */}
+                {/* Left section - Location counts */}
                 <div className="flex items-center gap-2">
-                  <IconButton
-                    variant="active"
-                    title="Locations"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </IconButton>
-                  
                   <span className="px-2 py-1 bg-white/[0.05] text-neutral-400 text-xs rounded">
                     {locations.length} total
                   </span>
@@ -2115,6 +2112,26 @@ function PricingRuleEditor({ rule, onSave, onClose }: PricingRuleEditorProps) {
           </Button>
         </div>
       </div>
+      
+      {/* Dialog Components */}
+      <AlertDialog
+        isOpen={dialogs.alertDialog.isOpen}
+        onClose={dialogs.closeAlert}
+        title={dialogs.alertDialog.title}
+        message={dialogs.alertDialog.message}
+        variant={dialogs.alertDialog.variant}
+      />
+      
+      <ConfirmDialog
+        isOpen={dialogs.confirmDialog.isOpen}
+        onClose={dialogs.closeConfirm}
+        onConfirm={dialogs.handleConfirm}
+        title={dialogs.confirmDialog.title}
+        message={dialogs.confirmDialog.message}
+        variant={dialogs.confirmDialog.variant}
+        confirmText={dialogs.confirmDialog.confirmText}
+        cancelText={dialogs.confirmDialog.cancelText}
+      />
     </div>
   );
 }
@@ -2288,6 +2305,26 @@ function FieldEditor({ field, onSave, onClose }: FieldEditorProps) {
           </Button>
         </div>
       </div>
+      
+      {/* Dialog Components */}
+      <AlertDialog
+        isOpen={dialogs.alertDialog.isOpen}
+        onClose={dialogs.closeAlert}
+        title={dialogs.alertDialog.title}
+        message={dialogs.alertDialog.message}
+        variant={dialogs.alertDialog.variant}
+      />
+      
+      <ConfirmDialog
+        isOpen={dialogs.confirmDialog.isOpen}
+        onClose={dialogs.closeConfirm}
+        onConfirm={dialogs.handleConfirm}
+        title={dialogs.confirmDialog.title}
+        message={dialogs.confirmDialog.message}
+        variant={dialogs.confirmDialog.variant}
+        confirmText={dialogs.confirmDialog.confirmText}
+        cancelText={dialogs.confirmDialog.cancelText}
+      />
     </div>
   );
 }
@@ -2461,6 +2498,26 @@ function CategoryEditor({ category, onSave, onClose }: CategoryEditorProps) {
           </Button>
         </div>
       </div>
+      
+      {/* Dialog Components */}
+      <AlertDialog
+        isOpen={dialogs.alertDialog.isOpen}
+        onClose={dialogs.closeAlert}
+        title={dialogs.alertDialog.title}
+        message={dialogs.alertDialog.message}
+        variant={dialogs.alertDialog.variant}
+      />
+      
+      <ConfirmDialog
+        isOpen={dialogs.confirmDialog.isOpen}
+        onClose={dialogs.closeConfirm}
+        onConfirm={dialogs.handleConfirm}
+        title={dialogs.confirmDialog.title}
+        message={dialogs.confirmDialog.message}
+        variant={dialogs.confirmDialog.variant}
+        confirmText={dialogs.confirmDialog.confirmText}
+        cancelText={dialogs.confirmDialog.cancelText}
+      />
     </div>
   );
 }

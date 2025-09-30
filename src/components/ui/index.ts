@@ -21,6 +21,8 @@ export { DataTable } from './DataTable';
 export { SettingsSection } from './SettingsSection';
 export { DeleteConfirmDialog } from './DeleteConfirmDialog';
 export { DuplicateConfirmDialog } from './DuplicateConfirmDialog';
+export { ConfirmDialog } from './ConfirmDialog';
+export { AlertDialog } from './AlertDialog';
 export { Badge } from './Badge';
 export { Card } from './Card';
 export { Tabs, TabsList, TabsTrigger, TabsContent } from './Tabs';

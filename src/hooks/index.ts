@@ -9,3 +9,4 @@ export { useBulkActions } from './useBulkActions';
 export { usePagination } from './usePagination';
 export { useReports } from './useReports';
 export { useProductSettings } from './useProductSettings';
+export { useDialogs } from './useDialogs';

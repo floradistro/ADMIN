@@ -261,6 +261,20 @@ export async function PATCH(
 
     const updatedProduct = await updateResponse.json();
     
+    // Trigger BluePrints resolver to update catalog meta
+    try {
+      await fetch(`${FLORA_API_BASE}/fd/v1/debug/resolve?consumer_key=${CONSUMER_KEY}&consumer_secret=${CONSUMER_SECRET}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          entity_type: 'product',
+          entity_id: productId
+        })
+      });
+    } catch (resolveError) {
+      // Non-critical, continue even if resolver fails
+      console.warn('BluePrints resolver trigger failed:', resolveError);
+    }
     
     return NextResponse.json({
       success: true,

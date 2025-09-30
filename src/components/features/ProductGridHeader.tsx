@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Select, IconButton, LocationSelector, ProductCreateDropdown, ColumnSelector, BulkActionsDropdown } from '../ui';
 import { BulkFieldSelector } from './BulkFieldSelector';
 import { useBulkEditFieldContext } from '../../contexts/BulkEditFieldContext';
+import { useProductContext } from '../../contexts/ProductContext';
 import { FloraLocation } from '../../services/inventory-service';
 import { ColumnConfig } from '../../types';
 import { ProductGridTab } from '../../app/modules/products/useProducts';
@@ -97,6 +98,9 @@ export function ProductGridHeader({
 }: ProductGridHeaderProps) {
   const [isCreateDropdownOpen, setIsCreateDropdownOpen] = useState(false);
   
+  // Get dialogs from product context
+  const { dialogs } = useProductContext();
+  
   // Get bulk edit field context
   const {
     availableFields,
@@ -120,7 +124,7 @@ export function ProductGridHeader({
 
   const handleBulkActionClick = (action: 'update' | 'transfer' | 'convert' | 'delete' | 'edit') => {
     if (selectedProductsCount === 0) {
-      alert('Please select products first');
+      dialogs.showWarning('No Selection', 'Please select products first');
       return;
     }
     onBulkAction?.(action);
@@ -130,17 +134,8 @@ export function ProductGridHeader({
   return (
     <div className="px-4 py-1 border-b border-white/[0.04] bg-neutral-900 flex-shrink-0 fixed top-10 left-0 right-0 z-20">
       <div className="flex items-center justify-between w-full">
-        {/* Left section - Products Icon */}
+        {/* Left section - Product counts */}
         <div className="flex items-center gap-2">
-          <IconButton
-            variant="active"
-            title="Products"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
-          </IconButton>
-          
           {/* Product count badge */}
           <span className="px-2 py-1 bg-white/[0.05] text-neutral-400 text-xs rounded product-text">
             {selectedProductIds.length} total
