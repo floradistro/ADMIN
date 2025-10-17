@@ -68,6 +68,20 @@ export interface BulkProduct {
     manage_stock: boolean;
   }>;
   total_stock: number;
+  blueprint_fields?: Array<{
+    field_id: number;
+    field_name: string;
+    field_label: string;
+    field_type: string;
+    field_value: any;
+    field_description?: string;
+    validation_rules?: any;
+    display_options?: any;
+    is_required: boolean;
+    is_searchable: boolean;
+    blueprint_id: number;
+    blueprint_name: string;
+  }>;
   fields: Array<{
     id: number;
     name: string;

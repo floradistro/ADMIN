@@ -91,7 +91,7 @@ export function useProductLists() {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       metadata: {
-        ...listToDuplicate.metadata,
+        totalProducts: listToDuplicate.metadata?.totalProducts || 0,
         exportCount: 0,
         lastExported: undefined
       }

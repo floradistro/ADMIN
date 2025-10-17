@@ -893,35 +893,14 @@ function BlueprintIndicator({ categoryId }: { categoryId: number }) {
   useEffect(() => {
     const checkBlueprints = async () => {
       try {
-        const { floraFieldsAPI } = await import('../../../services/flora-fields-api');
-        
-        let assignments: any[] = [];
-        
-        try {
-          // Try category-specific endpoint first
-          assignments = await floraFieldsAPI.getCategoryBlueprintAssignments(categoryId);
-        } catch (apiError) {
-          
-          // Fallback: Get all assignments and filter client-side
-          try {
-            const allAssignments = await floraFieldsAPI.getBlueprintAssignments();
-            assignments = allAssignments.filter((assignment: any) => 
-              assignment.entity_type === 'category' && 
-              assignment.category_id === categoryId
-            );
-          } catch (fallbackError) {
-            setHasBlueprints(false);
-            return;
-          }
+        // V3 Native - check category fields instead
+        const response = await fetch(`/api/flora/categories/${categoryId}/fields`);
+        if (response.ok) {
+          const data = await response.json();
+          setHasBlueprints(data.field_count > 0);
+        } else {
+          setHasBlueprints(false);
         }
-        
-        // Filter to ensure we only count assignments for this specific category
-        const filteredAssignments = assignments.filter((assignment: any) => 
-          assignment.entity_type === 'category' && 
-          assignment.category_id === categoryId
-        );
-        
-        setHasBlueprints(filteredAssignments.length > 0);
       } catch (error) {
         setHasBlueprints(false);
       }

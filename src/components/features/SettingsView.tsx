@@ -14,7 +14,7 @@ interface SettingsViewProps {
   onTabChange?: (tab: SettingsTab) => void;
 }
 
-type SettingsTab = 'locations' | 'general' | 'fields' | 'categories' | 'developer';
+type SettingsTab = 'locations' | 'general' | 'fields' | 'categories' | 'developer' | 'blueprints';
 
 export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: SettingsViewProps) {
   const [locations, setLocations] = useState<Location[]>([]);
@@ -24,7 +24,21 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
   // Dialog management
   const dialogs = useDialogs();
   
-  // Removed old blueprint state - replaced by FieldsManager
+  // Blueprint state
+  const [blueprintsLoading, setBlueprintsLoading] = useState(false);
+  const [blueprintsError, setBlueprintsError] = useState<string | null>(null);
+  const [blueprints, setBlueprints] = useState<any[]>([]);
+  const [availableFields, setAvailableFields] = useState<any[]>([]);
+  const [availablePricingRules, setAvailablePricingRules] = useState<any[]>([]);
+  const [selectedBlueprint, setSelectedBlueprint] = useState<any | null>(null);
+  const [draggedField, setDraggedField] = useState<any | null>(null);
+  const [showFieldPicker, setShowFieldPicker] = useState(false);
+  const [showPricingPicker, setShowPricingPicker] = useState(false);
+  const [dragOverZone, setDragOverZone] = useState<string | null>(null);
+  const [blueprintActiveTab, setBlueprintActiveTab] = useState<'fields' | 'pricing'>('fields');
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [fieldTypeFilter, setFieldTypeFilter] = useState<string>('all');
+  const [pricingTypeFilter, setPricingTypeFilter] = useState<string>('all');
   
   // Pricing rule editor state
   const [editingPricingRule, setEditingPricingRule] = useState<any | null>(null);
@@ -961,7 +975,7 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
         </div>
       )}
 
-      {activeTab === 'blueprints_OLD_DISABLED' && (
+      {false && activeTab === 'blueprints' && (
         <div className="flex-1 min-h-0 overflow-hidden">
           <div className="h-full flex flex-col">
             {/* Blueprint Builder Header */}

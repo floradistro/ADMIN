@@ -305,7 +305,7 @@ export function FieldsManagerFull() {
             Native WooCommerce - Category field assignments stored in wp_termmeta
           </p>
         </div>
-        <Button onClick={loadCategories} variant="outline" size="sm">
+        <Button onClick={loadCategories} variant="secondary" size="sm">
           Refresh
         </Button>
       </div>
@@ -567,7 +567,7 @@ export function FieldsManagerFull() {
               >
                 Save Changes
               </Button>
-              <Button onClick={() => setEditingField(null)} variant="outline">
+              <Button onClick={() => setEditingField(null)} variant="secondary">
                 Cancel
               </Button>
             </div>
@@ -645,7 +645,7 @@ export function FieldsManagerFull() {
               >
                 Add Field
               </Button>
-              <Button onClick={() => setShowAddField(false)} variant="outline">
+              <Button onClick={() => setShowAddField(false)} variant="secondary">
                 Cancel
               </Button>
             </div>

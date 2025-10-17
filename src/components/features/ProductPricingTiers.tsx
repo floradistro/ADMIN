@@ -127,7 +127,7 @@ export function ProductPricingTiers({ productId, compact = false }: ProductPrici
             >
               <div className="text-neutral-600 font-medium">{label}</div>
               <div className="flex items-center gap-2">
-                {tier.discount_percent > 0 && (
+                {(tier.discount_percent || 0) > 0 && (
                   <span className="text-green-500 text-xs">-{tier.discount_percent}%</span>
                 )}
                 <span className="text-neutral-400 font-medium">${price.toFixed(2)}</span>

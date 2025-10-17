@@ -151,7 +151,7 @@ export function ListFeature({
       <ListViewer
         isOpen={viewingListId !== null}
         onClose={() => setViewingListId(null)}
-        list={viewingList}
+        list={viewingList || null}
         onExport={(format) => viewingListId && handleExport(viewingListId, format)}
         onEmail={() => viewingListId && handleEmail(viewingListId)}
       />
@@ -160,7 +160,7 @@ export function ListFeature({
       <EmailListDialog
         isOpen={emailingListId !== null}
         onClose={() => setEmailingListId(null)}
-        list={emailingList}
+        list={emailingList || null}
         onSend={handleSendEmail}
       />
 

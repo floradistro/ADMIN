@@ -162,8 +162,7 @@ export function useProducts() {
       const response = await bulkApiService.getProducts(filters);
 
       if (response.success) {
-        const sample = response.data?.[0];
-        console.log(`📦 Fetched ${response.data?.length} products - Sample: ${sample?.name} has ${sample?.blueprint_fields?.length || 0} fields`);
+        console.log(`📦 Fetched ${response.data?.length} products`);
         
         // Bulk API returns data in the correct format already
         const convertedProducts = response.data.map((product: any) => ({

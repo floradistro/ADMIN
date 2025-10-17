@@ -277,7 +277,7 @@ export function FieldsManager() {
                           className="flex justify-between items-center bg-neutral-800 border border-white/[0.04] rounded px-4 py-3"
                         >
                           <div className="text-neutral-400">
-                            {tier.weight || `${tier.qty} unit${tier.qty > 1 ? 's' : ''}`}
+                            {tier.weight || `${tier.qty || 0} unit${(tier.qty || 0) > 1 ? 's' : ''}`}
                           </div>
                           <div className="text-neutral-300 font-medium">
                             ${tier.price.toFixed(2)}

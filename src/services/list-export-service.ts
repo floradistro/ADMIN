@@ -17,21 +17,21 @@ export class ListExportService {
     const accentColor = [59, 130, 246]; // Blue
 
     // Add header
-    doc.setFillColor(...darkBg);
+    doc.setFillColor(darkBg[0], darkBg[1], darkBg[2]);
     doc.rect(0, 0, doc.internal.pageSize.width, 40, 'F');
     
-    doc.setTextColor(...lightText);
+    doc.setTextColor(lightText[0], lightText[1], lightText[2]);
     doc.setFontSize(20);
     doc.text(list.name, 15, 15);
     
     if (list.description) {
       doc.setFontSize(10);
-      doc.setTextColor(...mutedText);
+      doc.setTextColor(mutedText[0], mutedText[1], mutedText[2]);
       doc.text(list.description, 15, 25);
     }
 
     doc.setFontSize(8);
-    doc.setTextColor(...mutedText);
+    doc.setTextColor(mutedText[0], mutedText[1], mutedText[2]);
     doc.text(`${list.products.length} products · Generated ${new Date().toLocaleString()}`, 15, 35);
 
     // Prepare table data
@@ -69,9 +69,9 @@ export class ListExportService {
       margin: { top: 45, left: 10, right: 10 },
       didDrawPage: (data: any) => {
         // Footer
-        const pageCount = doc.getNumberOfPages();
+        const pageCount = (doc as any).getNumberOfPages();
         doc.setFontSize(8);
-        doc.setTextColor(...mutedText);
+        doc.setTextColor(mutedText[0], mutedText[1], mutedText[2]);
         doc.text(
           `Page ${data.pageNumber} of ${pageCount}`,
           doc.internal.pageSize.width / 2,
