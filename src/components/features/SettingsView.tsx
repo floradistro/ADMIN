@@ -2147,6 +2147,7 @@ interface FieldEditorProps {
 function FieldEditor({ field, onSave, onClose }: FieldEditorProps) {
   const [editedField, setEditedField] = useState({ ...field });
   const [isSaving, setIsSaving] = useState(false);
+  const dialogs = useDialogs();
 
   const fieldTypes = [
     { value: 'text', label: 'Text' },
@@ -2340,6 +2341,7 @@ interface CategoryEditorProps {
 function CategoryEditor({ category, onSave, onClose }: CategoryEditorProps) {
   const [editedCategory, setEditedCategory] = useState({ ...category });
   const [isSaving, setIsSaving] = useState(false);
+  const dialogs = useDialogs();
 
   const unitTypes = [
     { value: 'units', label: 'Units' },

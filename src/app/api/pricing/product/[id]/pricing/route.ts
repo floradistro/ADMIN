@@ -10,10 +10,11 @@ const FLORA_CONSUMER_SECRET = 'cs_38194e74c7ddc5d72b6c32c70485728e7e529678';
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const url = new URL(`${FLORA_API_BASE}/fd/v2/pricing/forms/${params.id}`);
+    const { id } = await params;
+    const url = new URL(`${FLORA_API_BASE}/fd/v2/pricing/forms/${id}`);
     url.searchParams.append('consumer_key', FLORA_CONSUMER_KEY);
     url.searchParams.append('consumer_secret', FLORA_CONSUMER_SECRET);
     

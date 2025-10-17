@@ -28,7 +28,7 @@ interface AppContextType {
   handleEditProduct: (product: Product) => void;
   handleManageInventory: (product: Product) => void;
   handleBulkInventory: () => void;
-  handleBulkAction: (action: string, products: Product[]) => void;
+  handleBulkAction: (action: 'update' | 'transfer' | 'convert' | 'delete' | 'edit') => void;
   
   // Bulk Edit State
   bulkEditProductIds: Set<number>;
@@ -110,7 +110,7 @@ export function AppProvider({ children }: AppProviderProps) {
     // TODO: Implement bulk inventory functionality
   }, []);
 
-  const handleBulkAction = useCallback((action: string, products: Product[]) => {
+  const handleBulkAction = useCallback((action: 'update' | 'transfer' | 'convert' | 'delete' | 'edit') => {
     // TODO: Implement bulk action functionality
   }, []);
 

@@ -266,7 +266,7 @@ export function ProductList({
 
 
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto scrollable-container p-0 bg-neutral-900 pt-12">
+    <div className="flex-1 min-h-0 overflow-y-auto scrollable-container p-0 bg-neutral-900">
       {/* Table View */}
       <div className="min-w-full">
             {/* Table Header */}

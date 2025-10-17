@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Product, TabType, TabConfig, BlueprintFieldValue } from '../../types';
-import { Input, BlueprintFieldDisplay } from '../ui';
+import { Input } from '../ui';
 import { EditableFields } from '../ui/EditableFields';
 import { InventoryInitializer } from './InventoryInitializer';
 import { inventoryService } from '../../services/inventory-service';
@@ -192,16 +192,10 @@ export function ProductEditor({ product, activeTab, onTabChange }: ProductEditor
                 <div className="text-neutral-500">Loading blueprint fields...</div>
               </div>
             ) : blueprintFields.length > 0 ? (
-              <EditableBlueprintFields 
-                blueprintFields={blueprintFields}
-                productId={product.id}
-                isLoading={isLoadingBlueprints}
-                onSave={async (updatedFields) => {
-                  
-                  // Immediately fetch fresh data from server to show real values
-                  await fetchBlueprintData(true);
-                }}
-              />
+              <div className="text-center py-8">
+                <div className="text-neutral-500 mb-2">Blueprint fields - Coming Soon</div>
+                <p className="text-xs text-neutral-600">Blueprint fields functionality will be available soon</p>
+              </div>
             ) : (
               <div className="text-center py-8">
                 <div className="text-neutral-500 mb-2">No blueprint fields found</div>

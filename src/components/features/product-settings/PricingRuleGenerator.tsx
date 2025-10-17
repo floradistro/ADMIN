@@ -4,7 +4,28 @@ import { Button, Card, Select, Input } from '../../ui';
 import { categoriesService, WooCategory } from '../../../services/categories-service';
 import { floraFieldsAPI } from '../../../services/flora-fields-api';
 import { pricingAPI } from '../../../services/pricing-api';
-import { PricingBlueprintIntegration, BlueprintPricingRule, PricingTemplate } from '../../../services/pricing-blueprint-integration';
+// import { PricingBlueprintIntegration, BlueprintPricingRule, PricingTemplate } from '../../../services/pricing-blueprint-integration';
+
+// Temporary types until pricing-blueprint-integration is implemented
+interface PricingTemplate {
+  name: string;
+  tiers: Array<{ label: string; price: number }>;
+  description?: string;
+  breaks: Array<any>;
+}
+
+interface BlueprintPricingRule {
+  id?: string;
+  name: string;
+  template: PricingTemplate;
+  rule_name: string;
+  priority: number;
+  conditions?: any;
+  formula?: string;
+  active: boolean;
+  unit?: string;
+  breaks: Array<any>;
+}
 
 interface PricingRuleGenerator {
   onRulesGenerated?: (rules: any[]) => void;
@@ -18,7 +39,8 @@ interface CategoryUnitMapping {
 }
 
 // Use the centralized pricing templates from the integration service
-const PRICING_TEMPLATES = PricingBlueprintIntegration.getAllTemplates();
+// TODO: Implement PricingBlueprintIntegration service
+const PRICING_TEMPLATES: Record<string, PricingTemplate> = {};
 
 export function PricingRuleGenerator({ onRulesGenerated }: PricingRuleGenerator) {
   const [categories, setCategories] = useState<WooCategory[]>([]);
@@ -65,6 +87,9 @@ export function PricingRuleGenerator({ onRulesGenerated }: PricingRuleGenerator)
     }
 
     try {
+      // TODO: Implement PricingBlueprintIntegration service
+      setError('Pricing rule generation is not yet implemented');
+      /*
       const selectedCategoryObjects = categories.filter(cat => 
         selectedCategories.includes(cat.id)
       );
@@ -92,6 +117,7 @@ export function PricingRuleGenerator({ onRulesGenerated }: PricingRuleGenerator)
       setShowPreview(true);
       setError(null);
       setSuccess(`Generated ${rules.length} pricing rules`);
+      */
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to generate pricing rules');
     }
@@ -141,7 +167,8 @@ export function PricingRuleGenerator({ onRulesGenerated }: PricingRuleGenerator)
   };
 
   const exportRules = () => {
-    const dataStr = PricingBlueprintIntegration.exportBlueprintPricingRules(generatedRules);
+    // TODO: Implement PricingBlueprintIntegration service
+    const dataStr = JSON.stringify(generatedRules, null, 2);
     const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
     
     const exportFileDefaultName = `blueprint-pricing-rules-${new Date().toISOString().split('T')[0]}.json`;

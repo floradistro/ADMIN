@@ -7,6 +7,17 @@ import { Button, StatusBadge, CategoryTag } from '../ui';
 import { useInstantInventory } from '@/hooks/useInstantInventory';
 import { fieldsService, ProductForm } from '../../services/fields-service';
 
+interface BlueprintPricingData {
+  ruleGroups: {
+    ruleName: string;
+    productType?: string;
+    tiers: {
+      label: string;
+      price: number;
+    }[];
+  }[];
+}
+
 interface InstantProductItemProps {
   product: Product;
   selectedLocationId?: string;
@@ -72,8 +83,9 @@ export const InstantProductItem = React.memo(function InstantProductItem({
 
   const loadBlueprintPricing = async () => {
     try {
-      const pricingData = await BlueprintPricingService.getBlueprintPricingForProduct(product.id, product);
-      setBlueprintPricing(pricingData);
+      // TODO: Implement BlueprintPricingService
+      // const pricingData = await BlueprintPricingService.getBlueprintPricingForProduct(product.id, product);
+      // setBlueprintPricing(pricingData);
     } catch (error) {
 
     }

@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react';
-import { ProductList, ProductGridHeader } from '../../../components';
+import { ProductList } from '../../../components';
 
 import { FilterState, ViewState, Product } from '../../../types';
 import { FloraLocation } from '../../../services/inventory-service';
@@ -139,57 +139,7 @@ export function ProductsModule({
 
   return (
     <div className="w-full h-full bg-neutral-900 flex flex-col overflow-hidden">
-      {/* Shared Header with Tabs */}
-      <ProductGridHeader
-        selectedCategory={filterState.selectedCategory}
-        onCategoryChange={(category) => onFilterChange({ selectedCategory: category })}
-        categoryOptions={categoryOptions}
-        selectedLocationId={filterState.selectedLocationId}
-        onLocationChange={(locationId, aggregateChildrenValue) => {
-          onFilterChange({ selectedLocationId: locationId });
-          if (aggregateChildrenValue !== undefined) {
-            setAggregateChildren(aggregateChildrenValue);
-          }
-        }}
-        hideZeroQuantity={filterState.hideZeroQuantity}
-        onHideZeroQuantityChange={(hide) => onFilterChange({ hideZeroQuantity: hide })}
-        showSelectedOnly={filterState.showSelectedOnly}
-        onShowSelectedOnlyChange={(show) => onFilterChange({ showSelectedOnly: show })}
-        onBulkInventory={onBulkInventory}
-        selectedProductsCount={selectedProducts.size}
-        onBulkAction={handleBulkActionFromHeader}
-        onClearSelection={clearSelection}
-        onBulkSave={onBulkSave}
-        onBulkJsonEdit={onBulkJsonEdit}
-        bulkEditCount={bulkEditProductIds.size}
-        activeTab={productGridTab}
-        onTabChange={setProductGridTab}
-        onBlueprintCreate={() => {
-          // Trigger blueprint creation
-          const event = new CustomEvent('blueprintCreate');
-          window.dispatchEvent(event);
-        }}
-        onBlueprintRefresh={() => {
-          // Trigger blueprint refresh
-          const event = new CustomEvent('blueprintRefresh');
-          window.dispatchEvent(event);
-        }}
-        locations={floraLocations}
-        onCreateProduct={() => {
-          // Refresh the product list after creation
-          onRefresh();
-        }}
-        onBulkImport={() => {/* TODO: Implement bulk import */}}
-        onSyncProducts={onSyncProducts}
-        syncLoading={syncLoading}
-        selectedProductIds={Array.from(selectedProducts)}
-        columnConfigs={columnConfigs}
-        onToggleColumn={toggleColumn}
-        onToggleAllBlueprints={toggleAllBlueprintColumns}
-        onLoadFieldValues={handleLoadFieldValues}
-        isLoadingBlueprintFields={isLoadingBlueprintFields}
-        bulkEditProductIds={bulkEditProductIds}
-      />
+      {/* ProductGridHeader is now integrated into the main Header component */}
       
       {/* Tab Content - Only Products View */}
       <ProductList

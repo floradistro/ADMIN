@@ -7,7 +7,7 @@ import { ImageUpload } from '../../ui/ImageUpload';
 import { DeleteConfirmDialog } from '../../ui/DeleteConfirmDialog';
 import { ToggleSwitch } from '../../ui/ToggleSwitch';
 import { JsonPopout } from '../../ui/JsonPopout';
-import { BlueprintAssignmentDisplay } from './BlueprintAssignmentDisplay';
+// import { BlueprintAssignmentDisplay } from './BlueprintAssignmentDisplay';
 import { useCategoriesManager, CategoryFormData } from '../../../hooks/useCategoriesManager';
 import { CategoryFilterSettings } from '../../../hooks/useProductSettings';
 import { CategoryCreateRequest, WooCategory, categoriesService } from '../../../services/categories-service';
@@ -1236,12 +1236,12 @@ const CategoryItem = React.memo(function CategoryItem({
           </div>
 
           {/* Blueprint Assignments Section */}
-          <div className="mt-4">
+          {/* <div className="mt-4">
             <BlueprintAssignmentDisplay 
               categoryId={category.id} 
               className="w-full"
             />
-          </div>
+          </div> */}
 
           {/* Action Buttons */}
           <div className="flex gap-2 mt-4 pt-3 border-t border-white/[0.04]">

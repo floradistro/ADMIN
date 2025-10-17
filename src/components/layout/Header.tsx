@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
-import { SearchInput, IconButton, Divider, AuditDropdown, ViewsDropdown, FilesDropdown, SettingsDropdown } from '../ui';
+import React, { useState, useRef, useEffect } from 'react';
+import { SearchInput, IconButton, Divider, AuditDropdown, ViewsDropdown, FilesDropdown, SettingsDropdown, LocationSelector, Select, ProductCreateDropdown, BulkActionsDropdown } from '../ui';
 import { TabBar, Tab } from '../ui/TabBar';
 import { FilterState, ViewState } from '../../types';
+import { FloraLocation } from '../../services/inventory-service';
+import { BulkFieldSelector } from '../features/BulkFieldSelector';
 
 
 interface HeaderProps {
@@ -28,51 +30,264 @@ interface HeaderProps {
   onTabMinimize?: (tabId: string) => void;
   onCloseAllTabs?: () => void;
   activeTabId?: string;
+  
+  // Product-specific props
+  floraLocations?: FloraLocation[];
+  categoryOptions?: Array<{ value: string; label: string }>;
+  selectedProductsCount?: number;
+  bulkEditCount?: number;
+  totalProductsCount?: number;
+  onBulkAction?: (action: 'update' | 'transfer' | 'convert' | 'delete' | 'edit') => void;
+  onClearSelection?: () => void;
+  onBulkSave?: () => void;
+  onBulkJsonEdit?: () => void;
+  onSyncProducts?: () => void;
+  syncLoading?: boolean;
+  bulkEditProductIds?: Set<number>;
+  onLocationChange?: (locationId: string, aggregateChildren?: boolean) => void;
+  onCategoryChange?: (category: string) => void;
+  onHideZeroQuantityChange?: (hide: boolean) => void;
+  onShowSelectedOnlyChange?: (show: boolean) => void;
 }
 
-export function Header({ filterState, viewState, onFilterChange, onViewChange, onAuditToggle, onSettingsToggle, activeSettingsTab, onSettingsTabChange, onNavigateToSettings, onProductsToggle, onCustomersToggle, onCoaToggle, onMediaToggle, onReportsToggle, onRefresh, tabs = [], onTabClick, onTabClose, onTabMinimize, onCloseAllTabs, activeTabId }: HeaderProps) {
+export function Header({ 
+  filterState, 
+  viewState, 
+  onFilterChange, 
+  onViewChange, 
+  onAuditToggle, 
+  onSettingsToggle, 
+  activeSettingsTab, 
+  onSettingsTabChange, 
+  onNavigateToSettings, 
+  onProductsToggle, 
+  onCustomersToggle, 
+  onCoaToggle, 
+  onMediaToggle, 
+  onReportsToggle, 
+  onRefresh, 
+  tabs = [], 
+  onTabClick, 
+  onTabClose, 
+  onTabMinimize, 
+  onCloseAllTabs, 
+  activeTabId,
+  floraLocations = [],
+  categoryOptions = [],
+  selectedProductsCount = 0,
+  bulkEditCount = 0,
+  totalProductsCount = 0,
+  onBulkAction,
+  onClearSelection,
+  onBulkSave,
+  onBulkJsonEdit,
+  onSyncProducts,
+  syncLoading = false,
+  bulkEditProductIds,
+  onLocationChange,
+  onCategoryChange,
+  onHideZeroQuantityChange,
+  onShowSelectedOnlyChange,
+}: HeaderProps) {
   const [isAuditDropdownOpen, setIsAuditDropdownOpen] = useState(false);
   const [isViewsDropdownOpen, setIsViewsDropdownOpen] = useState(false);
   const [isFilesDropdownOpen, setIsFilesDropdownOpen] = useState(false);
   const [isSettingsDropdownOpen, setIsSettingsDropdownOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isCreateDropdownOpen, setIsCreateDropdownOpen] = useState(false);
+  const [isFiltersDropdownOpen, setIsFiltersDropdownOpen] = useState(false);
+  
+  const filtersDropdownRef = useRef<HTMLDivElement>(null);
+
+  const isProductsTab = activeTabId === 'products';
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (filtersDropdownRef.current && !filtersDropdownRef.current.contains(event.target as Node)) {
+        setIsFiltersDropdownOpen(false);
+      }
+    };
+
+    if (isFiltersDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isFiltersDropdownOpen]);
 
   return (
     <div className="app-header">
       <div className="header-nav bg-neutral-900 flex-shrink-0 sticky top-0 z-30 font-tiempos ios-header-extension h-10">
-        <div className="flex items-center justify-between h-full">
-        {/* Left section - Tabs */}
-        <div className="flex items-stretch flex-shrink-0 h-full pl-4 pt-1">
-          {tabs.length > 0 && onTabClick && onTabClose && onTabMinimize && (
-            <>
+        <div className="flex items-center h-full px-1 gap-1">
+          
+          {/* Tabs */}
+          <div className="flex items-stretch flex-shrink-0 h-full pt-1">
+            {tabs.length > 0 && onTabClick && onTabClose && onTabMinimize && (
               <TabBar
                 tabs={tabs}
                 onTabClick={onTabClick}
                 onTabClose={onTabClose}
                 onTabMinimize={onTabMinimize}
               />
+            )}
+          </div>
+          
+          {/* Product Section */}
+          {isProductsTab && (
+            <>
+              {/* Stats */}
+              {(totalProductsCount > 0 || selectedProductsCount > 0 || bulkEditCount > 0) && (
+                <div className="flex items-center gap-0.5 px-1">
+                  {totalProductsCount > 0 && (
+                    <span className="px-1 py-0.5 bg-white/[0.05] text-neutral-500 text-[9px] rounded font-mono">
+                      {totalProductsCount}
+                    </span>
+                  )}
+                  {selectedProductsCount > 0 && (
+                    <span className="px-1 py-0.5 bg-white/[0.08] text-neutral-300 text-[9px] rounded font-mono">
+                      {selectedProductsCount}
+                    </span>
+                  )}
+                  {bulkEditCount > 0 && (
+                    <span className="px-1 py-0.5 bg-blue-500/20 text-blue-300 text-[9px] rounded font-mono">
+                      {bulkEditCount}
+                    </span>
+                  )}
+                </div>
+              )}
+              
+              {/* Filters */}
+              <LocationSelector
+                selectedLocation={filterState.selectedLocationId}
+                onLocationChange={onLocationChange || (() => {})}
+                locations={floraLocations}
+                showAggregation={false}
+                className="w-24 text-[10px] h-6"
+              />
+              
+              <Select
+                value={filterState.selectedCategory}
+                onChange={(e) => onCategoryChange?.(e.target.value)}
+                options={categoryOptions}
+                className="w-20 text-[10px] h-6"
+              />
+              
+              <div className="relative" ref={filtersDropdownRef}>
+                <IconButton
+                  onClick={() => setIsFiltersDropdownOpen(!isFiltersDropdownOpen)}
+                  variant={filterState.hideZeroQuantity || filterState.showSelectedOnly ? 'active' : 'default'}
+                  title="Filters"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                  </svg>
+                </IconButton>
+                
+                {isFiltersDropdownOpen && (
+                  <div className="absolute top-full left-0 mt-1 bg-neutral-800 border border-white/[0.08] rounded-lg shadow-xl z-50 w-36">
+                    <div className="p-1 space-y-0.5">
+                      <button
+                        onClick={() => {
+                          onHideZeroQuantityChange?.(!filterState.hideZeroQuantity);
+                          setIsFiltersDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-2 py-1 text-[10px] rounded transition ${
+                          filterState.hideZeroQuantity ? 'bg-blue-500/20 text-blue-300' : 'text-neutral-400 hover:bg-white/[0.05]'
+                        }`}
+                      >
+                        Hide Zero
+                      </button>
+                      <button
+                        onClick={() => {
+                          onShowSelectedOnlyChange?.(!filterState.showSelectedOnly);
+                          setIsFiltersDropdownOpen(false);
+                        }}
+                        className={`w-full text-left px-2 py-1 text-[10px] rounded transition ${
+                          filterState.showSelectedOnly ? 'bg-green-500/20 text-green-300' : 'text-neutral-400 hover:bg-white/[0.05]'
+                        }`}
+                      >
+                        Selected
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </>
           )}
-        </div>
-        
-        {/* Center section - Search and Navigation Icons */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-4">
-          <SearchInput
-            value={filterState.searchQuery}
-            onChange={(value) => onFilterChange({ searchQuery: value })}
-            className="w-80"
-          />
           
-          {/* Navigation Icons - Right of Search */}
-          <div className="flex items-center">
-            {/* Views Dropdown */}
+          {/* Search */}
+          <div className="flex-1 max-w-[280px] mx-2">
+            <SearchInput
+              value={filterState.searchQuery}
+              onChange={(value) => onFilterChange({ searchQuery: value })}
+              className="w-full h-6 text-[10px]"
+            />
+          </div>
+          
+          {/* Product Actions */}
+          {isProductsTab && (
+            <>
+              {bulkEditCount > 0 && (
+                <>
+                  <IconButton onClick={onBulkJsonEdit} title={`JSON (${bulkEditCount})`}>
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                    </svg>
+                  </IconButton>
+                  <IconButton onClick={onBulkSave} title={`Save (${bulkEditCount})`}>
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                    </svg>
+                  </IconButton>
+                </>
+              )}
+              
+              {selectedProductsCount > 0 && (
+                <IconButton onClick={onSyncProducts} disabled={syncLoading} title={`Sync ${selectedProductsCount}`}>
+                  <svg className={`w-3 h-3 ${syncLoading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </IconButton>
+              )}
+              
+              <div className="relative">
+                <IconButton
+                  onClick={() => setIsCreateDropdownOpen(!isCreateDropdownOpen)}
+                  variant={isCreateDropdownOpen ? 'active' : 'default'}
+                  title="Add"
+                >
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </IconButton>
+                
+                <ProductCreateDropdown
+                  isOpen={isCreateDropdownOpen}
+                  onClose={() => setIsCreateDropdownOpen(false)}
+                  onCreateProduct={() => {}}
+                  onBulkImport={() => {}}
+                />
+              </div>
+              
+              <BulkActionsDropdown
+                selectedCount={selectedProductsCount}
+                onAction={onBulkAction || (() => {})}
+                onClearSelection={onClearSelection || (() => {})}
+              />
+            </>
+          )}
+          
+          {/* System Controls */}
+          <div className="flex items-center gap-0.5 ml-auto pt-1">
+            <Divider className="mx-0.5" />
+            
             <div className="relative">
               <IconButton
                 onClick={() => setIsViewsDropdownOpen(!isViewsDropdownOpen)}
                 variant={isViewsDropdownOpen ? 'active' : 'default'}
                 title="Views"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                 </svg>
               </IconButton>
@@ -82,28 +297,20 @@ export function Header({ filterState, viewState, onFilterChange, onViewChange, o
                 onClose={() => setIsViewsDropdownOpen(false)}
                 onProductsToggle={onProductsToggle}
                 onCustomersToggle={onCustomersToggle}
-                onOrdersToggle={() => {
-                  onViewChange({
-                    isOrdersViewOpen: !viewState.isOrdersViewOpen,
-                    showOverview: false
-                  });
-                }}
+                onOrdersToggle={() => onViewChange({ isOrdersViewOpen: !viewState.isOrdersViewOpen })}
                 onReportsToggle={onReportsToggle}
                 isOrdersViewOpen={viewState.isOrdersViewOpen}
                 isReportsViewOpen={viewState.isReportsViewOpen}
               />
             </div>
 
-            <Divider className="mx-2" />
-
-            {/* Files Dropdown */}
             <div className="relative">
               <IconButton
                 onClick={() => setIsFilesDropdownOpen(!isFilesDropdownOpen)}
                 variant={isFilesDropdownOpen ? 'active' : 'default'}
                 title="Files"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                 </svg>
               </IconButton>
@@ -115,96 +322,68 @@ export function Header({ filterState, viewState, onFilterChange, onViewChange, o
                 onCoaToggle={onCoaToggle}
               />
             </div>
-          </div>
-        </div>
-        
-        {/* Right section - Remaining Controls */}
-        <div className="flex items-center flex-shrink-0 px-4 pt-1">
 
-          {/* Settings Dropdown */}
-          <div className="relative">
-            <IconButton
-              onClick={() => {
-                setIsSettingsDropdownOpen(!isSettingsDropdownOpen);
-                setIsAuditDropdownOpen(false);
-                setIsViewsDropdownOpen(false);
-                setIsFilesDropdownOpen(false);
-              }}
-              variant={isSettingsDropdownOpen ? 'active' : 'default'}
-              title="Settings"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </IconButton>
-            
-            <SettingsDropdown
-              isOpen={isSettingsDropdownOpen}
-              onClose={() => setIsSettingsDropdownOpen(false)}
-              activeTab={activeSettingsTab || 'locations'}
-              onTabChange={onSettingsTabChange || (() => {})}
-              onNavigateToSettings={onNavigateToSettings || (() => {})}
-            />
-          </div>
-
-          {/* Audit History Dropdown */}
-          <div className="relative">
-            <IconButton
-              onClick={() => {
-                setIsAuditDropdownOpen(!isAuditDropdownOpen);
-                setIsSettingsDropdownOpen(false);
-              }}
-              variant={isAuditDropdownOpen ? 'active' : 'default'}
-              title="Audit History"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-              </svg>
-            </IconButton>
-            
-            <AuditDropdown
-              isOpen={isAuditDropdownOpen}
-              onClose={() => setIsAuditDropdownOpen(false)}
-            />
-          </div>
-
-          <Divider className="mx-2" />
-
-          {/* Refresh Button */}
-          <IconButton
-            onClick={async () => {
-              if (!onRefresh || isRefreshing) return;
+            <div className="relative">
+              <IconButton
+                onClick={() => setIsSettingsDropdownOpen(!isSettingsDropdownOpen)}
+                variant={isSettingsDropdownOpen ? 'active' : 'default'}
+                title="Settings"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </IconButton>
               
-              setIsRefreshing(true);
-              try {
-                await onRefresh();
-              } catch (error) {
-                console.error('Refresh error:', error);
-              } finally {
-                // Keep animation for at least 800ms to make it visible
-                setTimeout(() => setIsRefreshing(false), 800);
-              }
-            }}
-            variant="default"
-            disabled={!onRefresh || isRefreshing}
-            title={isRefreshing ? "Refreshing..." : "Refresh"}
-          >
-            <svg 
-              className={`w-5 h-5 transition-transform duration-200 ${
-                isRefreshing ? 'animate-spin' : ''
-              }`} 
-              fill="none" 
-              stroke="currentColor" 
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-          </IconButton>
+              <SettingsDropdown
+                isOpen={isSettingsDropdownOpen}
+                onClose={() => setIsSettingsDropdownOpen(false)}
+                activeTab={activeSettingsTab || 'locations'}
+                onTabChange={onSettingsTabChange || (() => {})}
+                onNavigateToSettings={onNavigateToSettings || (() => {})}
+              />
+            </div>
 
+            <div className="relative">
+              <IconButton
+                onClick={() => setIsAuditDropdownOpen(!isAuditDropdownOpen)}
+                variant={isAuditDropdownOpen ? 'active' : 'default'}
+                title="Audit"
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                </svg>
+              </IconButton>
+              
+              <AuditDropdown
+                isOpen={isAuditDropdownOpen}
+                onClose={() => setIsAuditDropdownOpen(false)}
+              />
+            </div>
+
+            <IconButton
+              onClick={async () => {
+                if (!onRefresh || isRefreshing) return;
+                setIsRefreshing(true);
+                try {
+                  await onRefresh();
+                } catch (error) {
+                  console.error('Refresh error:', error);
+                } finally {
+                  setTimeout(() => setIsRefreshing(false), 800);
+                }
+              }}
+              variant="default"
+              disabled={!onRefresh || isRefreshing}
+              title="Refresh"
+            >
+              <svg className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </IconButton>
+          </div>
         </div>
       </div>
-    </div>
     </div>
   );
 }

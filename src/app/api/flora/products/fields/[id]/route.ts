@@ -14,10 +14,11 @@ function buildFloraUrl(path: string): string {
 // GET /api/flora/products/fields/[id] - Get product fields
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const url = buildFloraUrl(`/fd/v2/products/${params.id}/fields`);
+    const { id } = await params;
+    const url = buildFloraUrl(`/fd/v2/products/${id}/fields`);
     
     const response = await fetch(url);
     
@@ -44,12 +45,13 @@ export async function GET(
 // PUT /api/flora/products/fields/[id] - Update product fields
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     
-    const url = buildFloraUrl(`/fd/v2/products/${params.id}/fields`);
+    const url = buildFloraUrl(`/fd/v2/products/${id}/fields`);
     
     const response = await fetch(url, {
       method: 'PUT',

@@ -14,10 +14,11 @@ function buildFloraUrl(path: string): string {
 // GET /api/flora/fields/[id] - Get single field
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const url = buildFloraUrl(`/fd/v2/fields/${params.id}`);
+    const { id } = await params;
+    const url = buildFloraUrl(`/fd/v2/fields/${id}`);
     
     const response = await fetch(url);
     
@@ -44,12 +45,13 @@ export async function GET(
 // PUT /api/flora/fields/[id] - Update field
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     
-    const url = buildFloraUrl(`/fd/v2/fields/${params.id}`);
+    const url = buildFloraUrl(`/fd/v2/fields/${id}`);
     
     const response = await fetch(url, {
       method: 'PUT',
@@ -82,10 +84,11 @@ export async function PUT(
 // DELETE /api/flora/fields/[id] - Delete field
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const url = buildFloraUrl(`/fd/v2/fields/${params.id}`);
+    const { id } = await params;
+    const url = buildFloraUrl(`/fd/v2/fields/${id}`);
     
     const response = await fetch(url, {
       method: 'DELETE',

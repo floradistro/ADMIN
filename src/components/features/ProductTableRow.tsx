@@ -623,7 +623,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
       
       // Small delay to ensure server has processed the update
       await new Promise(resolve => setTimeout(resolve, 100));
-      await fetchFullProductData();
+      // await fetchFullProductData(); // TODO: Implement fetchFullProductData
       
       // Also trigger parent refresh if needed
       if (onRefresh) {
@@ -649,13 +649,15 @@ export const ProductTableRow = React.memo(function ProductTableRow({
     });
     
     // Reset blueprint fields to original values
-    if (blueprintFields && blueprintFields.length > 0) {
-      const fieldValues: Record<string, any> = {};
-      blueprintFields.forEach(field => {
-        fieldValues[field.field_name] = field.field_value || '';
-      });
-      setEditBlueprintFields(fieldValues);
-    }
+    // TODO: Implement blueprintFields
+    // if (blueprintFields && blueprintFields.length > 0) {
+    //   const fieldValues: Record<string, any> = {};
+    //   blueprintFields.forEach(field => {
+    //     fieldValues[field.field_name] = field.field_value || '';
+    //   });
+    //   setEditBlueprintFields(fieldValues);
+    // }
+    setEditBlueprintFields({});
     
     setIsEditMode(false);
   };

@@ -100,6 +100,8 @@ export function AppContent() {
     fetchLocations,
     handleSyncProducts,
     handleBulkDelete,
+    selectedProducts,
+    bulkActions: { setSelectedProducts },
   } = useProductContext();
 
   // Enhanced tab management - only initialize after hydration
@@ -366,6 +368,22 @@ export function AppContent() {
           onTabMinimize={toggleMinimize}
           onCloseAllTabs={forceCloseAllTabs}
           activeTabId={activeTabId || ''}
+          floraLocations={floraLocations}
+          categoryOptions={categoryOptions}
+          selectedProductsCount={selectedProducts.size}
+          bulkEditCount={bulkEditProductIds.size}
+          totalProductsCount={products.length}
+          onBulkAction={handleBulkAction}
+          onClearSelection={() => setSelectedProducts(new Set())}
+          onBulkSave={handleBulkSave}
+          onBulkJsonEdit={handleBulkJsonEdit}
+          onSyncProducts={handleSyncProducts}
+          syncLoading={syncLoading}
+          bulkEditProductIds={bulkEditProductIds}
+          onLocationChange={(locationId) => updateFilter({ selectedLocationId: locationId })}
+          onCategoryChange={(category) => updateFilter({ selectedCategory: category })}
+          onHideZeroQuantityChange={(hide) => updateFilter({ hideZeroQuantity: hide })}
+          onShowSelectedOnlyChange={(show) => updateFilter({ showSelectedOnly: show })}
         />
 
         <div className="app-content">

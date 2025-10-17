@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useProductSettings } from '../../../hooks/useProductSettings';
 import { GeneralSettings } from './GeneralSettings';
 import { CategoryManagement } from './CategoryManagement';
-import { BlueprintDesigner } from './BlueprintDesigner';
+// import { BlueprintDesigner } from './BlueprintDesigner';
 import { StandaloneFieldsManager } from './StandaloneFieldsManager';
 import { PricingRulesManager } from './PricingRulesManager';
 import { RecipeSettings } from './RecipeSettings';
@@ -57,7 +57,7 @@ export function ProductSettings({ onClose, activeTab = 'general', onTabChange }:
           />
         );
       case 'blueprints':
-        return <BlueprintDesigner />;
+        return <div className="p-4 text-neutral-500">Blueprint Designer - Coming Soon</div>;
       case 'fields':
         return <StandaloneFieldsManager />;
       case 'pricing':
