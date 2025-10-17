@@ -6,8 +6,8 @@ export { IconButton } from './IconButton';
 export { Divider } from './Divider';
 export { StatusBadge } from './StatusBadge';
 export { CategoryTag } from './CategoryTag';
-export { BlueprintFieldDisplay } from './BlueprintFieldDisplay';
-export { EditableBlueprintFields } from './EditableBlueprintFields';
+export { FieldDisplay } from './FieldDisplay';
+export { EditableFields } from './EditableFields';
 export { LocationSelector } from './LocationSelector';
 export { ProductSearch } from './ProductSearch';
 

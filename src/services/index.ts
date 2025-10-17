@@ -16,6 +16,8 @@ export * from './mutations';
 // Service exports for backward compatibility
 export { inventoryService } from './inventory-service';
 export { FloraApiClient } from './api/flora-api-client';
+export { fieldsService } from './fields-service';
+export { bulkApiService } from './bulk-api-service';
 
 // Query Client
 export { queryClient } from '../lib/query-client';
@@ -29,3 +31,18 @@ export type {
   FloraFilterParams,
   FloraApiResponse
 } from './inventory-service';
+export type {
+  FloraField,
+  ProductFieldsResponse,
+  PricingRule,
+  ProductForm
+} from './fields-service';
+export type {
+  BulkProduct,
+  BulkOrder,
+  BulkCustomer,
+  BulkProductsParams,
+  BulkOrdersParams,
+  BulkCustomersParams,
+  BulkResponse
+} from './bulk-api-service';

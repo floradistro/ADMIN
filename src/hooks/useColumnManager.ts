@@ -26,14 +26,15 @@ export function useColumnManager({ products = [] }: UseColumnManagerOptions = {}
     try {
       const fields = await inventoryService.getAvailableBlueprintFields();
       
+      // Map Flora Fields V2 structure (name, label, type)
       const blueprintColumns = fields.map(field => ({
-        id: `blueprint_${field.field_name}`,
-        label: field.field_label || field.field_name,
+        id: `blueprint_${field.name}`,
+        label: field.label || field.name,
         width: 'w-32',
         visible: false, // Hide blueprint fields by default
         type: 'blueprint' as const,
-        blueprint_field_name: field.field_name,
-        blueprint_field_type: field.field_type,
+        blueprint_field_name: field.name,
+        blueprint_field_type: field.type,
       }));
       
       setAvailableBlueprintFields(blueprintColumns);

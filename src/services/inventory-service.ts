@@ -1038,12 +1038,11 @@ export class InventoryService {
   }
 
   /**
-   * Get all available blueprint fields that can be used as table columns
+   * Get all available fields from Flora Fields V2
    */
   async getAvailableBlueprintFields(): Promise<any[]> {
     try {
-      
-      const response = await fetch('/api/flora/available-blueprint-fields', {
+      const response = await fetch('/api/flora/fields?status=active&per_page=100', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -1051,15 +1050,15 @@ export class InventoryService {
       });
       
       if (!response.ok) {
-        throw new Error(`Failed to fetch available blueprint fields: ${response.status}`);
+        throw new Error(`Failed to fetch fields: ${response.status}`);
       }
       
       const result = await response.json();
       
-      if (result.success) {
-        return result.data;
+      if (result.fields) {
+        return result.fields;
       } else {
-        throw new Error(result.error || 'Failed to fetch available blueprint fields');
+        return [];
       }
     } catch (error) {
       return [];

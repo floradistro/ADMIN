@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Product, TabType, TabConfig, BlueprintFieldValue } from '../../types';
 import { Input, BlueprintFieldDisplay } from '../ui';
-import { EditableBlueprintFields } from '../ui/EditableBlueprintFields';
+import { EditableFields } from '../ui/EditableFields';
 import { InventoryInitializer } from './InventoryInitializer';
 import { inventoryService } from '../../services/inventory-service';
 

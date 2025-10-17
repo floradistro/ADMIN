@@ -4,13 +4,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 import { Product, ColumnConfig } from '../../types';
 import { useBulkEditFieldContext } from '../../contexts/BulkEditFieldContext';
-import { Button, CategoryTag, BlueprintFieldDisplay, ImageUpload, CoaManager } from '../ui';
+import { Button, CategoryTag, ImageUpload, CoaManager } from '../ui';
 import { inventoryService, InventoryService } from '../../services/inventory-service';
 import { varianceHistoryService } from '../../services/variance-history-service';
 import { recipeService, Recipe } from '../../services/recipe-service';
-import { BlueprintPricingService, BlueprintPricingData } from '../../services/blueprint-pricing-service';
-
-import { SimpleBlueprintFieldsLazy } from './SimpleBlueprintFieldsLazy';
 
 // Editable Blueprint Fields Component
 interface EditableBlueprintFieldsProps {
@@ -313,11 +310,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
   isBulkEditMode = false
 }: ProductTableRowProps) {
   
-  const [fullProduct, setFullProduct] = useState<any>(null);
-  const [isLoadingData, setIsLoadingData] = useState(false);
   const [stockViewMode, setStockViewMode] = useState<StockViewMode>('details');
-  const [blueprintFields, setBlueprintFields] = useState<any[]>([]);
-  const [blueprintPricing, setBlueprintPricing] = useState<BlueprintPricingData | null>(null);
   
   // Edit mode state - automatically enter edit mode when in bulk edit mode
   const [isEditMode, setIsEditMode] = useState(isBulkEditMode);
@@ -550,64 +543,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
     }
   }, [isExpanded]);
 
-  // Define fetchFullProductData function before useEffect that uses it
-  const fetchFullProductData = useCallback(async () => {
-    if (isLoadingData) return;
-    
-    setIsLoadingData(true);
-    try {
-      // Load product data and pricing in parallel for better performance
-      // Add retry logic for failed requests
-      const [productData, pricingData] = await Promise.allSettled([
-        inventoryService.getProductWithBlueprintFields(product.id),
-        BlueprintPricingService.getBlueprintPricingForProduct(product.id, product)
-      ]);
-      
-      // Handle product data result
-      if (productData.status === 'fulfilled') {
-        setFullProduct(productData.value);
-        if (productData.value.blueprint_fields) {
-          setBlueprintFields(productData.value.blueprint_fields);
-        }
-      } else {
-        console.warn(`Failed to load product data for ${product.id}:`, productData.reason);
-        // Fallback to product.blueprint_fields if available
-        if (product.blueprint_fields) {
-          setBlueprintFields(product.blueprint_fields);
-        }
-      }
-      
-      // Handle pricing data result
-      if (pricingData.status === 'fulfilled') {
-        setBlueprintPricing(pricingData.value);
-      } else {
-        console.warn(`Failed to load pricing data for ${product.id}:`, pricingData.reason);
-      }
-      
-    } catch (error) {
-      console.error(`Error fetching data for product ${product.id}:`, error);
-      // Fallback to product.blueprint_fields if available
-      if (product.blueprint_fields) {
-        setBlueprintFields(product.blueprint_fields);
-      }
-    } finally {
-      setIsLoadingData(false);
-    }
-  }, [product.id, isLoadingData]);
-
-  // Fetch full product data (including descriptions and blueprint fields) when expanded
-  useEffect(() => {
-    // Lazy load data after animation completes with staggered delays to prevent API flooding
-    if (isExpanded && !fullProduct && !isLoadingData) {
-      // Add staggered delay based on product ID to prevent all requests firing at once
-      const staggerDelay = 150 + (product.id % 10) * 50; // Base 150ms + 0-450ms stagger
-      const timeoutId = setTimeout(() => {
-        fetchFullProductData();
-      }, staggerDelay);
-      
-      return () => clearTimeout(timeoutId);
-    }
-  }, [isExpanded, product.id, fullProduct, isLoadingData, fetchFullProductData]);
+  // NO LAZY LOADING - All data comes from bulk API
 
   // Sync edit mode with bulk edit mode
   useEffect(() => {
@@ -621,27 +557,18 @@ export const ProductTableRow = React.memo(function ProductTableRow({
 
   // Listen for bulk save events (will be set up after handleSaveEdits is defined)
 
-  // Update edit data when full product data is loaded or when entering edit mode
+  // Initialize edit data from bulk API product data
   useEffect(() => {
-    if (isEditMode || fullProduct) {
+    if (isEditMode) {
       setEditData({
         name: product.name || '',
         sku: product.sku || '',
-        description: fullProduct?.description || product.description || '',
-        short_description: fullProduct?.short_description || product.short_description || '',
-        image: fullProduct?.image || product.image || ''
+        description: product.description || '',
+        short_description: product.short_description || '',
+        image: product.image || ''
       });
-      
-      // Initialize blueprint fields for editing
-      if (blueprintFields && blueprintFields.length > 0) {
-        const fieldValues: Record<string, any> = {};
-        blueprintFields.forEach(field => {
-          fieldValues[field.field_name] = field.field_value || '';
-        });
-        setEditBlueprintFields(fieldValues);
-      }
     }
-  }, [isEditMode, fullProduct, product, blueprintFields]);
+  }, [isEditMode, product]);
 
   // Handle save product edits
   const handleSaveEdits = async () => {
@@ -716,9 +643,9 @@ export const ProductTableRow = React.memo(function ProductTableRow({
     setEditData({
       name: product.name || '',
       sku: product.sku || '',
-      description: fullProduct?.description || product.description || '',
-      short_description: fullProduct?.short_description || product.short_description || '',
-      image: fullProduct?.image || product.image || ''
+      description: product.description || '',
+      short_description: product.short_description || '',
+      image: product.image || ''
     });
     
     // Reset blueprint fields to original values
@@ -1629,16 +1556,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
 
 
                 {/* Descriptions Section */}
-                {isLoadingData ? (
-                  <div className="border border-white/[0.04] rounded p-2 animate-pulse">
-                    <div className="h-2 bg-neutral-800 rounded w-16 mb-1"></div>
-                    <div className="space-y-1">
-                      <div className="h-2 bg-neutral-800 rounded w-full"></div>
-                      <div className="h-2 bg-neutral-800 rounded w-3/4"></div>
-                    </div>
-                  </div>
-                ) : (
-                  <>
+                <>
                     {/* Description */}
                     {isFieldVisible('description') && (
                       <div 
@@ -1661,7 +1579,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
                           />
                         ) : (
                           <div className="text-neutral-500 text-xs leading-relaxed">
-                            {fullProduct?.description ? stripHtml(fullProduct.description) : 
+                            {product.description ? stripHtml(product.description) : 
                              product.description ? stripHtml(product.description) : 
                              'No description available'}
                           </div>
@@ -1691,7 +1609,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
                           />
                         ) : (
                           <div className="text-neutral-500 text-xs leading-relaxed">
-                            {fullProduct?.short_description ? stripHtml(fullProduct.short_description) : 
+                            {product.short_description ? stripHtml(product.short_description) : 
                              product.short_description ? stripHtml(product.short_description) : 
                              'No short description available'}
                           </div>
@@ -1699,63 +1617,42 @@ export const ProductTableRow = React.memo(function ProductTableRow({
                       </div>
                     )}
                   </>
-                )}
               </div>
 
-              {/* Column 2: Blueprint Fields */}
+              {/* Column 2: Product Details (From Bulk API) */}
               <div className="space-y-2">
                 <div className="text-neutral-500 font-medium text-xs mb-2">
-                  Blueprint Fields
+                  Product Details
                 </div>
                 
-                <SimpleBlueprintFieldsLazy
-                  productId={product.id}
-                  productName={product.name}
-                  isEditMode={isEditMode}
-                  previewValues={editBlueprintFields}
-                  onFieldChange={(fieldName, value) => {
-                    setEditBlueprintFields(prev => ({
-                      ...prev,
-                      [fieldName]: value
-                    }));
-                  }}
-                  refreshTrigger={blueprintRefreshTrigger}
-                  isVisible={isExpanded}
-                />
-                
-                {/* Blueprint Pricing - Grouped by Rule */}
-                {blueprintPricing && blueprintPricing.ruleGroups && blueprintPricing.ruleGroups.length > 0 && (
-                  <div className="border border-white/[0.04] rounded p-2 mt-2">
-                    <div className="text-neutral-600 text-xs font-medium mb-2">
-                      Blueprint Pricing
-                    </div>
-                    
-                    {/* Display each pricing rule group */}
-                    <div className="space-y-2">
-                      {blueprintPricing.ruleGroups.map((ruleGroup, groupIndex) => (
-                        <div key={groupIndex} className="border border-white/[0.04] rounded p-2">
-                          <div className="text-neutral-500 text-xs mb-1 flex items-center gap-2">
-                            <span>{ruleGroup.ruleName}</span>
-                            {ruleGroup.productType && (
-                              <span className="text-neutral-600 text-xs">
-                                ({ruleGroup.productType})
-                              </span>
-                            )}
+                {/* Real Product Meta Data */}
+                {product.meta_data && product.meta_data.length > 0 ? (
+                  <div className="space-y-1">
+                    {product.meta_data.map((meta: any, idx: number) => {
+                      const displayValue = typeof meta.value === 'object' 
+                        ? JSON.stringify(meta.value) 
+                        : String(meta.value || '-');
+                      
+                      const label = meta.key
+                        .replace(/_/g, ' ')
+                        .split(' ')
+                        .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(' ');
+                      
+                      return (
+                        <div key={meta.key || idx} className="border border-white/[0.04] rounded px-2 py-1.5">
+                          <div className="text-neutral-600 text-xs font-medium mb-0.5">
+                            {label}
                           </div>
-                          <div className="grid grid-cols-2 gap-1 text-xs">
-                            {ruleGroup.tiers.map((tier, tierIndex) => (
-                              <div key={tierIndex} className="flex justify-between border border-white/[0.04] px-2 py-1 rounded">
-                                <span className="text-neutral-500">
-                                  {tier.label}:
-                                </span>
-                                <span className="text-neutral-400">${tier.price.toFixed(2)}</span>
-                              </div>
-                            ))}
+                          <div className="text-neutral-300 text-xs leading-relaxed">
+                            {displayValue}
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      );
+                    })}
                   </div>
+                ) : (
+                  <div className="text-neutral-700 text-xs">No product details</div>
                 )}
               </div>
 

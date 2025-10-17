@@ -101,14 +101,14 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
     }
   };
 
-  // Load available fields (blueprint fields only)
+  // Load available fields from Flora Fields V2
   const loadAvailableFields = async () => {
     try {
-      const response = await fetch('/api/flora/available-blueprint-fields');
+      const response = await fetch('/api/flora/fields?status=active&per_page=100');
       if (response.ok) {
         const result = await response.json();
-        if (result.success) {
-          setAvailableFields(result.data);
+        if (result.fields) {
+          setAvailableFields(result.fields);
         }
       }
     } catch (err) {

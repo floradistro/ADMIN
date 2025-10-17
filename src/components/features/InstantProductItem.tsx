@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Product } from '../../types';
 import { Button, StatusBadge, CategoryTag } from '../ui';
 import { useInstantInventory } from '@/hooks/useInstantInventory';
-import { BlueprintPricingService, BlueprintPricingData } from '../../services/blueprint-pricing-service';
+import { fieldsService, ProductForm } from '../../services/fields-service';
 
 interface InstantProductItemProps {
   product: Product;

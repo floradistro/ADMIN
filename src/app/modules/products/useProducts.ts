@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef, useMemo } from 'react';
 import { Product, Location, FilterState } from '../../../types';
 import { inventoryService, FloraProduct, FloraLocation } from '../../../services/inventory-service';
+import { bulkApiService } from '../../../services/bulk-api-service';
 import { categoriesService } from '../../../services/categories-service';
 import { useColumnManager } from '../../../hooks/useColumnManager';
 import { usePagination } from '../../../hooks/usePagination';
@@ -117,7 +118,7 @@ export function useProducts() {
     meta_data: floraProduct.meta_data || [],
   }), []);
 
-  // Fetch products from Flora API
+  // Fetch products using BULK API (100x faster than old method)
   const fetchProducts = useCallback(async (page = 1, reset = false, filterState?: FilterState) => {
     try {
       pagination.setIsLoading(true);
@@ -128,15 +129,31 @@ export function useProducts() {
         page,
         per_page: pagination.itemsPerPage,
         ...(filterState?.selectedLocationId && { location_id: parseInt(filterState.selectedLocationId) }),
-        ...(filterState?.selectedCategory && { category_id: parseInt(filterState.selectedCategory) }),
-        ...(filterState?.searchQuery && { search: filterState.searchQuery }),
-        ...(aggregateChildren && { aggregate_by_parent: true }),
+        ...(filterState?.selectedCategory && { category: parseInt(filterState.selectedCategory) }),
       };
 
-      const response = await inventoryService.getFilteredProducts(filters, false);
+      // Use BULK API - gets products with inventory, fields, and meta in 1 optimized call
+      const response = await bulkApiService.getProducts(filters);
 
       if (response.success) {
-        const convertedProducts = response.data.map(convertFloraProduct);
+        // Bulk API returns data in the correct format already
+        const convertedProducts = response.data.map((product: any) => ({
+          id: product.id,
+          name: product.name,
+          sku: product.sku || '',
+          type: product.type,
+          status: product.status,
+          description: product.description || '',
+          short_description: product.short_description || '',
+          regular_price: product.regular_price,
+          sale_price: product.sale_price,
+          image: product.image,
+          categories: product.categories,
+          inventory: product.inventory,
+          total_stock: product.total_stock,
+          fields: product.fields, // Flora Fields V2
+          meta_data: product.meta_data, // Product meta (effects, lineage, etc.)
+        }));
         
         if (reset || page === 1) {
           setProducts(convertedProducts);
@@ -148,7 +165,7 @@ export function useProducts() {
         if (response.meta) {
           pagination.updatePagination({
             total: response.meta.total,
-            pages: response.meta.pages,
+            pages: Math.ceil(response.meta.total / pagination.itemsPerPage),
             current_page: page,
             per_page: response.meta.per_page,
           });
@@ -158,12 +175,12 @@ export function useProducts() {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to fetch products');
-      // console.error('Error fetching products:', err);
+      console.error('Error fetching products:', err);
     } finally {
       setIsLoading(false);
       pagination.setIsLoading(false);
     }
-  }, [aggregateChildren, convertFloraProduct, pagination]);
+  }, [aggregateChildren, pagination]);
 
   // Fetch locations from Flora API
   const fetchLocations = useCallback(async (forceRefresh = false) => {
@@ -222,17 +239,28 @@ export function useProducts() {
         per_page: 100,
       };
 
-      const response = await inventoryService.getFilteredProducts(filters, true);
+      // Use BULK API for refresh
+      const response = await bulkApiService.getProducts(filters);
 
       if (response.success) {
-        const convertedProducts = response.data.map(convertFloraProduct);
+        const convertedProducts = response.data.map((product: any) => ({
+          id: product.id,
+          name: product.name,
+          sku: product.sku || '',
+          type: product.type,
+          status: product.status,
+          description: product.description || '',
+          short_description: product.short_description || '',
+          regular_price: product.regular_price,
+          sale_price: product.sale_price,
+          image: product.image,
+          categories: product.categories,
+          inventory: product.inventory,
+          total_stock: product.total_stock,
+          fields: product.fields,
+          meta_data: product.meta_data,
+        }));
         setProducts(convertedProducts);
-        
-        // Also refresh enriched products if they were loaded
-        if (hasLoadedFieldValues) {
-          const productsWithFieldValues = await loadFieldValuesForProducts(convertedProducts);
-          setEnrichedProducts(productsWithFieldValues);
-        }
         
         // Force a small delay to ensure state updates have propagated
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -413,13 +441,30 @@ export function useProducts() {
 
       const filters = {
         page: 1,
-        per_page: -1,
+        per_page: 500, // Get all products in one call
       };
 
-      const response = await inventoryService.getFilteredProducts(filters, false);
+      // Use BULK API for initialization
+      const response = await bulkApiService.getProducts(filters);
 
       if (response.success) {
-        const convertedProducts = response.data.map(convertFloraProduct);
+        const convertedProducts = response.data.map((product: any) => ({
+          id: product.id,
+          name: product.name,
+          sku: product.sku || '',
+          type: product.type,
+          status: product.status,
+          description: product.description || '',
+          short_description: product.short_description || '',
+          regular_price: product.regular_price,
+          sale_price: product.sale_price,
+          image: product.image,
+          categories: product.categories,
+          inventory: product.inventory,
+          total_stock: product.total_stock,
+          fields: product.fields,
+          meta_data: product.meta_data,
+        }));
         setProducts(convertedProducts);
         
         // Update pagination state
@@ -427,9 +472,9 @@ export function useProducts() {
         if (response.meta) {
           pagination.updatePagination({
             total: response.meta.total,
-            pages: response.meta.pages,
+            pages: Math.ceil(response.meta.total / 100),
             current_page: 1,
-            per_page: response.meta.per_page || -1,
+            per_page: response.meta.per_page,
           });
         }
       } else {

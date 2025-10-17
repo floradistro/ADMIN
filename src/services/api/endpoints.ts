@@ -50,9 +50,10 @@ export const ENDPOINTS = {
   },
 
   // Blueprint Fields
-  BLUEPRINT_FIELDS: {
-    FOR_PRODUCT: (productId: number) => `/blueprint-fields/${productId}`,
-    AVAILABLE: '/flora/available-blueprint-fields',
+  FIELDS: {
+    ALL: '/flora/fields',
+    BY_ID: (fieldId: number) => `/flora/fields/${fieldId}`,
+    FOR_PRODUCT: (productId: number) => `/flora/products/fields/${productId}`,
   },
 
   // Analytics
