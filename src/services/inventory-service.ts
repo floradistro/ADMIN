@@ -856,16 +856,17 @@ export class InventoryService {
   }
 
   /**
-   * Get blueprint fields for a product based on assignments
+   * Get native fields for a product (V3 API)
    */
   private async getBlueprintFieldsForProduct(productId: number, categories: Array<{id: number, name: string}>): Promise<any[]> {
     try {
-      // Use our new API endpoint that properly fetches blueprint fields with values
-      const response = await fetch(`/api/blueprint-fields/${productId}`, {
+      // Use V3 Native Fields API
+      const response = await fetch(`/api/flora/products/fields/${productId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
+        cache: 'no-store'
       });
       
       if (!response.ok) {
@@ -874,12 +875,30 @@ export class InventoryService {
       
       const result = await response.json();
       
-      if (result.success && result.fields) {
-        return result.fields;
-      } else {
-        return [];
+      // V3 API returns {product_id, fields: [...]}
+      if (result.fields && Array.isArray(result.fields)) {
+        // Transform V3 fields to match expected blueprint_fields format
+        return result.fields
+          .filter((field: any) => field.type !== 'blueprint') // Skip blueprint type fields
+          .map((field: any) => ({
+            field_name: field.name,
+            field_label: field.label,
+            field_type: field.type,
+            field_value: field.value || field.default_value || '',
+            field_default_value: field.default_value,
+            is_required: field.required,
+            display_options: {
+              choices: field.config?.options || []
+            },
+            field_config: field.config,
+            field_group: field.group,
+            blueprint_name: field.group || 'Fields'
+          }));
       }
+      
+      return [];
     } catch (error) {
+      console.error('Failed to load fields:', error);
       return [];
     }
   }
@@ -1041,28 +1060,21 @@ export class InventoryService {
    * Get all available fields from Flora Fields V2
    */
   async getAvailableBlueprintFields(): Promise<any[]> {
-    try {
-      const response = await fetch('/api/flora/fields?status=active&per_page=100', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      if (!response.ok) {
-        throw new Error(`Failed to fetch fields: ${response.status}`);
-      }
-      
-      const result = await response.json();
-      
-      if (result.fields) {
-        return result.fields;
-      } else {
-        return [];
-      }
-    } catch (error) {
-      return [];
-    }
+    // V3 Native - return common fields from our categories
+    return [
+      { name: 'strain_type', label: 'Strain Type', type: 'select' },
+      { name: 'thc_percentage', label: 'THCa %', type: 'number' },
+      { name: 'delta9_percentage', label: 'Δ9 %', type: 'number' },
+      { name: 'terpenes', label: 'Terpenes', type: 'text' },
+      { name: 'effects', label: 'Effects', type: 'text' },
+      { name: 'lineage', label: 'Lineage', type: 'text' },
+      { name: 'vape_type', label: 'Vape Type', type: 'select' },
+      { name: 'consistency', label: 'Consistency', type: 'select' },
+      { name: 'flavor', label: 'Flavor', type: 'select' },
+      { name: 'thc_content', label: 'THC Content', type: 'select' },
+      { name: 'product_type', label: 'Product Type', type: 'text' },
+      { name: 'ingredients', label: 'Ingredients', type: 'textarea' },
+    ];
   }
 
   /**

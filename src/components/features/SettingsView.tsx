@@ -6,6 +6,7 @@ import { Badge, Button, IconButton, LoadingSpinner, LocationCreateDropdown, Aler
 import { LocationTable } from './LocationTable';
 import { DeveloperTools } from './DeveloperTools';
 import { useDialogs } from '../../hooks/useDialogs';
+import { FieldsManagerFull } from './settings/FieldsManagerFull';
 
 interface SettingsViewProps {
   onClose?: () => void;
@@ -13,7 +14,7 @@ interface SettingsViewProps {
   onTabChange?: (tab: SettingsTab) => void;
 }
 
-type SettingsTab = 'locations' | 'general' | 'blueprints' | 'categories' | 'developer';
+type SettingsTab = 'locations' | 'general' | 'fields' | 'categories' | 'developer';
 
 export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: SettingsViewProps) {
   const [locations, setLocations] = useState<Location[]>([]);
@@ -23,21 +24,7 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
   // Dialog management
   const dialogs = useDialogs();
   
-  // Blueprint-related state
-  const [blueprints, setBlueprints] = useState<any[]>([]);
-  const [availableFields, setAvailableFields] = useState<any[]>([]);
-  const [availablePricingRules, setAvailablePricingRules] = useState<any[]>([]);
-  const [blueprintsLoading, setBlueprintsLoading] = useState(false);
-  const [blueprintsError, setBlueprintsError] = useState<string | null>(null);
-  const [selectedBlueprint, setSelectedBlueprint] = useState<any | null>(null);
-  
-  // Drag and drop state
-  const [draggedField, setDraggedField] = useState<any | null>(null);
-  const [dragOverZone, setDragOverZone] = useState<string | null>(null);
-  const [isEditMode, setIsEditMode] = useState(false);
-  const [fieldTypeFilter, setFieldTypeFilter] = useState<string>('all');
-  const [pricingTypeFilter, setPricingTypeFilter] = useState<string>('all');
-  const [blueprintActiveTab, setBlueprintActiveTab] = useState<'fields' | 'pricing'>('fields');
+  // Removed old blueprint state - replaced by FieldsManager
   
   // Pricing rule editor state
   const [editingPricingRule, setEditingPricingRule] = useState<any | null>(null);
@@ -104,6 +91,9 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
   // Load available fields from Flora Fields V2
   const loadAvailableFields = async () => {
     try {
+      // Old V2 fields endpoint removed - use V3 field library if needed
+      setAvailableFields([]);
+      return;
       const response = await fetch('/api/flora/fields?status=active&per_page=100');
       if (response.ok) {
         const result = await response.json();
@@ -239,14 +229,7 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
     }
   };
 
-  // Load blueprints when blueprints tab is active
-  useEffect(() => {
-    if (activeTab === 'blueprints') {
-      loadBlueprints();
-      loadAvailableFields();
-      loadAvailablePricingRules();
-    }
-  }, [activeTab]);
+  // Removed old blueprint loading - FieldsManager handles its own data
 
   // Load categories when categories tab is active
   useEffect(() => {
@@ -970,7 +953,15 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
         </div>
       )}
 
-      {activeTab === 'blueprints' && (
+      {activeTab === 'fields' && (
+        <div className="flex-1 min-h-0 overflow-hidden">
+          <div className="h-full p-6 overflow-y-auto">
+            <FieldsManagerFull />
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'blueprints_OLD_DISABLED' && (
         <div className="flex-1 min-h-0 overflow-hidden">
           <div className="h-full flex flex-col">
             {/* Blueprint Builder Header */}

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "@/components/auth";
 import { QueryProvider } from "@/providers/QueryProvider";
+import { ListProvider } from "@/contexts/ListContext";
 
 import "./globals.css";
 
@@ -70,7 +71,9 @@ export default function RootLayout({
         <div className="wave-layer"></div>
         <QueryProvider>
           <AuthProvider>
-            {children}
+            <ListProvider>
+              {children}
+            </ListProvider>
           </AuthProvider>
         </QueryProvider>
       </body>

@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useMemo } from 'react';
+import { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import { Product, Location, FilterState } from '../../../types';
 import { inventoryService, FloraProduct, FloraLocation } from '../../../services/inventory-service';
 import { bulkApiService } from '../../../services/bulk-api-service';
@@ -50,14 +50,40 @@ export function useProducts() {
   const initialLoadRef = useRef(true);
   const isFilteringRef = useRef(false);
 
-  // Filter products based on zero quantity setting and selected products
+  // Filter products based on all filter criteria - CLIENT SIDE for instant results
   const getFilteredProducts = useCallback((
     filterState: FilterState, 
     allProducts: Product[] = products
   ) => {
+    console.log('🔍 Filtering products:', {
+      total: allProducts.length,
+      selectedCategory: filterState.selectedCategory,
+      selectedLocation: filterState.selectedLocationId
+    });
+    
     let filtered = allProducts;
     
-    // Apply selected products filter first
+    // Apply category filter - INSTANT CLIENT-SIDE
+    if (filterState.selectedCategory) {
+      const before = filtered.length;
+      filtered = filtered.filter(product => {
+        if (!product.categories || product.categories.length === 0) return false;
+        return product.categories.some(cat => cat.id?.toString() === filterState.selectedCategory);
+      });
+      console.log(`  Category filter: ${before} → ${filtered.length} products (category: ${filterState.selectedCategory})`);
+    }
+    
+    // Apply location filter - INSTANT CLIENT-SIDE
+    if (filterState.selectedLocationId) {
+      const before = filtered.length;
+      filtered = filtered.filter(product => {
+        if (!product.inventory || product.inventory.length === 0) return false;
+        return product.inventory.some(inv => inv.location_id?.toString() === filterState.selectedLocationId);
+      });
+      console.log(`  Location filter: ${before} → ${filtered.length} products (location: ${filterState.selectedLocationId})`);
+    }
+    
+    // Apply selected products filter
     if (filterState.showSelectedOnly) {
       filtered = filtered.filter(product => bulkActions.selectedProducts.has(product.id));
     }
@@ -73,7 +99,7 @@ export function useProducts() {
         // If a specific location is selected, only check that location
         if (filterState.selectedLocationId) {
           const locationInventory = product.inventory.find(
-            inv => inv.location_id === filterState.selectedLocationId
+            inv => inv.location_id?.toString() === filterState.selectedLocationId
           );
           return locationInventory ? locationInventory.stock > 0 : false;
         }
@@ -136,6 +162,9 @@ export function useProducts() {
       const response = await bulkApiService.getProducts(filters);
 
       if (response.success) {
+        const sample = response.data?.[0];
+        console.log(`📦 Fetched ${response.data?.length} products - Sample: ${sample?.name} has ${sample?.blueprint_fields?.length || 0} fields`);
+        
         // Bulk API returns data in the correct format already
         const convertedProducts = response.data.map((product: any) => ({
           id: product.id,
@@ -148,16 +177,19 @@ export function useProducts() {
           regular_price: product.regular_price,
           sale_price: product.sale_price,
           image: product.image,
+          blueprint_fields: product.blueprint_fields || [],
           categories: product.categories,
           inventory: product.inventory,
           total_stock: product.total_stock,
-          fields: product.fields, // Flora Fields V2
-          meta_data: product.meta_data, // Product meta (effects, lineage, etc.)
+          fields: product.fields,
+          meta_data: product.meta_data,
         }));
         
         if (reset || page === 1) {
+          console.log(`📝 Setting ${convertedProducts.length} products (RESET)`);
           setProducts(convertedProducts);
         } else {
+          console.log(`📝 Appending ${convertedProducts.length} products`);
           setProducts(prev => [...prev, ...convertedProducts]);
         }
 
@@ -223,6 +255,28 @@ export function useProducts() {
       // console.error('Error fetching categories:', err);
     }
   }, []);
+
+  // Listen for field updates from Settings
+  useEffect(() => {
+    const handleFieldsUpdate = async () => {
+      console.log('🎧 categoryFieldsUpdated event received!');
+      console.log('Current products count:', products.length);
+      console.log('🔄 Re-fetching page', pagination.currentPage, 'with reset=true');
+      
+      // Force complete refresh
+      await fetchProducts(1, true);
+      
+      console.log('✅ Fetch complete - new products count:', products.length);
+    };
+
+    window.addEventListener('categoryFieldsUpdated', handleFieldsUpdate);
+    return () => window.removeEventListener('categoryFieldsUpdated', handleFieldsUpdate);
+  }, [fetchProducts]);
+  
+  // Expose fetch products with filters for external use
+  const fetchProductsWithFilters = useCallback(async (filterState?: FilterState) => {
+    await fetchProducts(1, true, filterState);
+  }, [fetchProducts]);
 
   // Load more products
   const handleLoadMore = useCallback(() => {
@@ -441,10 +495,9 @@ export function useProducts() {
 
       const filters = {
         page: 1,
-        per_page: 500, // Get all products in one call
+        per_page: 500,
       };
 
-      // Use BULK API for initialization
       const response = await bulkApiService.getProducts(filters);
 
       if (response.success) {
@@ -459,12 +512,14 @@ export function useProducts() {
           regular_price: product.regular_price,
           sale_price: product.sale_price,
           image: product.image,
+          blueprint_fields: product.blueprint_fields || [],
           categories: product.categories,
           inventory: product.inventory,
           total_stock: product.total_stock,
           fields: product.fields,
           meta_data: product.meta_data,
         }));
+        
         setProducts(convertedProducts);
         
         // Update pagination state
@@ -533,6 +588,7 @@ export function useProducts() {
     setAggregateChildren,
     setError,
     fetchProducts,
+    fetchProductsWithFilters,
     fetchLocations,
     fetchCategories,
     handleLoadMore,

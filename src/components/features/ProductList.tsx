@@ -88,17 +88,6 @@ export function ProductList({
   // Use external state if provided, otherwise use internal state
   const selectedProducts = externalSelectedProducts ?? internalSelectedProducts;
   const setSelectedProducts = onSelectedProductsChange ?? setInternalSelectedProducts;
-  // Generate category options from products
-  const categoryOptions = React.useMemo(() => {
-    const categories = new Set<string>();
-    products.forEach(product => {
-      product.categories?.forEach(cat => categories.add(cat.name));
-    });
-    return [
-      { value: '', label: 'All Categories' },
-      ...Array.from(categories).map(cat => ({ value: cat, label: cat }))
-    ];
-  }, [products]);
 
   const handleSelectAll = () => {
     if (selectedProducts.size === products.length) {

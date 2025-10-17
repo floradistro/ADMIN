@@ -208,7 +208,10 @@ export function IntegratedSearchBar({
                   {locationOptions.map((option) => (
                     <button
                       key={`search-location-${option.id}`}
-                      onClick={() => handleLocationSelect(option.id)}
+                      onClick={() => {
+                        handleLocationSelect(option.id);
+                        setIsFiltersOpen(false);
+                      }}
                       className={`w-full text-left px-2 py-1.5 text-[10px] rounded transition ${
                         selectedLocation === option.id
                           ? 'bg-blue-500/20 text-blue-300'
@@ -253,30 +256,42 @@ export function IntegratedSearchBar({
                   Category
                 </div>
                 <div className="space-y-0.5 max-h-48 overflow-y-auto">
-                  <button
-                    onClick={() => handleCategorySelect('')}
-                    className={`w-full text-left px-2 py-1.5 text-[10px] rounded transition ${
-                      selectedCategory === ''
-                        ? 'bg-purple-500/20 text-purple-300'
-                        : 'text-neutral-400 hover:bg-white/[0.05] hover:text-neutral-300'
-                    }`}
-                  >
-                    All Categories
-                  </button>
+                  {categoryOptions.filter(opt => opt.value !== '').length > 0 ? (
+                    <>
+                      <button
+                        onClick={() => {
+                          handleCategorySelect('');
+                          setIsFiltersOpen(false);
+                        }}
+                        className={`w-full text-left px-2 py-1.5 text-[10px] rounded transition ${
+                          selectedCategory === ''
+                            ? 'bg-purple-500/20 text-purple-300'
+                            : 'text-neutral-400 hover:bg-white/[0.05] hover:text-neutral-300'
+                        }`}
+                      >
+                        All Categories
+                      </button>
 
-                  {categoryOptions.map((option) => (
-                    <button
-                      key={`search-category-${option.value}`}
-                      onClick={() => handleCategorySelect(option.value)}
-                      className={`w-full text-left px-2 py-1.5 text-[10px] rounded transition ${
-                        selectedCategory === option.value
-                          ? 'bg-purple-500/20 text-purple-300'
-                          : 'text-neutral-400 hover:bg-white/[0.05] hover:text-neutral-300'
-                      }`}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
+                      {categoryOptions.filter(opt => opt.value !== '').map((option) => (
+                        <button
+                          key={`search-category-${option.value}`}
+                          onClick={() => {
+                            handleCategorySelect(option.value);
+                            setIsFiltersOpen(false);
+                          }}
+                          className={`w-full text-left px-2 py-1.5 text-[10px] rounded transition ${
+                            selectedCategory === option.value
+                              ? 'bg-purple-500/20 text-purple-300'
+                              : 'text-neutral-400 hover:bg-white/[0.05] hover:text-neutral-300'
+                          }`}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </>
+                  ) : (
+                    <div className="px-2 py-1.5 text-[10px] text-neutral-600">No categories available</div>
+                  )}
                 </div>
               </div>
             </div>

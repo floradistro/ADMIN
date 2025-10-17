@@ -1,6 +1,8 @@
 
 export { ProductList } from './ProductList';
 export { ProductTableRow } from './ProductTableRow';
+export { ProductPricingTiers } from './ProductPricingTiers';
+export { ProductFields } from './ProductFields';
 export { ProductGridHeader } from './ProductGridHeader';
 export type { ProductGridTab } from '../../app/modules/products/useProducts';
 export { SettingsView } from './SettingsView';
@@ -29,3 +31,10 @@ export { FilterBar } from './FilterBar';
 export { BulkActionBar } from './BulkActionBar';
 export { DataGrid } from './DataGrid';
 export { TabContainer } from './TabContainer';
+
+// List management components
+export { ListFeature } from './ListFeature';
+export { CreateListModal } from './CreateListModal';
+export { ListManager } from './ListManager';
+export { ListViewer } from './ListViewer';
+export { EmailListDialog } from './EmailListDialog';

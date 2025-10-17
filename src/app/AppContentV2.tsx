@@ -97,6 +97,7 @@ export function AppContent() {
     syncLoading,
     initializeProducts,
     fetchProducts,
+    fetchProductsWithFilters,
     fetchLocations,
     handleSyncProducts,
     handleBulkDelete,
@@ -183,10 +184,13 @@ export function AppContent() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [forceCloseAllTabs]);
 
-  // Initialize data
+  // Initialize data - but don't load products if filters are already set
   useEffect(() => {
-    initializeProducts();
-  }, [initializeProducts]);
+    // Only initialize if we haven't set filters yet
+    if (!filterState.selectedCategory && !filterState.selectedLocationId) {
+      initializeProducts();
+    }
+  }, []);
 
   // Get props for each tab type
   const getTabProps = useCallback((tabId: string) => {
@@ -218,6 +222,7 @@ export function AppContent() {
           onRefresh: () => fetchProducts(1, true),
           onSyncProducts: handleSyncProducts,
           onBulkDelete: handleBulkDelete,
+          fetchProductsWithFilters,
           isLoading,
           hasMore,
           syncLoading,
@@ -380,8 +385,12 @@ export function AppContent() {
           onSyncProducts={handleSyncProducts}
           syncLoading={syncLoading}
           bulkEditProductIds={bulkEditProductIds}
-          onLocationChange={(locationId) => updateFilter({ selectedLocationId: locationId })}
-          onCategoryChange={(category) => updateFilter({ selectedCategory: category })}
+          onLocationChange={(locationId) => {
+            updateFilter({ selectedLocationId: locationId });
+          }}
+          onCategoryChange={(category) => {
+            updateFilter({ selectedCategory: category });
+          }}
           onHideZeroQuantityChange={(hide) => updateFilter({ hideZeroQuantity: hide })}
           onShowSelectedOnlyChange={(show) => updateFilter({ showSelectedOnly: show })}
         />

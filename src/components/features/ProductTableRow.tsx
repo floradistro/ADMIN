@@ -8,6 +8,7 @@ import { Button, CategoryTag, ImageUpload, CoaManager } from '../ui';
 import { inventoryService, InventoryService } from '../../services/inventory-service';
 import { varianceHistoryService } from '../../services/variance-history-service';
 import { recipeService, Recipe } from '../../services/recipe-service';
+import { ProductPricingTiers } from './ProductPricingTiers';
 
 // Editable Blueprint Fields Component
 interface EditableBlueprintFieldsProps {
@@ -74,7 +75,8 @@ function EditableBlueprintFields({ blueprintFields, editValues, onChange, isLoad
 
   const renderEditableField = (field: any) => {
     const { field_name, field_type, field_label, field_value, is_required, display_options } = field;
-    const currentValue = editValues[field_name] ?? field_value ?? '';
+    // Use field_value from API as default, only override if user has edited
+    const currentValue = editValues[field_name] !== undefined ? editValues[field_name] : (field_value ?? '');
 
     const baseClasses = `border border-white/[0.08] rounded p-2 transition-all duration-200`;
 
@@ -163,7 +165,7 @@ function EditableBlueprintFields({ blueprintFields, editValues, onChange, isLoad
 
       case 'select':
       case 'radio':
-        const options = display_options?.choices || [];
+        const options = display_options?.options || display_options?.choices || [];
         return (
           <div 
             key={field_name} 
@@ -194,7 +196,7 @@ function EditableBlueprintFields({ blueprintFields, editValues, onChange, isLoad
         );
 
       case 'checkbox':
-        const checkboxOptions = display_options?.choices || [];
+        const checkboxOptions = display_options?.options || display_options?.choices || [];
         const selectedValues = Array.isArray(currentValue) ? currentValue : [];
         
         return (
@@ -1626,41 +1628,32 @@ export const ProductTableRow = React.memo(function ProductTableRow({
                   </>
               </div>
 
-              {/* Column 2: Product Details (From Bulk API) */}
+              {/* Column 2: Native Fields & Pricing */}
               <div className="space-y-2">
                 <div className="text-neutral-500 font-medium text-xs mb-2">
-                  Product Details
+                  Product Fields
                 </div>
                 
-                {/* Real Product Meta Data */}
-                {product.meta_data && product.meta_data.length > 0 ? (
-                  <div className="space-y-1">
-                    {product.meta_data.map((meta: any, idx: number) => {
-                      const displayValue = typeof meta.value === 'object' 
-                        ? JSON.stringify(meta.value) 
-                        : String(meta.value || '-');
-                      
-                      const label = meta.key
-                        .replace(/_/g, ' ')
-                        .split(' ')
-                        .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
-                        .join(' ');
-                      
-                      return (
-                        <div key={meta.key || idx} className="border border-white/[0.04] rounded px-2 py-1.5">
-                          <div className="text-neutral-600 text-xs font-medium mb-0.5">
-                            {label}
-                          </div>
-                          <div className="text-neutral-300 text-xs leading-relaxed">
-                            {displayValue}
-                          </div>
-                        </div>
-                      );
-                    })}
+                {/* Native Blueprint Fields */}
+                {product.blueprint_fields && product.blueprint_fields.length > 0 ? (
+                  <div className="border border-white/[0.04] rounded p-2 mb-4">
+                    <EditableBlueprintFields
+                      blueprintFields={product.blueprint_fields}
+                      editValues={editBlueprintFields}
+                      onChange={setEditBlueprintFields}
+                      isLoading={false}
+                    />
                   </div>
                 ) : (
-                  <div className="text-neutral-700 text-xs">No product details</div>
+                  <div className="border border-white/[0.04] rounded p-2 mb-4 text-neutral-600 text-xs">
+                    No fields assigned to this product's categories
+                  </div>
                 )}
+                
+                {/* Pricing Tiers */}
+                <div className="mb-4">
+                  <ProductPricingTiers productId={product.id} />
+                </div>
               </div>
 
               {/* Column 3: Location Inventory */}

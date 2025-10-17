@@ -31,11 +31,15 @@ export async function GET(request: NextRequest) {
       url.searchParams.append(key, value);
     });
     
+    // Add cache busting
+    url.searchParams.append('_t', Date.now().toString());
+    
     const response = await fetch(url.toString(), {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
+      cache: 'no-store'
     });
     
     if (!response.ok) {
@@ -48,38 +52,19 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json();
     
-    // STRICT CLIENT-SIDE FILTERING: Remove duplicate and fake fields
+    // Add timestamp to each product to force React re-render when fields change
     if (data.success && data.data) {
-      const allowedMetaKeys = new Set(['strain_type', 'lineage', 'nose', 'effects', 'thc_percentage', 'thca_percentage']);
-      
-      data.data = data.data.map((product: any) => {
-        // Filter meta_data to only allowed keys
-        if (product.meta_data && Array.isArray(product.meta_data)) {
-          // Remove duplicates - prefer 'effects' over 'effect', etc.
-          const seen = new Set();
-          product.meta_data = product.meta_data.filter((meta: any) => {
-            // Only allow whitelisted fields
-            if (!allowedMetaKeys.has(meta.key)) {
-              return false;
-            }
-            
-            // Skip duplicates (e.g., skip 'effect' if we already have 'effects')
-            const baseKey = meta.key.replace(/s$/, ''); // Remove trailing 's'
-            if (seen.has(baseKey) || seen.has(meta.key + 's')) {
-              return false;
-            }
-            seen.add(meta.key);
-            seen.add(baseKey);
-            
-            return true;
-          });
-        }
-        
-        return product;
-      });
+      data._fetched_at = Date.now();
     }
     
-    return NextResponse.json(data);
+    // Flora-IM bulk endpoint ALREADY includes blueprint_fields - just pass through!
+    return NextResponse.json(data, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
+        'Pragma': 'no-cache',
+        'Expires': '0'
+      }
+    });
     
   } catch (error: any) {
     console.error('Bulk products API error:', error);

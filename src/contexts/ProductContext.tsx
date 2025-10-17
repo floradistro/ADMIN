@@ -53,6 +53,7 @@ interface ProductContextType {
   setAggregateChildren: (value: boolean) => void;
   setError: (error: string | null) => void;
   fetchProducts: (page?: number, reset?: boolean, filterState?: any) => Promise<void>;
+  fetchProductsWithFilters: (filterState?: any) => Promise<void>;
   fetchLocations: (forceRefresh?: boolean) => Promise<void>;
   fetchCategories: () => Promise<void>;
   handleLoadMore: () => void;

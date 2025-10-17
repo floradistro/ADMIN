@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { ProductList } from '../../../components';
+import { ListFeature } from '../../../components/features/ListFeature';
 
 import { FilterState, ViewState, Product } from '../../../types';
 import { FloraLocation } from '../../../services/inventory-service';
@@ -31,6 +32,7 @@ interface ProductsModuleProps {
   onRefresh: () => void;
   onSyncProducts: () => void;
   onBulkDelete: (products: Product[]) => void;
+  fetchProductsWithFilters?: (filterState: FilterState) => Promise<void>;
   // Loading states
   isLoading: boolean;
   hasMore: boolean;
@@ -61,6 +63,7 @@ export function ProductsModule({
   onRefresh,
   onSyncProducts,
   onBulkDelete,
+  fetchProductsWithFilters,
   // Loading states
   isLoading,
   hasMore,
@@ -109,9 +112,9 @@ export function ProductsModule({
     }
   }, [loadFieldValuesForProducts, products]);
 
-  // Use enriched products if available, otherwise use filtered products
-  const filteredProducts = getFilteredProducts(filterState);
-  const displayProducts = hasLoadedFieldValues ? enrichedProducts : filteredProducts;
+  // Apply filters to either enriched or regular products - ALWAYS filter!
+  const sourceProducts = hasLoadedFieldValues ? enrichedProducts : products;
+  const displayProducts = getFilteredProducts(filterState, sourceProducts);
 
   const handleBulkActionFromHeader = (action: 'update' | 'transfer' | 'convert' | 'delete' | 'edit') => {
     const selectedProductsList = products.filter(p => selectedProducts.has(p.id));
@@ -137,6 +140,9 @@ export function ProductsModule({
 
 
 
+  // Get selected products as array
+  const selectedProductsArray = products.filter(p => selectedProducts.has(p.id));
+
   return (
     <div className="w-full h-full bg-neutral-900 flex flex-col overflow-hidden">
       {/* ProductGridHeader is now integrated into the main Header component */}
@@ -153,7 +159,9 @@ export function ProductsModule({
         onBulkAction={onBulkAction}
         selectedCategory={filterState.selectedCategory}
         selectedLocationId={filterState.selectedLocationId}
-        onCategoryChange={(category) => onFilterChange({ selectedCategory: category })}
+        onCategoryChange={(category) => {
+          onFilterChange({ selectedCategory: category });
+        }}
         onLoadMore={onLoadMore}
         isLoading={isLoading}
         hasMore={hasMore}
@@ -164,6 +172,12 @@ export function ProductsModule({
         bulkEditProductIds={bulkEditProductIds}
       />
 
+      {/* List Feature */}
+      <ListFeature
+        selectedProducts={selectedProductsArray}
+        availableColumns={columnConfigs}
+        onClearSelection={clearSelection}
+      />
     </div>
   );
 }

@@ -156,15 +156,32 @@ class BulkApiService {
    */
   async getProducts(params: BulkProductsParams = {}): Promise<BulkResponse<BulkProduct>> {
     const queryString = this.buildQueryString(params);
-    const url = `/api/bulk/products${queryString ? `?${queryString}` : ''}`;
+    // FORCE cache bust
+    const cacheBuster = `&_nocache=${Date.now()}`;
+    const url = `/api/bulk/products${queryString ? `?${queryString}` : '?'}${cacheBuster}`;
     
-    const response = await fetch(url);
+    const response = await fetch(url, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache'
+      }
+    });
+    
     if (!response.ok) {
       const error = await response.json();
       throw new Error(error.error || 'Failed to fetch bulk products');
     }
 
-    return response.json();
+    const data = await response.json();
+    
+    console.log('🔍🔍🔍 BULK API RAW DATA:', {
+      success: data.success,
+      total_products: data.data?.length,
+      sample_product: data.data?.[0]?.name,
+      sample_blueprint_fields: data.data?.[0]?.blueprint_fields
+    });
+    
+    return data;
   }
 
   /**

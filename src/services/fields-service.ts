@@ -1,6 +1,7 @@
 /**
- * Flora Fields Service - V2 API
- * Connects to flora-fields plugin V2 endpoints
+ * Flora Fields Service - V3 Native API
+ * Connects to flora-fields plugin V3 native endpoints
+ * Uses native WooCommerce storage (no custom tables)
  */
 
 const FLORA_API_BASE = 'https://api.floradistro.com/wp-json';
@@ -92,77 +93,44 @@ class FieldsService {
   // FIELDS API
   // ========================================
 
-  async getFields(params?: {
-    status?: 'active' | 'inactive';
-    type?: string;
-    group?: string;
-    search?: string;
-    page?: number;
-    per_page?: number;
-  }): Promise<{ fields: FloraField[]; total: number; page: number; per_page: number }> {
-    const path = '/fd/v2/fields';
-    const url = new URL(this.buildUrl(path));
-    
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined) {
-          url.searchParams.append(key, String(value));
-        }
-      });
-    }
-
-    const response = await fetch(url.toString());
-    if (!response.ok) {
-      throw new Error(`Failed to fetch fields: ${response.statusText}`);
-    }
-
-    return response.json();
+  async getFieldLibrary(): Promise<{ fields: FloraField[]; count: number }> {
+    return this.request<{ fields: FloraField[]; count: number }>(`/fd/v3/fields/library`);
   }
 
-  async getField(fieldId: number): Promise<FloraField> {
-    return this.request<FloraField>(`/fd/v2/fields/${fieldId}`);
-  }
-
-  async createField(data: {
+  async addFieldToLibrary(data: {
     name: string;
     label: string;
     type: string;
-    group_label?: string;
-    description?: string;
+    group?: string;
     config?: any;
-    sort_order?: number;
-    status?: 'active' | 'inactive';
-  }): Promise<{ message: string; field: FloraField }> {
-    return this.request(`/fd/v2/fields`, {
+  }): Promise<{ success: boolean; message: string; field: FloraField }> {
+    return this.request(`/fd/v3/fields/library`, {
       method: 'POST',
       body: JSON.stringify(data),
     });
   }
 
-  async updateField(fieldId: number, data: Partial<FloraField>): Promise<{ message: string; field: FloraField }> {
-    return this.request(`/fd/v2/fields/${fieldId}`, {
+  async updateFieldInLibrary(fieldName: string, data: Partial<FloraField>): Promise<{ success: boolean; message: string; field: FloraField }> {
+    return this.request(`/fd/v3/fields/library/${fieldName}`, {
       method: 'PUT',
       body: JSON.stringify(data),
     });
   }
 
-  async deleteField(fieldId: number): Promise<{ message: string; deleted: boolean }> {
-    return this.request(`/fd/v2/fields/${fieldId}`, {
+  async deleteFieldFromLibrary(fieldName: string): Promise<{ success: boolean; message: string }> {
+    return this.request(`/fd/v3/fields/library/${fieldName}`, {
       method: 'DELETE',
     });
   }
 
-  async bulkAssignFields(fieldId: number, assignments: Array<{
-    type: 'global' | 'category' | 'product';
-    target_id?: number;
-    options?: {
-      is_required?: boolean;
-      sort_order?: number;
-    };
-  }>): Promise<{ message: string; count: number }> {
-    return this.request(`/fd/v2/fields/bulk-assign`, {
+  async getGlobalFields(): Promise<{ global_fields: Record<string, any>; field_count: number }> {
+    return this.request<{ global_fields: Record<string, any>; field_count: number }>(`/fd/v3/fields/global`);
+  }
+
+  async updateGlobalFields(globalFields: Record<string, any>): Promise<{ success: boolean; message: string }> {
+    return this.request(`/fd/v3/fields/global`, {
       method: 'POST',
-      body: JSON.stringify({ field_id: fieldId, assignments }),
+      body: JSON.stringify({ global_fields: globalFields }),
     });
   }
 
@@ -170,16 +138,17 @@ class FieldsService {
   // PRODUCTS API
   // ========================================
 
-  async getProductFields(productId: number): Promise<ProductFieldsResponse> {
-    return this.request<ProductFieldsResponse>(`/fd/v2/products/${productId}/fields`);
+  async getProductFields(productId: number): Promise<{ product_id: number; fields: FloraField[] }> {
+    return this.request<{ product_id: number; fields: FloraField[] }>(`/fd/v3/products/${productId}/fields`);
   }
 
   async updateProductFields(productId: number, fields: Record<string, any>): Promise<{
+    success: boolean;
     message: string;
-    updated: string[];
+    updated_fields: string[];
     count: number;
   }> {
-    return this.request(`/fd/v2/products/${productId}/fields`, {
+    return this.request(`/fd/v3/products/${productId}/fields`, {
       method: 'PUT',
       body: JSON.stringify({ fields }),
     });
@@ -189,53 +158,63 @@ class FieldsService {
   // CATEGORIES API
   // ========================================
 
-  async getCategoryFields(categoryId: number): Promise<{ category_id: number; fields: FloraField[] }> {
-    return this.request(`/fd/v2/categories/${categoryId}/fields`);
+  async getCategoryFields(categoryId: number): Promise<{ 
+    category_id: string;
+    category_name: string;
+    assigned_fields: Record<string, any>;
+    field_count: number;
+  }> {
+    return this.request(`/fd/v3/categories/${categoryId}/fields`);
   }
 
-  // ========================================
-  // PRICING API
-  // ========================================
-
-  async getPricingRules(): Promise<{ rules: PricingRule[]; count: number }> {
-    return this.request(`/fd/v2/pricing/rules`);
-  }
-
-  async getProductForms(productId: number): Promise<{ product_id: number; forms: ProductForm[] }> {
-    return this.request(`/fd/v2/pricing/forms/${productId}`);
-  }
-
-  async createProductForm(data: {
-    product_id: number;
-    form_name: string;
-    form_label?: string;
-    unit_type?: string;
-    base_quantity?: number;
-    base_unit?: string;
-    base_price_cents?: number;
-    cost_cents?: number;
-    is_primary?: boolean;
-    sort_order?: number;
-  }): Promise<{ message: string; form_id: number }> {
-    return this.request(`/fd/v2/pricing/forms`, {
+  async updateCategoryFields(categoryId: number, assignedFields: Record<string, any>): Promise<{
+    success: boolean;
+    message: string;
+    category_id: string;
+    field_count: number;
+  }> {
+    return this.request(`/fd/v3/categories/${categoryId}/fields`, {
       method: 'POST',
-      body: JSON.stringify(data),
+      body: JSON.stringify({ assigned_fields: assignedFields }),
     });
   }
 
-  async calculatePrice(data: {
-    product_id: number;
-    form_id?: number;
-    quantity?: number;
-    customer_tier?: string;
-    channel?: string;
-  }): Promise<{
-    price_cents: number;
-    base_price_cents: number;
-    rules_applied: any[];
+  // ========================================
+  // PRICING API (V3 Native)
+  // ========================================
+
+  async getProductPricing(productId: number): Promise<{
+    product_id: string;
+    base_price: number;
+    current_price: number;
+    quantity_tiers: Array<{
+      min_qty?: number;
+      max_qty?: number | null;
+      qty?: number;
+      weight?: string;
+      quantity?: number;
+      price: number;
+      discount_percent?: number;
+    }>;
+    role_pricing: Record<string, { discount_percent: number }>;
+    channel_pricing: any[];
   }> {
-    return this.request(`/fd/v2/pricing/calculate`, {
-      method: 'POST',
+    return this.request(`/fd/v3/products/${productId}/pricing`);
+  }
+
+  async updateProductPricing(productId: number, data: {
+    base_price?: number;
+    quantity_tiers?: any[];
+    role_pricing?: Record<string, any>;
+    channel_pricing?: any[];
+  }): Promise<{
+    success: boolean;
+    message: string;
+    product_id: string;
+    updated: string[];
+  }> {
+    return this.request(`/fd/v3/products/${productId}/pricing`, {
+      method: 'PUT',
       body: JSON.stringify(data),
     });
   }
