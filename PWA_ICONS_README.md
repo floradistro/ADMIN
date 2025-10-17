@@ -82,7 +82,7 @@ Icons are automatically referenced in `src/app/layout.tsx`:
 ### Desktop (Chrome/Edge)
 1. Navigate to your app
 2. Look for install icon in address bar
-3. Click "Install PORTAL"
+3. Click "Install [Classified]"
 4. App appears with your custom icon
 
 ### iOS (Safari)

@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "PORTAL Admin",
+  title: "[Classified]",
   description: "Professional Admin Portal system for Flora Distribution",
   manifest: "/manifest.json",
   icons: {
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "PORTAL",
+    title: "[Classified]",
     startupImage: [
       {
         url: '/icons/icon-1024x1024.png',
@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     "mobile-web-app-capable": "yes",
     "apple-mobile-web-app-capable": "yes",
     "apple-mobile-web-app-status-bar-style": "black-translucent",
-    "apple-mobile-web-app-title": "PORTAL",
+    "apple-mobile-web-app-title": "[Classified]",
   },
 }
 
