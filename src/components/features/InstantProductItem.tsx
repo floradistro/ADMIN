@@ -97,8 +97,8 @@ export const InstantProductItem = React.memo(function InstantProductItem({
   ) || [];
 
   return (
-    <div className={`bg-white rounded-lg border border-gray-200 shadow-sm duration-200 product-card ${
-      isExpanded ? 'ring-2 ring-white/20' : ''
+    <div className={`bg-white rounded-lg border border-gray-200 shadow-sm product-card ${
+      isExpanded ? 'expanded ring-2 ring-white/20' : ''
     }`}>
       {/* Product Header */}
       <div className="p-4 border-b border-gray-100">
@@ -256,8 +256,8 @@ export const InstantProductItem = React.memo(function InstantProductItem({
         }`}
       >
         <div className="p-4 border-t border-neutral-800/50">
-          <div className={`transition-opacity duration-200 ease-out ${
-            isExpanded && blueprintPricing ? 'opacity-100 delay-150' : 'opacity-0'
+          <div className={`product-expanded-content ${
+            isExpanded && blueprintPricing ? 'opacity-100' : 'opacity-0'
           }`}>
           <h4 className="text-sm font-medium text-neutral-500 mb-3">
             Blueprint Fields & Pricing

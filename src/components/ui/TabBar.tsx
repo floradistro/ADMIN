@@ -1,5 +1,6 @@
-import React, { useMemo, useCallback, useRef, useEffect } from 'react';
-import styles from './TabBar.module.css';
+'use client';
+
+import React from 'react';
 
 export interface Tab {
   id: string;
@@ -14,121 +15,102 @@ interface TabBarProps {
   tabs: Tab[];
   onTabClick: (tabId: string) => void;
   onTabClose: (tabId: string) => void;
-  onTabMinimize: (tabId: string) => void;
+  onTabMinimize?: (tabId: string) => void;
 }
 
 export function TabBar({ tabs, onTabClick, onTabClose, onTabMinimize }: TabBarProps) {
   if (tabs.length === 0) return null;
 
-  // Ref to track click timing for double-click detection
-  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const lastClickTimeRef = useRef<number>(0);
-  const lastClickedTabRef = useRef<string>('');
-
-  // Memoize event handlers to prevent unnecessary re-renders
-  const handleTabClick = useCallback((tabId: string) => {
-    const now = Date.now();
-    const timeDiff = now - lastClickTimeRef.current;
-    
-    // Double-click detection (within 300ms)
-    if (timeDiff < 300 && lastClickedTabRef.current === tabId) {
-      // Clear any pending single-click timeout
-      if (clickTimeoutRef.current) {
-        clearTimeout(clickTimeoutRef.current);
-        clickTimeoutRef.current = null;
-      }
-      
-      // Double-click on any tab - close it
-      console.log('Double-tap detected, closing tab:', tabId);
-      onTabClose(tabId);
-    } else {
-      // Single click - set a timeout to handle it after double-click window
-      lastClickTimeRef.current = now;
-      lastClickedTabRef.current = tabId;
-      
-      // Clear any existing timeout
-      if (clickTimeoutRef.current) {
-        clearTimeout(clickTimeoutRef.current);
-      }
-      
-      // Set timeout for single-click action
-      clickTimeoutRef.current = setTimeout(() => {
-        onTabClick(tabId);
-        clickTimeoutRef.current = null;
-      }, 300);
-    }
-  }, [onTabClick, onTabClose, onTabMinimize]);
-
-  const handleTabClose = useCallback((tabId: string, e: React.MouseEvent) => {
+  const handleTabClick = (e: React.MouseEvent, tabId: string) => {
     e.stopPropagation();
-    onTabClose(tabId);
-  }, [onTabClose]);
+    onTabClick(tabId);
+  };
 
-  const handleTabMinimize = useCallback((tabId: string, e: React.MouseEvent) => {
+  const handleTabClose = (e: React.MouseEvent, tabId: string) => {
     e.stopPropagation();
     e.preventDefault();
-    onTabMinimize(tabId);
-  }, [onTabMinimize]);
+    onTabClose(tabId);
+  };
 
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (clickTimeoutRef.current) {
-        clearTimeout(clickTimeoutRef.current);
-      }
-    };
-  }, []);
+  const handleTabMinimize = (e: React.MouseEvent, tabId: string) => {
+    e.stopPropagation();
+    e.preventDefault();
+    if (onTabMinimize) {
+      onTabMinimize(tabId);
+    }
+  };
 
-  // Memoize tab elements to prevent unnecessary re-renders
-  const tabElements = useMemo(() => 
-    tabs.map((tab) => {
-      // Pre-compute classes for maximum performance
-      const baseClasses = `${styles.tab} flex items-center px-1.5 py-0.5 text-sm cursor-pointer rounded-lg relative group min-w-0 border border-white/[0.08] select-none`;
-      const stateClasses = tab.isActive 
-        ? `${styles.active} bg-neutral-800/60 text-neutral-300` 
-        : "bg-neutral-900/60 text-neutral-500";
-      const opacityClass = tab.isMinimized ? "opacity-60" : "opacity-100";
-      
-      return (
+  return (
+    <div className="flex items-center gap-1 h-full">
+      {tabs.map((tab) => (
         <div
           key={tab.id}
-          className={`${baseClasses} ${stateClasses} ${opacityClass}`}
-          onClick={() => handleTabClick(tab.id)}
-          title={`${tab.title} (double-click to close)`}
+          className={`
+            flex items-center gap-1.5 px-2 h-7 rounded-md
+            border transition-all cursor-pointer
+            ${tab.isActive 
+              ? 'bg-neutral-800/80 border-white/[0.12] text-neutral-200' 
+              : 'bg-neutral-900/60 border-white/[0.06] text-neutral-500 hover:bg-neutral-800/60 hover:border-white/[0.08] hover:text-neutral-300'
+            }
+            ${tab.isMinimized ? 'opacity-50' : ''}
+            group relative
+          `}
         >
-          <div className="flex items-center justify-center w-full relative pointer-events-none">
+          {/* Tab Content - Clickable Area */}
+          <div
+            onClick={(e) => handleTabClick(e, tab.id)}
+            className="flex items-center gap-1.5 flex-1 min-w-0"
+          >
+            {/* Tab Icon */}
             {tab.icon && (
-              <div className="flex-shrink-0 relative">
+              <div className="flex-shrink-0 w-3.5 h-3.5 flex items-center justify-center relative [&>svg]:w-3.5 [&>svg]:h-3.5">
                 {tab.icon}
-                {tab.isDirty && <span className="absolute -top-1 -right-1 text-orange-400 text-xs">•</span>}
-                {tab.isMinimized && <span className="absolute -bottom-1 -right-1 text-neutral-500 text-xs">—</span>}
+                {tab.isDirty && (
+                  <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-orange-400 rounded-full" />
+                )}
               </div>
             )}
-            
-            {/* Minimize button - positioned absolutely in top right */}
+
+            {/* Tab Title */}
+            {!tab.isMinimized && tab.title && (
+              <span className="text-[10px] font-medium truncate max-w-[70px]">
+                {tab.title}
+              </span>
+            )}
+          </div>
+
+          {/* Tab Actions */}
+          <div className="flex items-center gap-0.5 ml-0.5 flex-shrink-0">
+            {/* Minimize Button */}
+            {onTabMinimize && (
+              <button
+                onClick={(e) => handleTabMinimize(e, tab.id)}
+                className="w-3.5 h-3.5 flex items-center justify-center rounded opacity-0 group-hover:opacity-100 hover:bg-white/[0.08] transition-opacity"
+                title={tab.isMinimized ? 'Restore' : 'Minimize'}
+              >
+                <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {tab.isMinimized ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M20 12H4" />
+                  )}
+                </svg>
+              </button>
+            )}
+
+            {/* Close Button */}
             <button
-              className={`${styles.tabButton} p-0.5 rounded opacity-0 absolute top-0 right-0 pointer-events-auto`}
-              onClick={(e) => handleTabMinimize(tab.id, e)}
-              title={tab.isMinimized ? 'Restore tab' : 'Minimize tab'}
+              onClick={(e) => handleTabClose(e, tab.id)}
+              className="w-3.5 h-3.5 flex items-center justify-center rounded opacity-0 group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-300 transition-opacity"
+              title="Close"
             >
-              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {tab.isMinimized ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V6a2 2 0 012-2h2M4 16v2a2 2 0 002 2h2m8-16h2a2 2 0 012 2v2m-4 12h2a2 2 0 002-2v-2" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-                )}
+              <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
         </div>
-      );
-    }), 
-    [tabs, handleTabClick, handleTabClose, handleTabMinimize]
-  );
-
-  return (
-    <div className={`${styles.tabContainer} flex items-stretch gap-1 h-full`}>
-      {tabElements}
+      ))}
     </div>
   );
 }

@@ -9,6 +9,7 @@ export { CategoryTag } from './CategoryTag';
 export { FieldDisplay } from './FieldDisplay';
 export { EditableFields } from './EditableFields';
 export { LocationSelector } from './LocationSelector';
+export { IntegratedSearchBar } from './IntegratedSearchBar';
 export { ProductSearch } from './ProductSearch';
 
 export { ImageUpload } from './ImageUpload';

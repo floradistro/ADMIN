@@ -1242,15 +1242,15 @@ export const ProductTableRow = React.memo(function ProductTableRow({
 
   return (
         <div 
-      className={`group transition-all mb-2 rounded-lg border-b border-white/[0.02] product-card ${
-        isSelected 
-        ? 'bg-neutral-800/50 border-l-4 border-l-neutral-400' 
-        : 'border border-white/[0.04]'
+      className={`group mb-2 rounded-lg border-b border-white/[0.02] product-card ${
+        isSelected ? 'selected bg-neutral-800/50 border-l-4 border-l-neutral-400' : 'border border-white/[0.04]'
+      } ${
+        isExpanded ? 'expanded' : ''
       }`}
     >
       {/* Row 1: Main product info */}
       <div 
-        className="flex items-center gap-3 px-4 py-2 cursor-pointer select-none"
+        className="flex items-center gap-3 px-4 py-2 cursor-pointer select-none product-card-row"
         onClick={(e) => {
           // Only trigger selection if clicking on the main row area, not on interactive elements
           const target = e.target as HTMLElement;
@@ -1291,10 +1291,10 @@ export const ProductTableRow = React.memo(function ProductTableRow({
             e.stopPropagation();
             onToggleExpand();
           }}
-          className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-neutral-600"
+          className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-neutral-600 rounded-md expand-button"
         >
           <svg
-            className={`w-3 h-3 transition-transform duration-300 ease-out ${isExpanded ? 'rotate-90' : ''}`}
+            className={`w-3 h-3 expand-icon ${isExpanded ? 'rotate-90' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -1320,8 +1320,8 @@ export const ProductTableRow = React.memo(function ProductTableRow({
            isExpanded ? 'max-h-[1200px] opacity-100 expanded' : 'max-h-0 opacity-0 collapsed'
          }`}
        >
-         <div className="mx-4 mb-2 rounded p-4 border border-white/[0.04] product-card">
-           <div className={`transition-opacity duration-100 ease-out ${isExpanded ? 'opacity-100 delay-75' : 'opacity-0'}`}>
+         <div className="mx-4 mb-2 rounded p-4 border border-white/[0.04]">
+           <div className={`product-expanded-content ${isExpanded ? 'opacity-100' : 'opacity-0'}`}>
           
           {/* Edit Mode Controls */}
           {isEditMode && (
@@ -1406,7 +1406,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
               }}
               size="sm"
               variant={stockViewMode === 'details' ? 'primary' : 'ghost'}
-              className="text-xs select-none"
+              className="text-xs select-none product-card-button"
             >
               Details
             </Button>
@@ -1417,7 +1417,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
               }}
               size="sm"
               variant={stockViewMode === 'update' ? 'primary' : 'ghost'}
-              className="text-xs flex items-center gap-1 select-none"
+              className="text-xs flex items-center gap-1 select-none product-card-button"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -1431,7 +1431,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
               }}
               size="sm"
               variant={stockViewMode === 'transfer' ? 'primary' : 'ghost'}
-              className="text-xs flex items-center gap-1 select-none"
+              className="text-xs flex items-center gap-1 select-none product-card-button"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
@@ -1445,7 +1445,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
               }}
               size="sm"
               variant={stockViewMode === 'convert' ? 'primary' : 'ghost'}
-              className="text-xs flex items-center gap-1 select-none"
+              className="text-xs flex items-center gap-1 select-none product-card-button"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -1465,7 +1465,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
               }}
               size="sm"
               variant={isEditMode ? 'primary' : 'ghost'}
-              className="text-xs flex items-center gap-1 select-none"
+              className="text-xs flex items-center gap-1 select-none product-card-button"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -1500,7 +1500,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
                         disabled={isSaving}
                       />
                     ) : (
-                       <div className="w-64 h-64 rounded-lg overflow-hidden flex items-center justify-center shadow-lg shadow-black/20">
+                       <div className="w-64 h-64 rounded-lg overflow-hidden flex items-center justify-center shadow-lg shadow-black/20 transition-all duration-300">
                          {(uploadedImageUrl || editData.image || product.image) ? (
                            <Image
                               src={uploadedImageUrl || editData.image || product.image || '/logo.png'}
@@ -1508,7 +1508,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
                              width={256}
                              height={256}
                              sizes="256px"
-                             className="object-cover w-full h-full drop-shadow-sm"
+                             className="object-cover w-full h-full drop-shadow-sm transition-transform duration-300"
                             onError={(e) => {
                               e.currentTarget.style.display = 'none';
                             }}
@@ -1524,7 +1524,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
                 </div>
                 
                 {/* Product Info - Single Row Items */}
-                <div className={`border border-white/[0.04] rounded p-2 transition-all duration-200 ${
+                <div className={`border border-white/[0.04] rounded p-2 edit-mode-field ${
                   isEditMode ? 'border-white/[0.08]' : ''
                 }`}>
                   <div className="flex justify-between items-center">
@@ -1551,7 +1551,12 @@ export const ProductTableRow = React.memo(function ProductTableRow({
                     <span className="text-neutral-600 text-xs">
                       {selectedLocationId ? 'Location Stock:' : 'Total Stock:'}
                     </span>
-                    <span className="text-neutral-500 text-xs">{getDisplayStock()} units</span>
+                    <span className="text-neutral-500 text-xs flex items-center gap-2">
+                      <span className={`w-1.5 h-1.5 rounded-full stock-indicator ${
+                        stockValue <= 5 ? 'bg-red-400' : stockValue <= 20 ? 'bg-yellow-400' : 'bg-green-400'
+                      }`}></span>
+                      {getDisplayStock()} units
+                    </span>
                   </div>
                 </div>
 
@@ -1562,7 +1567,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
                     {/* Description */}
                     {isFieldVisible('description') && (
                       <div 
-                        className={`border border-white/[0.04] rounded p-2 transition-all duration-200 ${
+                        className={`border border-white/[0.04] rounded p-2 edit-mode-field ${
                           isEditMode ? 'border-white/[0.08]' : ''
                         }`}
                       >
@@ -1592,7 +1597,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
                     {/* Short Description */}
                     {isFieldVisible('short_description') && (
                       <div 
-                        className={`border border-white/[0.04] rounded p-2 transition-all duration-200 ${
+                        className={`border border-white/[0.04] rounded p-2 edit-mode-field ${
                           isEditMode ? 'border-white/[0.08]' : ''
                         }`}
                       >
@@ -1677,7 +1682,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
                       </div>
                       <div className="space-y-1">
                         {displayInventory.map((inv, index) => (
-                          <div key={`inv-${inv.location_id}-${index}`} className="flex justify-between items-center text-xs">
+                          <div key={`inv-${inv.location_id}-${index}`} className="flex justify-between items-center text-xs location-inventory-item p-1 rounded">
                             <span className="text-neutral-600">{inv.location_name}:</span>
                             <span className="text-neutral-500">{inv.stock} units</span>
                           </div>

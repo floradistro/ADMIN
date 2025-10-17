@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { SearchInput, IconButton, Divider, AuditDropdown, ViewsDropdown, FilesDropdown, SettingsDropdown, LocationSelector, Select, ProductCreateDropdown, BulkActionsDropdown } from '../ui';
+import { IntegratedSearchBar, IconButton, Divider, AuditDropdown, ViewsDropdown, FilesDropdown, SettingsDropdown, ProductCreateDropdown, BulkActionsDropdown } from '../ui';
 import { TabBar, Tab } from '../ui/TabBar';
 import { FilterState, ViewState } from '../../types';
 import { FloraLocation } from '../../services/inventory-service';
@@ -118,60 +118,91 @@ export function Header({
   return (
     <div className="app-header">
       <div className="header-nav bg-neutral-900 flex-shrink-0 sticky top-0 z-30 font-tiempos ios-header-extension h-10">
-        <div className="flex items-center h-full px-1 gap-1">
+        <div className="relative flex items-center h-full px-1.5">
           
-          {/* Tabs */}
-          <div className="flex items-stretch flex-shrink-0 h-full pt-1">
-            {tabs.length > 0 && onTabClick && onTabClose && onTabMinimize && (
-              <TabBar
-                tabs={tabs}
-                onTabClick={onTabClick}
-                onTabClose={onTabClose}
-                onTabMinimize={onTabMinimize}
-              />
+          {/* LEFT SECTION - Tabs & Stats */}
+          <div className="flex items-center gap-1.5 min-w-0 flex-1">
+            {/* Tabs */}
+            {tabs.length > 0 && onTabClick && onTabClose && (
+              <>
+                <div className="flex items-center flex-shrink-0">
+                  <TabBar
+                    tabs={tabs}
+                    onTabClick={onTabClick}
+                    onTabClose={onTabClose}
+                    onTabMinimize={onTabMinimize}
+                  />
+                </div>
+                <Divider className="mx-0.5" />
+              </>
+            )}
+            
+            {/* Stats - Product Section */}
+            {isProductsTab && (totalProductsCount > 0 || selectedProductsCount > 0 || bulkEditCount > 0) && (
+              <div className="flex items-center gap-0.5">
+                {totalProductsCount > 0 && (
+                  <span className="px-1 py-0.5 bg-white/[0.05] text-neutral-500 text-[9px] rounded font-mono">
+                    {totalProductsCount}
+                  </span>
+                )}
+                {selectedProductsCount > 0 && (
+                  <span className="px-1 py-0.5 bg-white/[0.08] text-neutral-300 text-[9px] rounded font-mono">
+                    {selectedProductsCount}
+                  </span>
+                )}
+                {bulkEditCount > 0 && (
+                  <span className="px-1 py-0.5 bg-blue-500/20 text-blue-300 text-[9px] rounded font-mono">
+                    {bulkEditCount}
+                  </span>
+                )}
+              </div>
             )}
           </div>
           
-          {/* Product Section */}
-          {isProductsTab && (
-            <>
-              {/* Stats */}
-              {(totalProductsCount > 0 || selectedProductsCount > 0 || bulkEditCount > 0) && (
-                <div className="flex items-center gap-0.5 px-1">
-                  {totalProductsCount > 0 && (
-                    <span className="px-1 py-0.5 bg-white/[0.05] text-neutral-500 text-[9px] rounded font-mono">
-                      {totalProductsCount}
-                    </span>
-                  )}
-                  {selectedProductsCount > 0 && (
-                    <span className="px-1 py-0.5 bg-white/[0.08] text-neutral-300 text-[9px] rounded font-mono">
-                      {selectedProductsCount}
-                    </span>
-                  )}
-                  {bulkEditCount > 0 && (
-                    <span className="px-1 py-0.5 bg-blue-500/20 text-blue-300 text-[9px] rounded font-mono">
-                      {bulkEditCount}
-                    </span>
-                  )}
-                </div>
+          {/* CENTER SECTION - Search Bar (Absolutely Centered) */}
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10">
+            <div className="pointer-events-auto">
+              {/* Integrated Search Bar with Location/Category Filters */}
+              {isProductsTab && (
+                <IntegratedSearchBar
+                  searchQuery={filterState.searchQuery}
+                  onSearchChange={(value) => onFilterChange({ searchQuery: value })}
+                  selectedLocation={filterState.selectedLocationId}
+                  onLocationChange={onLocationChange || (() => {})}
+                  locations={floraLocations}
+                  selectedCategory={filterState.selectedCategory}
+                  onCategoryChange={onCategoryChange || (() => {})}
+                  categoryOptions={categoryOptions}
+                  showAggregation={false}
+                />
               )}
               
-              {/* Filters */}
-              <LocationSelector
-                selectedLocation={filterState.selectedLocationId}
-                onLocationChange={onLocationChange || (() => {})}
-                locations={floraLocations}
-                showAggregation={false}
-                className="w-24 text-[10px] h-6"
-              />
-              
-              <Select
-                value={filterState.selectedCategory}
-                onChange={(e) => onCategoryChange?.(e.target.value)}
-                options={categoryOptions}
-                className="w-20 text-[10px] h-6"
-              />
-              
+              {/* Standard Search for non-products tabs */}
+              {!isProductsTab && (
+                <div className="w-[320px]">
+                  <div className="relative h-6 bg-neutral-800/60 border border-white/[0.08] rounded-md overflow-hidden hover:border-white/[0.12] transition-colors flex items-center">
+                    <div className="flex items-center justify-center px-2">
+                      <svg className="w-3 h-3 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
+                    <input
+                      type="text"
+                      value={filterState.searchQuery}
+                      onChange={(e) => onFilterChange({ searchQuery: e.target.value })}
+                      placeholder="Search..."
+                      className="flex-1 h-full bg-transparent text-[10px] text-neutral-300 placeholder-neutral-600 outline-none pr-2"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {/* RIGHT SECTION - Actions & System Controls */}
+          <div className="flex items-center gap-1 flex-shrink-0 flex-1 justify-end">
+            {/* Product-specific filters */}
+            {isProductsTab && (
               <div className="relative" ref={filtersDropdownRef}>
                 <IconButton
                   onClick={() => setIsFiltersDropdownOpen(!isFiltersDropdownOpen)}
@@ -184,7 +215,7 @@ export function Header({
                 </IconButton>
                 
                 {isFiltersDropdownOpen && (
-                  <div className="absolute top-full left-0 mt-1 bg-neutral-800 border border-white/[0.08] rounded-lg shadow-xl z-50 w-36">
+                  <div className="absolute top-full right-0 mt-1 bg-neutral-800 border border-white/[0.08] rounded-lg shadow-xl z-50 w-36">
                     <div className="p-1 space-y-0.5">
                       <button
                         onClick={() => {
@@ -212,73 +243,62 @@ export function Header({
                   </div>
                 )}
               </div>
-            </>
-          )}
-          
-          {/* Search */}
-          <div className="flex-1 max-w-[280px] mx-2">
-            <SearchInput
-              value={filterState.searchQuery}
-              onChange={(value) => onFilterChange({ searchQuery: value })}
-              className="w-full h-6 text-[10px]"
-            />
-          </div>
-          
-          {/* Product Actions */}
-          {isProductsTab && (
-            <>
-              {bulkEditCount > 0 && (
-                <>
-                  <IconButton onClick={onBulkJsonEdit} title={`JSON (${bulkEditCount})`}>
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                    </svg>
-                  </IconButton>
-                  <IconButton onClick={onBulkSave} title={`Save (${bulkEditCount})`}>
-                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                    </svg>
-                  </IconButton>
-                </>
-              )}
-              
-              {selectedProductsCount > 0 && (
-                <IconButton onClick={onSyncProducts} disabled={syncLoading} title={`Sync ${selectedProductsCount}`}>
-                  <svg className={`w-3 h-3 ${syncLoading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                </IconButton>
-              )}
-              
-              <div className="relative">
-                <IconButton
-                  onClick={() => setIsCreateDropdownOpen(!isCreateDropdownOpen)}
-                  variant={isCreateDropdownOpen ? 'active' : 'default'}
-                  title="Add"
-                >
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                </IconButton>
+            )}
+            
+            {/* Product Actions */}
+            {isProductsTab && (
+              <>
+                {bulkEditCount > 0 && (
+                  <>
+                    <IconButton onClick={onBulkJsonEdit} title={`JSON (${bulkEditCount})`}>
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                      </svg>
+                    </IconButton>
+                    <IconButton onClick={onBulkSave} title={`Save (${bulkEditCount})`}>
+                      <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                      </svg>
+                    </IconButton>
+                  </>
+                )}
                 
-                <ProductCreateDropdown
-                  isOpen={isCreateDropdownOpen}
-                  onClose={() => setIsCreateDropdownOpen(false)}
-                  onCreateProduct={() => {}}
-                  onBulkImport={() => {}}
+                {selectedProductsCount > 0 && (
+                  <IconButton onClick={onSyncProducts} disabled={syncLoading} title={`Sync ${selectedProductsCount}`}>
+                    <svg className={`w-3 h-3 ${syncLoading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                  </IconButton>
+                )}
+                
+                <div className="relative">
+                  <IconButton
+                    onClick={() => setIsCreateDropdownOpen(!isCreateDropdownOpen)}
+                    variant={isCreateDropdownOpen ? 'active' : 'default'}
+                    title="Add"
+                  >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                  </IconButton>
+                  
+                  <ProductCreateDropdown
+                    isOpen={isCreateDropdownOpen}
+                    onClose={() => setIsCreateDropdownOpen(false)}
+                    onCreateProduct={() => {}}
+                    onBulkImport={() => {}}
+                  />
+                </div>
+                
+                <BulkActionsDropdown
+                  selectedCount={selectedProductsCount}
+                  onAction={onBulkAction || (() => {})}
+                  onClearSelection={onClearSelection || (() => {})}
                 />
-              </div>
-              
-              <BulkActionsDropdown
-                selectedCount={selectedProductsCount}
-                onAction={onBulkAction || (() => {})}
-                onClearSelection={onClearSelection || (() => {})}
-              />
-            </>
-          )}
-          
-          {/* System Controls */}
-          <div className="flex items-center gap-0.5 ml-auto pt-1">
+              </>
+            )}
+            
+            {/* System Controls */}
             <Divider className="mx-0.5" />
             
             <div className="relative">
