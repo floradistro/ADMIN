@@ -22,8 +22,22 @@ export function ListViewer({
 }: ListViewerProps) {
   if (!isOpen || !list) return null;
 
-  const getValue = (product: any, field: string) => {
-    const value = product.snapshot[field] || product.productData[field];
+  const getValue = (product: any, field: string, column: any) => {
+    // First try snapshot (pre-extracted value)
+    let value = product.snapshot[field];
+    
+    // If not in snapshot and it's a blueprint field, try to get from blueprint_fields
+    if (value === undefined && column.type === 'blueprint') {
+      const blueprintField = product.productData?.blueprint_fields?.find(
+        (bf: any) => bf.field_name === field
+      );
+      value = blueprintField?.field_value;
+    }
+    
+    // Fallback to direct property access
+    if (value === undefined) {
+      value = product.productData[field];
+    }
     
     if (Array.isArray(value)) {
       if (field === 'categories') {
@@ -128,7 +142,7 @@ export function ListViewer({
                           className="w-8 h-8 object-cover rounded"
                         />
                       ) : (
-                        getValue(product, column.field)
+                        getValue(product, column.field, column)
                       )}
                     </td>
                   ))}

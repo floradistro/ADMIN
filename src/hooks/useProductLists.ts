@@ -139,14 +139,26 @@ function extractProductSnapshot(product: Product, columns: ListColumn[]): Record
   const snapshot: Record<string, any> = {};
   
   columns.forEach(column => {
-    if (column.accessor) {
+    // Handle blueprint fields
+    if (column.type === 'blueprint') {
+      // Find the blueprint field by name
+      const fieldName = column.field;
+      const blueprintField = product.blueprint_fields?.find(
+        bf => bf.field_name === fieldName
+      );
+      snapshot[column.field] = blueprintField?.field_value ?? '';
+    } 
+    // Handle accessor-based fields
+    else if (column.accessor) {
       const keys = column.accessor.split('.');
       let value: any = product;
       for (const key of keys) {
         value = value?.[key];
       }
       snapshot[column.field] = value;
-    } else {
+    } 
+    // Handle direct property access
+    else {
       snapshot[column.field] = (product as any)[column.field];
     }
   });

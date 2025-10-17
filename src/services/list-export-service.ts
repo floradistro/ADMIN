@@ -38,7 +38,21 @@ export class ListExportService {
     const headers = list.columns.map(col => col.label);
     const rows = list.products.map(product => {
       return list.columns.map(column => {
-        const value = product.snapshot[column.field] || product.productData[column.field as keyof typeof product.productData];
+        let value = product.snapshot[column.field];
+        
+        // If not in snapshot and it's a blueprint field, try to get from blueprint_fields
+        if (value === undefined && column.type === 'blueprint') {
+          const blueprintField = product.productData?.blueprint_fields?.find(
+            (bf: any) => bf.field_name === column.field
+          );
+          value = blueprintField?.field_value;
+        }
+        
+        // Fallback to direct property access
+        if (value === undefined) {
+          value = product.productData[column.field as keyof typeof product.productData];
+        }
+        
         return this.formatCellValue(value, column.field);
       });
     });
@@ -88,7 +102,21 @@ export class ListExportService {
     const headers = list.columns.map(col => col.label);
     const rows = list.products.map(product => {
       return list.columns.map(column => {
-        const value = product.snapshot[column.field] || product.productData[column.field as keyof typeof product.productData];
+        let value = product.snapshot[column.field];
+        
+        // If not in snapshot and it's a blueprint field, try to get from blueprint_fields
+        if (value === undefined && column.type === 'blueprint') {
+          const blueprintField = product.productData?.blueprint_fields?.find(
+            (bf: any) => bf.field_name === column.field
+          );
+          value = blueprintField?.field_value;
+        }
+        
+        // Fallback to direct property access
+        if (value === undefined) {
+          value = product.productData[column.field as keyof typeof product.productData];
+        }
+        
         return this.formatCellValue(value, column.field);
       });
     });
