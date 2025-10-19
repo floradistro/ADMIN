@@ -139,7 +139,7 @@ export function ChatInterface() {
   };
 
   return (
-    <div className="h-screen w-full flex items-center justify-center">
+    <div className="h-screen w-full md:flex items-center justify-center hidden">
       <div className="w-96 h-80 bg-transparent border border-neutral-700/50 rounded flex flex-col">
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-3 space-y-2">

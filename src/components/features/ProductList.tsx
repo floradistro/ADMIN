@@ -258,8 +258,8 @@ export function ProductList({
     <div className="flex-1 min-h-0 overflow-y-auto scrollable-container p-0 bg-neutral-900">
       {/* Table View */}
       <div className="min-w-full">
-            {/* Table Header */}
-            <div className="sticky top-0 bg-neutral-900 backdrop-blur border-b border-white/[0.08] px-4 py-2 z-10">
+            {/* Table Header - Hide on mobile */}
+            <div className="hidden md:block sticky top-0 bg-neutral-900 backdrop-blur border-b border-white/[0.08] px-4 py-2 z-10">
               <div className="flex items-center gap-3 text-xs font-medium text-neutral-400 relative">
                 {/* Select All Icon */}
                 <div className="w-6 flex items-center justify-center">

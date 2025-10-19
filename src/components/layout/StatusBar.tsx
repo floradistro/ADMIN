@@ -46,45 +46,45 @@ export function StatusBar({
 
 
   return (
-    <div className="bg-transparent border-t border-white/[0.04] h-7 flex items-center justify-between px-4 text-xs text-neutral-500 flex-shrink-0 font-tiempos sticky bottom-0 z-20">
+    <div className="bg-transparent border-t border-white/[0.04] h-8 md:h-7 flex items-center justify-between px-2 md:px-4 text-[10px] md:text-xs text-neutral-500 flex-shrink-0 font-tiempos sticky bottom-0 z-20">
       {/* Left section */}
-      <div className="flex items-center space-x-4">
-        {/* Current location */}
+      <div className="flex items-center space-x-2 md:space-x-4">
+        {/* Product count - always show if exists */}
+        {totalProducts > 0 && (
+          <div className="text-neutral-500 font-mono">
+            <span>{totalProducts.toLocaleString()} items</span>
+          </div>
+        )}
+        
+        {/* Selected count - only show when items are selected */}
+        {selectedCount > 0 && (
+          <div className="flex items-center space-x-1 bg-blue-600/80 px-2 py-0.5 rounded text-white text-[10px] md:text-xs">
+            <span>{selectedCount} sel</span>
+          </div>
+        )}
+
+        {/* Current location - hide on mobile */}
         {currentLocation && (
-          <div className="flex items-center space-x-1 hover:bg-neutral-800/40 px-2 py-0.5 rounded text-neutral-400 hover:text-neutral-300 transition-all duration-200">
+          <div className="hidden md:flex items-center space-x-1 hover:bg-neutral-800/40 px-2 py-0.5 rounded text-neutral-400 hover:text-neutral-300 transition-all duration-200">
             <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
             </svg>
             <span>{currentLocation}</span>
           </div>
         )}
-
-        {/* Selected count - only show when items are selected */}
-        {selectedCount > 0 && (
-          <div className="flex items-center space-x-1 bg-blue-600/80 hover:bg-blue-600 px-2 py-0.5 rounded text-white transition-all duration-200">
-            <span>{selectedCount} selected</span>
-          </div>
-        )}
-
-        {/* Product count - only show when no selection and products exist */}
-        {selectedCount === 0 && totalProducts > 0 && (
-          <div className="text-neutral-500">
-            <span>{totalProducts.toLocaleString()} items</span>
-          </div>
-        )}
       </div>
 
       {/* Right section */}
-      <div className="flex items-center space-x-3">
-        {/* Last sync - only show if recent and after mount */}
+      <div className="flex items-center space-x-2 md:space-x-3">
+        {/* Last sync - hide on mobile, show on desktop */}
         {mounted && lastSync && currentTime && (
-          <div className="text-neutral-500 hover:text-neutral-400 transition-colors duration-200">
+          <div className="hidden md:block text-neutral-500 hover:text-neutral-400 transition-colors duration-200">
             <span>Synced {formatTime(lastSync)}</span>
           </div>
         )}
 
-        {/* Current time - suppress hydration warning for time display */}
-        <div className="text-neutral-400 hover:text-neutral-300 transition-colors duration-200">
+        {/* Current time */}
+        <div className="text-neutral-400 hover:text-neutral-300 transition-colors duration-200 font-mono">
           <span suppressHydrationWarning>{formatTime(currentTime)}</span>
         </div>
       </div>

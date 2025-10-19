@@ -646,3 +646,23 @@ html, body {
   overflow-y: auto;
   overflow-x: hidden;
 }
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  /* Larger touch targets for mobile */
+  .touch-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+  
+  /* Product card mobile spacing */
+  .product-card {
+    margin-bottom: 1px;
+    border-radius: 0;
+  }
+  
+  /* Better mobile product row padding */
+  .product-card-row {
+    min-height: 60px;
+  }
+}

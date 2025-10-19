@@ -412,42 +412,53 @@ export const ProductTableRow = React.memo(function ProductTableRow({
             <div className={`${column.width || 'flex-1'} min-w-0 transition-all duration-200 ${
               isEditMode ? 'border border-white/[0.08] rounded px-2 py-1' : ''
             }`}>
-            <div className="truncate">
-              {isEditMode && isFieldVisible('name') ? (
-                <input
-                  type="text"
-                  value={editData.name}
-                  onChange={(e) => setEditData(prev => ({ ...prev, name: e.target.value }))}
-                  onClick={(e) => e.stopPropagation()}
-                  onFocus={(e) => {
-                    // Prevent auto-selection of text when input is focused
-                    e.target.setSelectionRange(e.target.value.length, e.target.value.length);
-                  }}
-                  onMouseDown={(e) => {
-                    // Prevent text selection when clicking
-                    e.stopPropagation();
-                  }}
-                  className="bg-transparent text-neutral-400 text-sm font-normal border-none outline-none focus:text-neutral-300 w-full"
-                  placeholder="Product name"
+            <div className="flex items-center gap-2 md:gap-0">
+              {/* Product Image - Show on mobile */}
+              {product.images && product.images.length > 0 && (
+                <img 
+                  src={product.images[0].src} 
+                  alt={product.name}
+                  className="w-10 h-10 md:hidden rounded object-cover flex-shrink-0"
+                  loading="lazy"
                 />
-              ) : isEditMode && !isFieldVisible('name') ? (
-                <span className="text-neutral-600 text-sm font-normal italic">Name field hidden</span>
-              ) : (
-                <span className={`text-sm font-normal truncate select-none product-name ${
-                  isEditMode ? 'text-yellow-400 bg-yellow-900/20 px-1 rounded' : 'text-neutral-400'
-                }`}>
-                  {isEditMode ? `${editData.name} (PREVIEW)` : product.name}
-                </span>
               )}
+              <div className="truncate">
+                {isEditMode && isFieldVisible('name') ? (
+                  <input
+                    type="text"
+                    value={editData.name}
+                    onChange={(e) => setEditData(prev => ({ ...prev, name: e.target.value }))}
+                    onClick={(e) => e.stopPropagation()}
+                    onFocus={(e) => {
+                      // Prevent auto-selection of text when input is focused
+                      e.target.setSelectionRange(e.target.value.length, e.target.value.length);
+                    }}
+                    onMouseDown={(e) => {
+                      // Prevent text selection when clicking
+                      e.stopPropagation();
+                    }}
+                    className="bg-transparent text-neutral-400 text-sm md:text-sm font-normal border-none outline-none focus:text-neutral-300 w-full"
+                    placeholder="Product name"
+                  />
+                ) : isEditMode && !isFieldVisible('name') ? (
+                  <span className="text-neutral-600 text-sm md:text-sm font-normal italic">Name field hidden</span>
+                ) : (
+                  <span className={`text-sm md:text-sm font-normal truncate select-none product-name ${
+                    isEditMode ? 'text-yellow-400 bg-yellow-900/20 px-1 rounded' : 'text-neutral-400'
+                  }`}>
+                    {isEditMode ? `${editData.name} (PREVIEW)` : product.name}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         );
 
       case 'category':
         return (
-          <div className={column.width || 'w-32'}>
+          <div className={column.width || 'w-24 md:w-32'}>
             {product.categories && product.categories.length > 0 ? (
-              <span className="text-neutral-600 text-xs bg-neutral-800/50 px-2 py-0.5 rounded">
+              <span className="text-neutral-600 text-[11px] md:text-xs bg-neutral-800/50 px-2 py-0.5 rounded truncate block">
                 {product.categories[0].name}
               </span>
             ) : (
@@ -458,8 +469,8 @@ export const ProductTableRow = React.memo(function ProductTableRow({
 
       case 'stock':
         return (
-          <div className={`${column.width || 'w-24'}`}>
-            <div className="text-xs text-neutral-400">{stockValue} units</div>
+          <div className={`${column.width || 'w-20 md:w-24'}`}>
+            <div className="text-[11px] md:text-xs text-neutral-400 font-mono">{stockValue} units</div>
           </div>
         );
 
@@ -1252,7 +1263,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
     >
       {/* Row 1: Main product info */}
       <div 
-        className="flex items-center gap-3 px-4 py-2 cursor-pointer select-none product-card-row"
+        className="flex items-center gap-2 md:gap-3 px-2 md:px-4 py-3 md:py-2 cursor-pointer select-none product-card-row"
         onClick={(e) => {
           // Only trigger selection if clicking on the main row area, not on interactive elements
           const target = e.target as HTMLElement;
@@ -1293,10 +1304,10 @@ export const ProductTableRow = React.memo(function ProductTableRow({
             e.stopPropagation();
             onToggleExpand();
           }}
-          className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-neutral-600 rounded-md expand-button"
+          className="flex-shrink-0 w-8 h-8 md:w-6 md:h-6 flex items-center justify-center text-neutral-600 rounded-md expand-button touch-target"
         >
           <svg
-            className={`w-3 h-3 expand-icon ${isExpanded ? 'rotate-90' : ''}`}
+            className={`w-4 h-4 md:w-3 md:h-3 expand-icon ${isExpanded ? 'rotate-90' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
