@@ -411,18 +411,19 @@ export const CustomersView = React.forwardRef<CustomersViewRef, CustomersViewPro
   }));
 
   return (
-    <div className="flex-1 bg-neutral-900 flex flex-col overflow-hidden">
-      {/* Content Area */}
-      <div className="flex-1 overflow-y-auto scrollable-container p-0 bg-neutral-900 relative">
-        {/* Loading Overlay */}
-        {loading && (
-          <div className="absolute inset-0 bg-neutral-900/80 flex items-center justify-center z-50">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white/20 mx-auto mb-2"></div>
-              <p className="text-neutral-400">Loading customers...</p>
-            </div>
+    <div className="flex-1 bg-neutral-900 flex flex-col relative min-h-0">
+      {/* Full Screen Loading Overlay */}
+      {loading && (
+        <div className="fixed inset-0 bg-neutral-900 flex items-center justify-center z-50" style={{ top: 0, left: 0, right: 0, bottom: 0 }}>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white/20 mx-auto mb-2"></div>
+            <p className="text-neutral-400">Loading customers...</p>
           </div>
-        )}
+        </div>
+      )}
+      
+      {/* Content Area */}
+      <div className="flex-1 overflow-y-auto scrollable-container p-0 bg-neutral-900 min-h-0">
         
         {/* Error Display */}
         {error && (

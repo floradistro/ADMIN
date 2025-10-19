@@ -143,8 +143,21 @@ export function ProductsModule({
   // Get selected products as array
   const selectedProductsArray = products.filter(p => selectedProducts.has(p.id));
 
+  // Show full-screen loading on initial load
+  const isInitialLoading = isLoading && products.length === 0;
+
   return (
-    <div className="w-full h-full bg-neutral-900 flex flex-col overflow-hidden">
+    <div className="w-full h-full bg-neutral-900 flex flex-col relative">
+      {/* Full Screen Loading Overlay */}
+      {isInitialLoading && (
+        <div className="fixed inset-0 bg-neutral-900 flex items-center justify-center z-50" style={{ top: 0, left: 0, right: 0, bottom: 0 }}>
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white/20 mx-auto mb-2"></div>
+            <p className="text-neutral-400">Loading products...</p>
+          </div>
+        </div>
+      )}
+      
       {/* ProductGridHeader is now integrated into the main Header component */}
       
       {/* Tab Content - Only Products View */}

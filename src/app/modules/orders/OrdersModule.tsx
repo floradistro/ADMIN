@@ -49,28 +49,33 @@ export const OrdersModule = forwardRef<OrdersModuleRef, OrdersModuleProps>(({ fl
     }
   }));
 
+  // Hide header during initial load when totalOrders is 0 and no data yet
+  const isInitialLoading = totalOrders === 0;
+
   return (
-    <div className="flex-1 bg-neutral-900 flex flex-col overflow-hidden">
-      {/* Orders Header */}
-      <OrdersGridHeader
-        statusFilter={ordersStatusFilter}
-        onStatusFilterChange={setOrdersStatusFilter}
-        totalOrders={totalOrders}
-        selectedOrdersCount={selectedOrders.size}
-        onClearSelection={clearSelection}
-        selectedLocationId={ordersLocationId}
-        onLocationChange={setOrdersLocationId}
-        locations={floraLocations}
-        selectedEmployee={ordersEmployee}
-        onEmployeeChange={setOrdersEmployee}
-        employeeOptions={[]} // Employee options loaded from user management
-        dateFrom={ordersDateFrom}
-        dateTo={ordersDateTo}
-        onDateFromChange={setOrdersDateFrom}
-        onDateToChange={setOrdersDateTo}
-        showSelectedOnly={ordersShowSelectedOnly}
-        onShowSelectedOnlyChange={setOrdersShowSelectedOnly}
-      />
+    <div className="flex-1 bg-neutral-900 flex flex-col min-h-0">
+      {/* Only show header after initial data load */}
+      {!isInitialLoading && (
+        <OrdersGridHeader
+          statusFilter={ordersStatusFilter}
+          onStatusFilterChange={setOrdersStatusFilter}
+          totalOrders={totalOrders}
+          selectedOrdersCount={selectedOrders.size}
+          onClearSelection={clearSelection}
+          selectedLocationId={ordersLocationId}
+          onLocationChange={setOrdersLocationId}
+          locations={floraLocations}
+          selectedEmployee={ordersEmployee}
+          onEmployeeChange={setOrdersEmployee}
+          employeeOptions={[]} // Employee options loaded from user management
+          dateFrom={ordersDateFrom}
+          dateTo={ordersDateTo}
+          onDateFromChange={setOrdersDateFrom}
+          onDateToChange={setOrdersDateTo}
+          showSelectedOnly={ordersShowSelectedOnly}
+          onShowSelectedOnlyChange={setOrdersShowSelectedOnly}
+        />
+      )}
       
       <OrdersView 
         ref={ordersViewRef}

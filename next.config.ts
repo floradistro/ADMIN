@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'api.floradistro.com',
         port: '',
-        pathname: '/wp-content/uploads/**',
+        pathname: '/**',
       },
     ],
   },

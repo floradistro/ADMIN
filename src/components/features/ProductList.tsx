@@ -371,14 +371,7 @@ export function ProductList({
           </div>
         )}
         
-        {/* Loading State */}
-        {isLoading && products.length === 0 && (
-          <div className="flex justify-center py-12">
-            <div className="text-white/60">Loading products...</div>
-          </div>
-        )}
-        
-        {/* Empty State */}
+        {/* Empty State - only show when not loading */}
         {!isLoading && products.length === 0 && (
           <div className="flex justify-center py-12">
             <div className="text-white/60">No products found</div>

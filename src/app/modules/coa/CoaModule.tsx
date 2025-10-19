@@ -674,8 +674,21 @@ export const CoaModule = React.forwardRef<CoaModuleRef, CoaModuleProps>(
       );
     }
 
+    // Show full-screen loading on initial load
+    const isInitialLoading = loading && coaFiles.length === 0;
+
     return (
-      <div className="flex-1 bg-neutral-900 flex flex-col">
+      <div className="flex-1 bg-neutral-900 flex flex-col relative">
+        {/* Full Screen Loading Overlay */}
+        {isInitialLoading && (
+          <div className="fixed inset-0 bg-neutral-900 flex items-center justify-center z-50" style={{ top: 0, left: 0, right: 0, bottom: 0 }}>
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white/20 mx-auto mb-2"></div>
+              <p className="text-neutral-400">Loading COA files...</p>
+            </div>
+          </div>
+        )}
+        
         {/* Header - Match ProductGridHeader */}
         <div className="px-4 py-1 border-b border-white/[0.04] bg-neutral-900 flex-shrink-0">
           <div className="flex items-center justify-between w-full relative">
@@ -914,12 +927,7 @@ export const CoaModule = React.forwardRef<CoaModuleRef, CoaModuleProps>(
 
         {/* Content */}
         <div className="flex-1 overflow-auto p-4">
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-6 h-6 text-neutral-500 animate-spin mr-3" />
-              <span className="text-neutral-500 product-text">Loading files...</span>
-            </div>
-          ) : error ? (
+          {error ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <FileX className="w-12 h-12 text-neutral-600 mb-4" />
               <p className="text-red-400 mb-2 product-text">Error loading files</p>

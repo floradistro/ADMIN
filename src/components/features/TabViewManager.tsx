@@ -2,8 +2,6 @@
 
 import React, { memo, useMemo, Suspense, lazy, useCallback, ReactNode } from 'react';
 import { ErrorBoundary } from '../ui/ErrorBoundary';
-import { LoadingSpinner } from '../ui/LoadingSpinner';
-import { Product } from '../../types';
 
 // Lazy load all modules for better code splitting
 const ProductsModule = lazy(() => import('../../app/modules/products/ProductsModule').then(m => ({ default: m.ProductsModule })));
@@ -34,18 +32,10 @@ const ViewContainer = memo(({
   isActive: boolean; 
   keepAlive?: boolean;
 }) => {
-  // Don't render at all if not active and not keeping alive
-  if (!isActive && !keepAlive) {
-    return null;
-  }
-
   return (
     <div 
-      className="tab-view-container" 
+      className="tab-view-container flex-1 flex flex-col min-h-0"
       data-active={isActive}
-      style={{
-        display: isActive ? 'flex' : (keepAlive ? 'flex' : 'none'),
-      }}
     >
       {children}
     </div>
@@ -53,18 +43,6 @@ const ViewContainer = memo(({
 });
 
 ViewContainer.displayName = 'ViewContainer';
-
-// Loading fallback component
-const TabLoadingFallback = memo(() => (
-  <div className="flex-1 flex items-center justify-center bg-neutral-900">
-    <div className="flex flex-col items-center gap-4">
-      <LoadingSpinner />
-      <p className="text-neutral-400 text-sm">Loading view...</p>
-    </div>
-  </div>
-));
-
-TabLoadingFallback.displayName = 'TabLoadingFallback';
 
 
 interface TabViewManagerProps {
@@ -82,31 +60,25 @@ export const TabViewManager = memo(({
   showDashboard,
   dashboardProps
 }: TabViewManagerProps) => {
-  // Preload critical tabs
-  const preloadedTabs = useMemo(() => {
-    const toPreload = new Set<string>();
-    tabConfigs.forEach((config, id) => {
-      if (config.preload && openTabs.has(id)) {
-        toPreload.add(id);
-      }
-    });
-    return toPreload;
-  }, [tabConfigs, openTabs]);
 
   // Render a single tab view
   const renderTabView = useCallback((tabId: string) => {
     const config = tabConfigs.get(tabId);
-    if (!config) return null;
+    if (!config) {
+      return (
+        <div className="flex-1 flex items-center justify-center bg-neutral-900">
+          <p className="text-neutral-400">Tab not found</p>
+        </div>
+      );
+    }
 
     const Component = config.component;
-    const isActive = activeTabId === tabId;
-    const shouldKeepAlive = config.keepAlive || preloadedTabs.has(tabId);
 
     return (
       <ViewContainer 
         key={tabId} 
-        isActive={isActive} 
-        keepAlive={shouldKeepAlive}
+        isActive={true} 
+        keepAlive={false}
       >
         <ErrorBoundary 
           fallback={
@@ -124,13 +96,13 @@ export const TabViewManager = memo(({
             </div>
           }
         >
-          <Suspense fallback={<TabLoadingFallback />}>
+          <Suspense fallback={<div className="flex-1 bg-neutral-900"></div>}>
             <Component {...config.props} />
           </Suspense>
         </ErrorBoundary>
       </ViewContainer>
     );
-  }, [activeTabId, tabConfigs, preloadedTabs]);
+  }, [tabConfigs]);
 
   // If no tabs are open, show dashboard
   if (openTabs.size === 0) {
@@ -141,10 +113,10 @@ export const TabViewManager = memo(({
     );
   }
 
-  // Otherwise render tabs
+  // Otherwise render tabs - only render active tab for simplicity
   return (
-    <div className="flex-1 min-h-0 flex relative overflow-hidden">
-      {Array.from(openTabs).map(tabId => renderTabView(tabId))}
+    <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+      {renderTabView(activeTabId)}
     </div>
   );
 });
