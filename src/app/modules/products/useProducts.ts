@@ -85,7 +85,9 @@ export function useProducts() {
     
     // Apply selected products filter
     if (filterState.showSelectedOnly) {
+      const before = filtered.length;
       filtered = filtered.filter(product => bulkActions.selectedProducts.has(product.id));
+      console.log(`  Selected Only filter: ${before} → ${filtered.length} products (${bulkActions.selectedProducts.size} selected)`);
     }
     
     // Apply zero quantity filter

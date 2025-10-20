@@ -302,6 +302,7 @@ export function Header({
                         <div className="p-1 space-y-0.5">
                           <button
                             onClick={() => {
+                              console.log('🔍 Toggling Hide Zero Stock:', !filterState.hideZeroQuantity);
                               onHideZeroQuantityChange?.(!filterState.hideZeroQuantity);
                               setIsFiltersDropdownOpen(false);
                             }}
@@ -309,10 +310,11 @@ export function Header({
                               filterState.hideZeroQuantity ? 'bg-blue-500/20 text-blue-300' : 'text-neutral-400 hover:bg-white/[0.05]'
                             }`}
                           >
-                            Hide Zero Stock
+                            Hide Zero Stock {filterState.hideZeroQuantity && '✓'}
                           </button>
                           <button
                             onClick={() => {
+                              console.log('🔍 Toggling Selected Only:', !filterState.showSelectedOnly);
                               onShowSelectedOnlyChange?.(!filterState.showSelectedOnly);
                               setIsFiltersDropdownOpen(false);
                             }}
@@ -320,7 +322,7 @@ export function Header({
                               filterState.showSelectedOnly ? 'bg-green-500/20 text-green-300' : 'text-neutral-400 hover:bg-white/[0.05]'
                             }`}
                           >
-                            Selected Only
+                            Selected Only {filterState.showSelectedOnly && '✓'}
                           </button>
                         </div>
                       </div>

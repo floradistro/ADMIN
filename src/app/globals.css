@@ -701,8 +701,11 @@ html, body {
 
 /* Mobile optimizations */
 @media (max-width: 768px) {
-  /* Larger touch targets for mobile */
-  .touch-target {
+  /* Larger touch targets for mobile - Apple HIG minimum 44x44 */
+  .touch-target,
+  button,
+  .expand-button,
+  .product-card-button {
     min-width: 44px;
     min-height: 44px;
   }
@@ -719,12 +722,24 @@ html, body {
   
   /* Better mobile product row padding */
   .product-card-row {
-    min-height: 44px;
+    min-height: 48px;
+    padding-top: 12px;
+    padding-bottom: 12px;
   }
   
   /* Mobile product list - full width */
   .scrollable-container {
     padding: 0;
+  }
+  
+  /* All clickable elements need proper touch targets */
+  .product-card-checkbox,
+  .expand-icon,
+  a,
+  input[type="checkbox"],
+  select {
+    min-width: 44px;
+    min-height: 44px;
   }
 }
 
