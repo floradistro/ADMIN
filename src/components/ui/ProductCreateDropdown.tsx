@@ -284,7 +284,6 @@ export function ProductCreateDropdown({
       {/* Mobile: Bottom sheet style */}
       <div className="md:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-[9999] flex items-end" onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}>
         <div 
-          ref={dropdownRef}
           className="w-full bg-neutral-900/95 border-t border-white/[0.08] rounded-t-2xl shadow-2xl max-h-[70vh] overflow-auto transition-all duration-200 product-card"
           onClick={(e) => e.stopPropagation()}
         >
@@ -340,7 +339,6 @@ export function ProductCreateDropdown({
 
       {/* Desktop: Normal dropdown */}
       <div 
-        ref={dropdownRef}
         className={`hidden md:block absolute right-0 top-full mt-1 bg-neutral-900/95 border border-white/[0.08] rounded-lg shadow-2xl backdrop-blur-sm z-50 overflow-hidden transition-all duration-200 product-card ${
           showCreateForm ? 'w-96' : 'w-64'
         }`}
