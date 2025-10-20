@@ -368,6 +368,11 @@ html, body {
 .expand-icon {
   transition: transform 300ms cubic-bezier(0.4, 0, 0.2, 1);
   transform-origin: center;
+  opacity: 0.4;
+}
+
+.expand-button:hover .expand-icon {
+  opacity: 0.7;
 }
 
 /* Checkbox selection with tactile feedback */
