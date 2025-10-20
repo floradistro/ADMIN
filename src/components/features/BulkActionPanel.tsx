@@ -60,6 +60,18 @@ export function BulkActionPanel({ selectedProducts, action, locations = [], onCl
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error' | 'info', text: string } | null>(null);
 
+  // Remove duplicates by ID in case the API returns duplicates
+  const uniqueLocations = React.useMemo(() => {
+    const seen = new Set<number>();
+    return locations.filter(location => {
+      if (seen.has(location.id)) {
+        return false;
+      }
+      seen.add(location.id);
+      return true;
+    });
+  }, [locations]);
+
   if (!action) return null;
 
   const updateProductQuantity = (productId: number, quantity: string) => {
@@ -189,18 +201,6 @@ export function BulkActionPanel({ selectedProducts, action, locations = [], onCl
       setIsLoading(false);
     }
   };
-
-  // Remove duplicates by ID in case the API returns duplicates
-  const uniqueLocations = React.useMemo(() => {
-    const seen = new Set<number>();
-    return locations.filter(location => {
-      if (seen.has(location.id)) {
-        return false;
-      }
-      seen.add(location.id);
-      return true;
-    });
-  }, [locations]);
 
   const locationOptions = uniqueLocations.map(loc => ({
     value: loc.id.toString(),
@@ -383,7 +383,7 @@ export function BulkActionPanel({ selectedProducts, action, locations = [], onCl
                     availableProducts={commonProducts}
                   />
                   <div className="text-xs text-neutral-500 mt-1">
-                    Product you're converting all ingredients into (e.g., pre-rolls, concentrate)
+                    Product you are converting all ingredients into (e.g., pre-rolls, concentrate)
                   </div>
                 </div>
               )}

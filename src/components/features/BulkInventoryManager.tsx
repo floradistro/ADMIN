@@ -269,7 +269,7 @@ export function BulkInventoryManager({ products, locations, onSuccess, onClose }
 
         {updateItems.length === 0 ? (
           <div className="text-center py-8 text-white/60">
-            <p>No items added yet. Click "Add Item" to start.</p>
+            <p>No items added yet. Click &quot;Add Item&quot; to start.</p>
           </div>
         ) : (
           <div className="space-y-3 max-h-96 overflow-y-auto">

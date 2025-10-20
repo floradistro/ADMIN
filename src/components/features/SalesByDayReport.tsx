@@ -10,6 +10,10 @@ interface SalesByDayReportProps {
 
 export function SalesByDayReport({ refreshing }: SalesByDayReportProps) {
   const { salesByDayData, loading, error, dateRange, updateDateRange, fetchSalesByDay } = useReports();
+  const [showFilters, setShowFilters] = useState(false);
+  const [itemsPerPage, setItemsPerPage] = useState(50);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
   
   // Debug logging
   console.log('SalesByDayReport render:', { salesByDayData: salesByDayData.length, loading, error });
@@ -37,10 +41,6 @@ export function SalesByDayReport({ refreshing }: SalesByDayReportProps) {
       </div>
     );
   }
-  const [showFilters, setShowFilters] = useState(false);
-  const [itemsPerPage, setItemsPerPage] = useState(50);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set());
 
   const handleDateRangeChange = async (newRange: DateRange) => {
     updateDateRange(newRange);

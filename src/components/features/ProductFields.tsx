@@ -72,7 +72,7 @@ export function ProductFields({
           No fields assigned
         </div>
         <div className="text-neutral-700 text-xs">
-          This product doesn't have any fields assigned to its categories.
+          This product does not have any fields assigned to its categories.
         </div>
       </div>
     );

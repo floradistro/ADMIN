@@ -152,7 +152,7 @@ export function ProductSearch({
       {showResults && searchResults.length === 0 && searchQuery.length >= 2 && !isSearching && (
         <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-950 border border-neutral-800/60 rounded-lg p-3 z-50 shadow-lg">
           <div className="text-sm text-neutral-500 text-center">
-            No products found for "{searchQuery}"
+            No products found for &quot;{searchQuery}&quot;
           </div>
         </div>
       )}

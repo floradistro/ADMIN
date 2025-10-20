@@ -52,7 +52,7 @@ function EditableBlueprintFields({ blueprintFields, editValues, onChange, isLoad
           No blueprint fields assigned
         </div>
         <div className="text-neutral-700 text-xs">
-          This product doesn't have any blueprint fields assigned to its categories yet.
+          This product does not have any blueprint fields assigned to its categories yet.
         </div>
       </div>
     );
@@ -1742,7 +1742,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
                   </div>
                 ) : (
                   <div className="border border-white/[0.04] rounded p-2 mb-4 text-neutral-600 text-xs">
-                    No fields assigned to this product's categories
+                    No fields assigned to this product&apos;s categories
                   </div>
                 )}
                 
@@ -2355,7 +2355,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1-1.964-1-2.732 0L3.732 15c-.77 1 .192 3 1.732 3z" />
                         </svg>
-                        <span>There's a PHP error in the Flora backend API that needs to be fixed</span>
+                        <span>There&apos;s a PHP error in the Flora backend API that needs to be fixed</span>
                       </div>
                     </div>
                   )}

@@ -175,7 +175,7 @@ export function FilterBar({
           <span className="text-neutral-500">Active filters:</span>
           {filterState.searchQuery && (
             <span className="px-2 py-1 bg-blue-500/20 text-blue-400 rounded">
-              Search: "{filterState.searchQuery}"
+              Search: &quot;{filterState.searchQuery}&quot;
             </span>
           )}
           {filterState.selectedLocationId && (

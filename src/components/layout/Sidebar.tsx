@@ -23,7 +23,7 @@ export function Sidebar({ editingProduct, onClose, children }: SidebarProps) {
             <h2 className="text-lg font-semibold text-neutral-500">Portal Panel</h2>
           </div>
           <p className="text-sm text-neutral-600 leading-relaxed">
-            Select any product and click "Edit" to access the advanced product editor interface.
+            Select any product and click &quot;Edit&quot; to access the advanced product editor interface.
           </p>
         </div>
         

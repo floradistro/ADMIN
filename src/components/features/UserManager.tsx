@@ -15,7 +15,7 @@ interface EditingUser extends Partial<WordPressUser> {
   password?: string;
 }
 
-export const UserManager = forwardRef<UserManagerRef, UserManagerProps>(({ onClose }, ref) => {
+export const UserManager = forwardRef<UserManagerRef, UserManagerProps>(function UserManager({ onClose }, ref) {
   const [users, setUsers] = useState<WordPressUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

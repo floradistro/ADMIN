@@ -658,7 +658,7 @@ function CategoryManagementPanel({
 
       {/* Footer Note */}
       <div className="mt-3 p-2 bg-neutral-900/40 border border-white/[0.04] rounded text-neutral-400 text-xs">
-        <strong>Note:</strong> Deleting a category does not delete the products in that category. Products are moved to "Uncategorized".
+        <strong>Note:</strong> Deleting a category does not delete the products in that category. Products are moved to &quot;Uncategorized&quot;.
       </div>
     </div>
   );

@@ -13,7 +13,7 @@ export interface CustomersModuleRef {
   handleRefresh: () => void;
 }
 
-export const CustomersModule = forwardRef<CustomersModuleRef, CustomersModuleProps>(({ floraLocations, onClose }, ref) => {
+export const CustomersModule = forwardRef<CustomersModuleRef, CustomersModuleProps>(function CustomersModule({ floraLocations, onClose }, ref) {
   const customersViewRef = useRef<CustomersViewRef>(null);
   const [searchQuery, setSearchQuery] = useState('');
   
