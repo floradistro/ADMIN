@@ -414,9 +414,9 @@ export const ProductTableRow = React.memo(function ProductTableRow({
             }`}>
             <div className="flex items-center gap-1.5 md:gap-0 min-w-0">
               {/* Product Image - Show on mobile */}
-              {product.images && product.images.length > 0 && (
+              {product.image && (
                 <img 
-                  src={product.images[0].src} 
+                  src={product.image} 
                   alt={product.name}
                   className="w-8 h-8 md:hidden rounded object-cover flex-shrink-0"
                   loading="lazy"
