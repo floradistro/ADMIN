@@ -454,10 +454,9 @@ export function ProductCreateDropdown({
               </Button>
               <Button
                 type="submit"
-                isLoading={isCreatingProduct}
-                disabled={!formData.name || !formData.category}
+                disabled={!formData.name || !formData.category || isCreatingProduct}
               >
-                Create
+                {isCreatingProduct ? 'Creating...' : 'Create'}
               </Button>
             </div>
           </form>
