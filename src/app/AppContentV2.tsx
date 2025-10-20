@@ -60,7 +60,6 @@ const TAB_CONFIGS = {
 } as const;
 
 export function AppContent() {
-  const [mounted, setMounted] = useState(false);
   const [activeSettingsTab, setActiveSettingsTab] = useState<string>('locations');
   const [isHydrated, setIsHydrated] = useState(false);
   
@@ -99,7 +98,6 @@ export function AppContent() {
     initializeProducts,
     fetchProducts,
     fetchProductsWithFilters,
-    fetchLocations,
     handleSyncProducts,
     handleBulkDelete,
     selectedProducts,
@@ -110,16 +108,13 @@ export function AppContent() {
 
   // Enhanced tab management - only initialize after hydration
   const {
-    tabs,
     activeTabId,
     openTabsSet,
     visibleTabs,
-    minimizedTabs,
     openTab,
     closeTab,
     activateTab,
     toggleMinimize,
-    togglePin,
     forceCloseAllTabs,
   } = useTabManagementV2({
     defaultTab: undefined,
@@ -168,9 +163,8 @@ export function AppContent() {
     }
   }, [activeTabId, setViewState]);
 
-  // Set mounted and hydrated after hydration
+  // Set hydrated after mount
   useEffect(() => {
-    setMounted(true);
     setIsHydrated(true);
   }, []);
 
@@ -193,7 +187,8 @@ export function AppContent() {
     if (!filterState.selectedCategory && !filterState.selectedLocationId) {
       initializeProducts();
     }
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Intentionally empty - only run on mount
 
   // Get props for each tab type
   const getTabProps = useCallback((tabId: string) => {
