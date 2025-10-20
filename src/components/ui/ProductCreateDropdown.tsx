@@ -290,7 +290,7 @@ export function ProductCreateDropdown({
       {!showCreateForm ? (
         // Menu View
         <div className="p-4">
-          <div className="text-neutral-400 text-xs font-medium mb-3 px-1">Add Products</div>
+          <div className="text-neutral-400 text-xs font-medium mb-3 px-1">Create New</div>
           
           <div className="space-y-2">
             {/* New Product */}
@@ -304,7 +304,26 @@ export function ProductCreateDropdown({
                 </svg>
               </div>
               <div>
-                <div className="text-neutral-300 text-sm font-medium">New Products</div>
+                <div className="text-neutral-300 text-sm font-medium">New Product</div>
+              </div>
+            </button>
+
+            {/* New List */}
+            <button
+              onClick={() => {
+                // TODO: Implement list creation
+                console.log('Create new list');
+                handleClose();
+              }}
+              className="w-full flex items-center gap-3 px-3 py-3 text-left rounded-md hover:bg-white/[0.05] active:bg-white/[0.08] transition-colors group touch-manipulation"
+            >
+              <div className="flex-shrink-0 w-8 h-8 bg-white/[0.08] rounded-md flex items-center justify-center group-hover:bg-white/[0.12] transition-colors">
+                <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <div>
+                <div className="text-neutral-300 text-sm font-medium">New List</div>
               </div>
             </button>
             {/* Bulk Import */}
@@ -328,10 +347,120 @@ export function ProductCreateDropdown({
           </div>
         </div>
       ) : (
-        // Form content for mobile
+        // Form View - Mobile
         <div className="p-4">
-          {/* Mobile form */}
-          {/* Copy desktop form structure here if needed */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowCreateForm(false)}
+                className="p-1 hover:bg-white/[0.05] rounded transition-colors touch-manipulation"
+              >
+                <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              <h3 className="text-neutral-300 text-sm font-medium">Create Product</h3>
+            </div>
+            <button
+              onClick={handleClose}
+              className="p-1 hover:bg-white/[0.05] rounded transition-colors touch-manipulation"
+            >
+              <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+
+          <form onSubmit={handleFormSubmit} className="space-y-4">
+            <div>
+              <Input
+                label="SKU (Optional)"
+                value={formData.sku}
+                onChange={(e) => handleInputChange('sku', e.target.value)}
+                placeholder="Enter product SKU (optional)"
+              />
+            </div>
+
+            <div>
+              <TextArea
+                label="Product Names"
+                value={formData.name}
+                onChange={(e) => handleInputChange('name', e.target.value)}
+                placeholder="Enter product names (one per line for rapid creation)"
+                required
+                rows={3}
+              />
+              <div className="text-neutral-500 text-xs mt-1">
+                💡 Tip: Press Enter to add multiple product names, one per line
+              </div>
+            </div>
+
+            <div>
+              <Select
+                label="Category"
+                value={formData.category}
+                onChange={(e) => handleInputChange('category', e.target.value)}
+                options={[
+                  { value: '', label: 'Select a category' },
+                  ...categories.map(cat => ({ value: cat.id, label: cat.name }))
+                ]}
+                required
+              />
+            </div>
+
+            {/* Blueprint Information */}
+            {formData.category && (
+              <div className="border border-white/[0.08] rounded-lg p-3 bg-white/[0.02]">
+                <div className="flex items-center gap-2 mb-2">
+                  <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span className="text-neutral-300 text-sm font-medium">Attached Blueprint</span>
+                </div>
+                
+                {loadingBlueprint ? (
+                  <div className="flex items-center gap-2 text-neutral-500 text-xs">
+                    <div className="w-3 h-3 border border-neutral-500 border-t-transparent rounded-full animate-spin"></div>
+                    Loading blueprint...
+                  </div>
+                ) : selectedBlueprint ? (
+                  <div>
+                    <div className="text-neutral-400 text-sm font-medium mb-2">{selectedBlueprint.name}</div>
+                    <div className="text-neutral-500 text-xs mb-2">Blueprint Fields:</div>
+                    <div className="flex flex-wrap gap-1">
+                      {selectedBlueprint.fields.map((field: string, index: number) => (
+                        <span
+                          key={index}
+                          className="px-2 py-1 bg-white/[0.05] rounded text-neutral-400 text-xs"
+                        >
+                          {field}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-neutral-500 text-xs">No blueprint attached to this category</div>
+                )}
+              </div>
+            )}
+
+            <div className="flex justify-end gap-2 pt-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setShowCreateForm(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                isLoading={isCreatingProduct}
+                disabled={!formData.name || !formData.category}
+              >
+                Create
+              </Button>
+            </div>
+          </form>
         </div>
       )}
         </div>
@@ -346,7 +475,7 @@ export function ProductCreateDropdown({
       {!showCreateForm ? (
         // Menu View
         <div className="p-3">
-          <div className="text-neutral-400 text-xs font-medium mb-3 px-1">Add Products</div>
+          <div className="text-neutral-400 text-xs font-medium mb-3 px-1">Create New</div>
           
           <div className="space-y-2">
             {/* New Product */}
@@ -360,11 +489,28 @@ export function ProductCreateDropdown({
                 </svg>
               </div>
               <div>
-                <div className="text-neutral-300 text-sm font-medium">New Products</div>
+                <div className="text-neutral-300 text-sm font-medium">New Product</div>
               </div>
             </button>
 
-
+            {/* New List */}
+            <button
+              onClick={() => {
+                // TODO: Implement list creation
+                console.log('Create new list');
+                handleClose();
+              }}
+              className="w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-md hover:bg-white/[0.05] transition-colors group"
+            >
+              <div className="flex-shrink-0 w-8 h-8 bg-white/[0.08] rounded-md flex items-center justify-center group-hover:bg-white/[0.12] transition-colors">
+                <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <div>
+                <div className="text-neutral-300 text-sm font-medium">New List</div>
+              </div>
+            </button>
 
             {/* Bulk Import */}
             <button
