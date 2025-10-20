@@ -48,6 +48,7 @@ interface HeaderProps {
   onCategoryChange?: (category: string) => void;
   onHideZeroQuantityChange?: (hide: boolean) => void;
   onShowSelectedOnlyChange?: (show: boolean) => void;
+  onCreateList?: () => void;
 }
 
 export function Header({ 
@@ -88,6 +89,7 @@ export function Header({
   onCategoryChange,
   onHideZeroQuantityChange,
   onShowSelectedOnlyChange,
+  onCreateList,
 }: HeaderProps) {
   const [isAuditDropdownOpen, setIsAuditDropdownOpen] = useState(false);
   const [isViewsDropdownOpen, setIsViewsDropdownOpen] = useState(false);
@@ -280,6 +282,7 @@ export function Header({
                     onClose={() => setIsCreateDropdownOpen(false)}
                     onCreateProduct={() => {}}
                     onBulkImport={() => {}}
+                    onCreateList={onCreateList}
                   />
                 </div>
               )}
@@ -481,6 +484,7 @@ export function Header({
                     onClose={() => setIsCreateDropdownOpen(false)}
                     onCreateProduct={() => {}}
                     onBulkImport={() => {}}
+                    onCreateList={onCreateList}
                   />
                 </div>
                 

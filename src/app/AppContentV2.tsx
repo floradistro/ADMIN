@@ -4,6 +4,7 @@ import React, { useEffect, useCallback, useMemo, useRef, useState } from 'react'
 import { Header } from '../components';
 import { StatusBar } from '../components/layout/StatusBar';
 import { useAppContext, useFilterContext, useProductContext } from '../contexts';
+import { useListContext } from '../contexts/ListContext';
 import { BulkJsonEditor } from '../components/features/BulkJsonEditor';
 import { BulkEditFieldProvider } from '../contexts/BulkEditFieldContext';
 import { useTabManagementV2 } from '../hooks/useTabManagementV2';
@@ -104,6 +105,8 @@ export function AppContent() {
     selectedProducts,
     bulkActions: { setSelectedProducts },
   } = useProductContext();
+
+  const { setIsCreatingList } = useListContext();
 
   // Enhanced tab management - only initialize after hydration
   const {
@@ -393,6 +396,7 @@ export function AppContent() {
           }}
           onHideZeroQuantityChange={(hide) => updateFilter({ hideZeroQuantity: hide })}
           onShowSelectedOnlyChange={(show) => updateFilter({ showSelectedOnly: show })}
+          onCreateList={() => setIsCreatingList(true)}
         />
 
         <div className="app-content">

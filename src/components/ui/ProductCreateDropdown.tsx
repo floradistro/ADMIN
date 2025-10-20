@@ -8,13 +8,15 @@ interface ProductCreateDropdownProps {
   onClose: () => void;
   onCreateProduct: () => void;
   onBulkImport: () => void;
+  onCreateList?: () => void;
 }
 
 export function ProductCreateDropdown({ 
   isOpen, 
   onClose, 
   onCreateProduct,
-  onBulkImport
+  onBulkImport,
+  onCreateList
 }: ProductCreateDropdownProps) {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [formData, setFormData] = useState({
@@ -311,8 +313,9 @@ export function ProductCreateDropdown({
             {/* New List */}
             <button
               onClick={() => {
-                // TODO: Implement list creation
-                console.log('Create new list');
+                if (onCreateList) {
+                  onCreateList();
+                }
                 handleClose();
               }}
               className="w-full flex items-center gap-3 px-3 py-3 text-left rounded-md hover:bg-white/[0.05] active:bg-white/[0.08] transition-colors group touch-manipulation"
@@ -495,8 +498,9 @@ export function ProductCreateDropdown({
             {/* New List */}
             <button
               onClick={() => {
-                // TODO: Implement list creation
-                console.log('Create new list');
+                if (onCreateList) {
+                  onCreateList();
+                }
                 handleClose();
               }}
               className="w-full flex items-center gap-3 px-3 py-2.5 text-left rounded-md hover:bg-white/[0.05] transition-colors group"
