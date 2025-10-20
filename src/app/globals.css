@@ -42,7 +42,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-  position: relative;
+  position: fixed;
   /* Prevent overscroll bounce on iOS */
   overscroll-behavior: none;
   /* Prevent text selection on touch devices */
@@ -61,6 +61,10 @@ body {
   width: 100%;
   height: 100vh;
   height: 100dvh;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 /* Animated 3D Wave Background */
@@ -177,6 +181,8 @@ html, body {
   /* Prevent viewport size changes from affecting layout */
   margin: 0;
   padding: 0;
+  position: fixed;
+  width: 100%;
 }
 
 /* Fix for iPad and mobile viewport sizing */
@@ -639,6 +645,7 @@ html, body {
   position: relative;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .app-footer {
@@ -646,6 +653,10 @@ html, body {
   bottom: 0;
   z-index: 20;
   flex-shrink: 0;
+  /* PWA safe area for curved corners and home indicator */
+  padding-left: max(env(safe-area-inset-left), 8px);
+  padding-right: max(env(safe-area-inset-right), 8px);
+  padding-bottom: max(env(safe-area-inset-bottom), 8px);
 }
 
 /* Prevent viewport scaling issues on mobile */
@@ -669,6 +680,8 @@ html, body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  /* Prevent whole page scroll - only module content scrolls */
+  position: relative;
 }
 
 /* Tab view container for complete isolation */
@@ -681,6 +694,9 @@ html, body {
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  /* Fix for mobile scroll - ensure this is the scroll container */
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 /* Mobile optimizations */

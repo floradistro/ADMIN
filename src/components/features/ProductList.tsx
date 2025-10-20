@@ -255,7 +255,7 @@ export function ProductList({
 
 
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto scrollable-container p-0 bg-neutral-900">
+    <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden scrollable-container p-0 bg-neutral-900" style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
       {/* Table View */}
       <div className="min-w-full">
             {/* Table Header - Hide on mobile */}

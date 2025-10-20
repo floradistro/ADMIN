@@ -46,9 +46,16 @@ export function StatusBar({
 
 
   return (
-    <div className="bg-transparent border-t border-white/[0.04] h-8 md:h-7 flex items-center justify-between px-2 md:px-4 text-[10px] md:text-xs text-neutral-500 flex-shrink-0 font-tiempos sticky bottom-0 z-20">
+    <div 
+      className="bg-transparent border-t border-white/[0.04] h-8 md:h-7 flex items-center justify-between text-[10px] md:text-xs text-neutral-500 flex-shrink-0 font-tiempos sticky bottom-0 z-20"
+      style={{
+        paddingLeft: 'max(env(safe-area-inset-left), 8px)',
+        paddingRight: 'max(env(safe-area-inset-right), 8px)',
+        paddingBottom: 'max(env(safe-area-inset-bottom), 4px)'
+      }}
+    >
       {/* Left section */}
-      <div className="flex items-center space-x-2 md:space-x-4">
+      <div className="flex items-center space-x-2 md:space-x-4 min-w-0">
         {/* Product count - always show if exists */}
         {totalProducts > 0 && (
           <div className="text-neutral-500 font-mono">
@@ -75,7 +82,7 @@ export function StatusBar({
       </div>
 
       {/* Right section */}
-      <div className="flex items-center space-x-2 md:space-x-3">
+      <div className="flex items-center space-x-2 md:space-x-3 flex-shrink-0">
         {/* Last sync - hide on mobile, show on desktop */}
         {mounted && lastSync && currentTime && (
           <div className="hidden md:block text-neutral-500 hover:text-neutral-400 transition-colors duration-200">
