@@ -8,7 +8,7 @@ import { ListManager } from './ListManager';
 import { ListViewer } from './ListViewer';
 import { EmailListDialog } from './EmailListDialog';
 import { ListExportService } from '../../services/list-export-service';
-import { useProductLists } from '../../hooks/useProductLists';
+import { useListContext } from '../../contexts/ListContext';
 
 interface ListFeatureProps {
   selectedProducts: Product[];
@@ -28,10 +28,11 @@ export function ListFeature({
     deleteList,
     duplicateList,
     getList,
-    recordExport
-  } = useProductLists();
+    recordExport,
+    isCreatingList,
+    setIsCreatingList
+  } = useListContext();
 
-  const [isCreating, setIsCreating] = useState(false);
   const [isManaging, setIsManaging] = useState(false);
   const [viewingListId, setViewingListId] = useState<string | null>(null);
   const [emailingListId, setEmailingListId] = useState<string | null>(null);
@@ -128,8 +129,8 @@ export function ListFeature({
     <>
       {/* Create List Modal */}
       <CreateListModal
-        isOpen={isCreating}
-        onClose={() => setIsCreating(false)}
+        isOpen={isCreatingList}
+        onClose={() => setIsCreatingList(false)}
         selectedProducts={selectedProducts}
         availableColumns={availableColumns}
         onCreateList={handleCreateList}
@@ -181,7 +182,7 @@ export function ListFeature({
         
         {selectedProducts.length > 0 && (
           <button
-            onClick={() => setIsCreating(true)}
+            onClick={() => setIsCreatingList(true)}
             className="group px-4 py-2 bg-white/90 hover:bg-white backdrop-blur-sm text-black rounded shadow-xl flex items-center gap-2 transition-all"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

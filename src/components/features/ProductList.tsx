@@ -266,35 +266,31 @@ export function ProductList({
     >
       {/* Table View */}
       <div className="min-w-full">
-            {/* Table Header - Mobile optimized */}
-            <div className="sticky top-0 bg-neutral-900 backdrop-blur border-b border-white/[0.08] px-2 md:px-4 py-2 z-10">
-              <div className="flex items-center gap-2 md:gap-3 text-xs font-medium text-neutral-400 relative">
-                {/* Select All Icon - Touch friendly on mobile */}
-                <div className="w-8 md:w-6 flex items-center justify-center">
+            {/* Table Header - Completely separate mobile/desktop */}
+            <div className="sticky top-0 bg-neutral-900 backdrop-blur border-b border-white/[0.08] z-10">
+              
+              {/* MOBILE: Clean horizontal layout - NO column labels */}
+              <div className="md:hidden px-3 py-2.5 flex items-center justify-between">
+                <div className="flex items-center gap-3">
                   <button
                     onClick={handleSelectAll}
-                    className="w-6 h-6 md:w-4 md:h-4 flex items-center justify-center rounded border border-neutral-500 bg-neutral-800/50 hover:border-neutral-400 hover:bg-neutral-700/50 transition-colors focus:outline-none focus:ring-1 focus:ring-white/20 touch-manipulation"
+                    className="w-7 h-7 flex items-center justify-center rounded border border-neutral-500 bg-neutral-800/50 active:bg-neutral-700/50 transition touch-manipulation"
                     title="Select all products"
                   >
                     {selectedProducts.size === products.length && products.length > 0 ? (
                       // All selected - subtle filled square
-                      <svg className="w-4 h-4 md:w-3 md:h-3 text-neutral-400" fill="currentColor" viewBox="0 0 16 16">
+                      <svg className="w-4 h-4 text-neutral-400" fill="currentColor" viewBox="0 0 16 16">
                         <rect width="16" height="16" rx="1"/>
                       </svg>
                     ) : selectedProducts.size > 0 ? (
-                      // Some selected - dash/minus
-                      <svg className="w-4 h-4 md:w-3 md:h-3 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 16 16" strokeWidth="2">
+                      <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 16 16" strokeWidth="2">
                         <line x1="4" y1="8" x2="12" y2="8"/>
                       </svg>
                     ) : (
-                      // None selected - empty
-                      <div className="w-4 h-4 md:w-3 md:h-3"></div>
+                      <div className="w-4 h-4"></div>
                     )}
                   </button>
-                </div>
 
-                {/* Expand/Collapse Button - Touch friendly on mobile */}
-                <div className="w-8 md:w-6 flex items-center">
                   <button
                     onClick={handleBulkToggleExpand}
                     disabled={!selectedProducts || selectedProducts.size === 0}
