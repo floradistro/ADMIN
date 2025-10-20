@@ -135,7 +135,7 @@ function generateListEmailHTML(list: ProductList, customMessage?: string): strin
       let value: any;
       
       // Get value from snapshot first, then from productData
-      value = product.snapshot[field] ?? productData[field];
+      value = product.snapshot[field as keyof typeof product.snapshot] ?? productData[field as keyof typeof productData];
       
       if (field === 'image' && productData.image) {
         cells.push(`<td style="padding: 18px 20px; background-color: ${bgColor}; margin: 0;"><img src="${productData.image}" alt="${productData.name}" style="width: 70px; height: 70px; object-fit: cover; border: 3px solid #000000; display: block; margin: 0;" /></td>`);

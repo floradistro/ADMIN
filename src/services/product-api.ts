@@ -16,6 +16,9 @@ export interface ProductField {
 export interface PriceTier {
   qty?: number;
   weight?: string;
+  min_qty?: number;
+  max_qty?: number;
+  quantity?: number;
   price: number;
   discount_percent?: number;
 }
