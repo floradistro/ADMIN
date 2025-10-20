@@ -2,23 +2,12 @@
 
 import React, { createContext, useContext, ReactNode, useState, useCallback } from 'react';
 import { ViewState, Product } from '../types';
-import { useTabManagement } from '../hooks/useTabManagement';
 
 interface AppContextType {
   // View State
   viewState: ViewState;
   setViewState: React.Dispatch<React.SetStateAction<ViewState>>;
   handleViewChange: (newViews: Partial<ViewState>) => void;
-  
-  // Tab Management
-  openTabs: Set<string>;
-  activeTabId: string;
-  showDashboard: boolean;
-  generateTabsData: (viewState: ViewState) => any[];
-  handleTabClick: (tabId: string, setViewState: (fn: (prev: ViewState) => ViewState) => void) => void;
-  handleTabMinimize: (tabId: string, setViewState: (fn: (prev: ViewState) => ViewState) => void) => void;
-  handleTabClose: (tabId: string, setViewState: (fn: (prev: ViewState) => ViewState) => void) => void;
-  toggleTab: (tabId: string, setViewState: (fn: (prev: ViewState) => ViewState) => void) => void;
   
   // Expansion Management
   handleToggleExpand: (id: number) => void;
@@ -67,11 +56,6 @@ export function AppProvider({ children }: AppProviderProps) {
   // Bulk edit state
   const [bulkEditProductIds, setBulkEditProductIds] = useState<Set<number>>(new Set());
   const [isBulkJsonEditorOpen, setIsBulkJsonEditorOpen] = useState(false);
-
-
-
-  // Tab management
-  const tabManagement = useTabManagement();
 
   // View change handler
   const handleViewChange = useCallback((newViews: Partial<ViewState>) => {
@@ -159,9 +143,6 @@ export function AppProvider({ children }: AppProviderProps) {
     viewState,
     setViewState,
     handleViewChange,
-    
-    // Tab Management
-    ...tabManagement,
     
     // Expansion Management
     handleToggleExpand,

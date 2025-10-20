@@ -3,7 +3,7 @@ export { useInstantInventory } from './useInstantInventory';
 export { useCategoriesManager } from './useCategoriesManager';
 export { useColumnManager } from './useColumnManager';
 export { useDebounce } from './useDebounce';
-export { useTabManagement } from './useTabManagement';
+export { useTabManagementV2 } from './useTabManagementV2';
 export { useFilters } from './useFilters';
 export { useBulkActions } from './useBulkActions';
 export { usePagination } from './usePagination';
