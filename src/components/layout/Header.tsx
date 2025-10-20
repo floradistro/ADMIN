@@ -245,39 +245,22 @@ export function Header({
               )}
             </div>
             
-            {/* Mobile Search - Flexible */}
-            <div className="flex-1 min-w-0">
-              {isProductsTab ? (
-                <div className="relative h-8 bg-neutral-800/60 border border-white/[0.08] rounded-md flex items-center">
-                  <div className="flex items-center justify-center px-2">
-                    <svg className="w-3.5 h-3.5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                  </div>
-                  <input
-                    type="text"
-                    value={filterState.searchQuery}
-                    onChange={(e) => onFilterChange({ searchQuery: e.target.value })}
-                    placeholder="Search..."
-                    className="flex-1 h-full bg-transparent text-xs text-neutral-300 placeholder-neutral-600 outline-none pr-2"
-                  />
+            {/* Mobile Search - Optimized */}
+            <div className="flex-1 min-w-0 max-w-[50%]">
+              <div className="relative h-8 bg-neutral-800/40 border border-white/[0.06] rounded-lg flex items-center transition-all focus-within:bg-neutral-800/60 focus-within:border-white/[0.12]">
+                <div className="flex items-center justify-center px-2 flex-shrink-0">
+                  <svg className="w-3 h-3 text-neutral-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
                 </div>
-              ) : (
-                <div className="relative h-8 bg-neutral-800/60 border border-white/[0.08] rounded-md flex items-center">
-                  <div className="flex items-center justify-center px-2">
-                    <svg className="w-3.5 h-3.5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
-                  </div>
-                  <input
-                    type="text"
-                    value={filterState.searchQuery}
-                    onChange={(e) => onFilterChange({ searchQuery: e.target.value })}
-                    placeholder="Search..."
-                    className="flex-1 h-full bg-transparent text-xs text-neutral-300 placeholder-neutral-600 outline-none pr-2"
-                  />
-                </div>
-              )}
+                <input
+                  type="text"
+                  value={filterState.searchQuery}
+                  onChange={(e) => onFilterChange({ searchQuery: e.target.value })}
+                  placeholder={isProductsTab ? "Search..." : "Search..."}
+                  className="flex-1 h-full bg-transparent text-xs text-neutral-300 placeholder-neutral-700 outline-none pr-2 product-text"
+                />
+              </div>
             </div>
             
             {/* Mobile Right Actions */}
