@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface BulkAction {
   id: 'update' | 'transfer' | 'convert' | 'delete' | 'edit';
@@ -68,24 +68,6 @@ export function BulkActionsDropdown({
   className = '' 
 }: BulkActionsDropdownProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen]);
 
   // Close dropdown when selectedCount changes to 0
   useEffect(() => {
@@ -109,7 +91,7 @@ export function BulkActionsDropdown({
   }
 
   return (
-    <div className={`relative ${className}`} ref={dropdownRef}>
+    <div className={`relative ${className}`}>
       {/* Bulk actions dropdown trigger */}
       <button
         onClick={() => {

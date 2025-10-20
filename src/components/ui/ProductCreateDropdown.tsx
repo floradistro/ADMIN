@@ -27,27 +27,8 @@ export function ProductCreateDropdown({
   const [selectedBlueprint, setSelectedBlueprint] = useState<any>(null);
   const [loadingBlueprint, setLoadingBlueprint] = useState(false);
   const [isCreatingProduct, setIsCreatingProduct] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  
   // Dialog management
   const dialogs = useDialogs();
-
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        handleClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen]);
 
   // Reset form when dropdown closes
   useEffect(() => {

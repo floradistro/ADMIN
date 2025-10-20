@@ -36,20 +36,6 @@ export function MobileFiltersDropdown({
   onShowSelectedOnlyChange,
 }: MobileFiltersDropdownProps) {
   const [activeSection, setActiveSection] = useState<'location' | 'category' | 'toggles'>('toggles');
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        onClose();
-      }
-    };
-
-    if (isOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -100,15 +86,14 @@ export function MobileFiltersDropdown({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[99999] flex items-end" onMouseDown={(e) => { 
+    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[99999] flex items-end" onClick={(e) => { 
       if (e.target === e.currentTarget) {
-        e.preventDefault();
         onClose();
       }
     }}>
       <div 
-        ref={dropdownRef}
         className="w-full bg-neutral-800/98 border-t border-white/[0.08] rounded-t-2xl shadow-2xl max-h-[70vh] flex flex-col overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
       >
       {/* Header with Clear All */}
       <div className="px-3 py-2.5 border-b border-white/[0.08] flex items-center justify-between flex-shrink-0">

@@ -110,34 +110,6 @@ export function Header({
 
   const isProductsTab = activeTabId === 'products';
 
-  // Close mobile menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (mobileMenuRef.current && !mobileMenuRef.current.contains(event.target as Node)) {
-        setIsMobileMenuOpen(false);
-      }
-    };
-
-    if (isMobileMenuOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [isMobileMenuOpen]);
-
-  // Close dropdowns when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (filtersDropdownRef.current && !filtersDropdownRef.current.contains(event.target as Node)) {
-        setIsFiltersDropdownOpen(false);
-      }
-    };
-
-    if (isFiltersDropdownOpen) {
-      document.addEventListener('mousedown', handleClickOutside);
-      return () => document.removeEventListener('mousedown', handleClickOutside);
-    }
-  }, [isFiltersDropdownOpen]);
-
   return (
     <div className="app-header">
       <div className="header-nav bg-neutral-900 flex-shrink-0 sticky top-0 z-30 font-tiempos ios-header-extension h-12">
