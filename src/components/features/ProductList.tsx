@@ -294,7 +294,7 @@ export function ProductList({
                   <button
                     onClick={handleBulkToggleExpand}
                     disabled={!selectedProducts || selectedProducts.size === 0}
-                    className="w-7 h-7 md:w-6 md:h-6 flex items-center justify-center bg-white/[0.05] text-neutral-300 rounded hover:bg-white/[0.08] active:bg-white/[0.12] disabled:opacity-40 disabled:cursor-not-allowed touch-manipulation"
+                    className="w-7 h-7 flex items-center justify-center bg-white/[0.05] text-neutral-300 rounded active:bg-white/[0.12] disabled:opacity-30 disabled:cursor-not-allowed touch-manipulation"
                     title={allSelectedExpanded ? 'Collapse selected' : 'Expand selected'}
                   >
                     {allSelectedExpanded ? (
