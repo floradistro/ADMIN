@@ -1012,10 +1012,10 @@ export const MediaModule = React.forwardRef<MediaModuleRef, MediaModuleProps>(
                     return (
                       <div
                         key={item.id}
-                        className={`relative group cursor-pointer rounded-lg border transition-all ${
+                        className={`relative group product-card cursor-pointer rounded-lg border transition-all duration-280 ${
                           isSelected
-                            ? 'border-blue-500/50 bg-blue-500/10'
-                            : 'border-white/[0.04] hover:border-white/[0.08] hover:bg-neutral-800/20'
+                            ? 'border-blue-500/50 bg-blue-500/10 shadow-sm'
+                            : 'border-white/[0.04] hover:border-white/[0.08] hover:bg-neutral-800/30 hover:shadow-sm'
                         }`}
                       >
                         {/* Selection Checkbox */}
@@ -1145,10 +1145,10 @@ export const MediaModule = React.forwardRef<MediaModuleRef, MediaModuleProps>(
                     return (
                       <div
                         key={item.id}
-                        className={`group transition-all mb-2 rounded-lg border-b border-white/[0.02] product-card cursor-pointer ${
+                        className={`group product-card transition-all duration-280 mb-2 rounded-lg border cursor-pointer ${
                           isSelected
-                            ? 'bg-neutral-800/50 border-l-4 border-l-blue-400 border border-blue-500/20'
-                            : 'border border-white/[0.04] hover:border-white/[0.08] hover:bg-neutral-800/20'
+                            ? 'bg-neutral-800/50 border-l-4 border-l-blue-400 border-white/[0.06] shadow-sm'
+                            : 'border-white/[0.04] hover:border-white/[0.08] hover:bg-neutral-800/30 hover:shadow-sm'
                         }`}
                         onClick={() => handleItemPreview(item)}
                       >

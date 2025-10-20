@@ -513,15 +513,15 @@ export const OrdersView = React.forwardRef<OrdersViewRef, OrdersViewProps>(({
             {orders.map((order) => (
               <div
                 key={order.id}
-                className={`group transition-all mb-2 rounded-lg border-b border-white/[0.02] ${
-                  selectedOrders.has(order.id)
-                    ? 'bg-neutral-800/50 hover:bg-neutral-800/70 border-l-4 border-l-neutral-400'
-                    : 'bg-neutral-900/40 hover:bg-neutral-800/60'
-                }`}
+              className={`group product-card transition-all duration-280 mb-2 rounded-lg border ${
+                selectedOrders.has(order.id)
+                  ? 'bg-neutral-800/50 border-l-4 border-l-neutral-400 border-white/[0.06] shadow-sm'
+                  : 'border-white/[0.04] hover:border-white/[0.08] hover:bg-neutral-800/30 hover:shadow-sm'
+              }`}
               >
-                {/* Order Row - Single Line */}
-                <div 
-                  className="flex items-center gap-3 px-4 py-2 cursor-pointer select-none"
+              {/* Order Row - Single Line */}
+              <div 
+                className="flex items-center gap-3 px-4 py-2 cursor-pointer select-none product-card-row"
                   onClick={(e) => {
                     const target = e.target as HTMLElement;
                     const isButton = target.closest('button');
@@ -544,71 +544,73 @@ export const OrdersView = React.forwardRef<OrdersViewRef, OrdersViewProps>(({
                       e.stopPropagation();
                       toggleExpand(order.id);
                     }}
-                    className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-neutral-600 hover:text-neutral-400 smooth-hover"
+                    className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-neutral-600 rounded-md expand-button"
                   >
-                    <svg
-                      className={`w-3 h-3 transition-transform duration-300 ease-out ${expandedCards.has(order.id) ? 'rotate-90' : ''}`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
-                    </svg>
+                  <svg
+                    className={`w-3 h-3 expand-icon ${expandedCards.has(order.id) ? 'rotate-90' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
+                  </svg>
                   </button>
                   
-                  {/* Order Number */}
-                  {columns.find(c => c.id === 'order')?.visible && (
-                    <div className="w-32">
-                      <div className="text-neutral-500 text-sm">
-                        #{order.id}
-                      </div>
+                {/* Order Number */}
+                {columns.find(c => c.id === 'order')?.visible && (
+                  <div className="w-32">
+                    <div className="text-neutral-400 text-sm font-medium product-text">
+                      #{order.id}
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {/* Origin */}
-                  {columns.find(c => c.id === 'origin')?.visible && (
-                    <div className="w-40">
-                      <div className="text-neutral-400 text-sm">
-                        {getOrderOrigin(order)}
-                      </div>
-                      <div className="text-xs text-neutral-600">
-                        {getOrderOriginDetail(order)}
-                      </div>
+                {/* Origin */}
+                {columns.find(c => c.id === 'origin')?.visible && (
+                  <div className="w-40">
+                    <div className="text-neutral-400 text-sm product-text">
+                      {getOrderOrigin(order)}
                     </div>
-                  )}
-
-                  {/* Customer */}
-                  {columns.find(c => c.id === 'customer')?.visible && (
-                    <div className="flex-1 min-w-0">
-                      <div className="text-neutral-500 text-sm">
-                        {order.billing.first_name} {order.billing.last_name}
-                      </div>
-                      <div className="text-xs text-neutral-600 truncate">
-                        {order.billing.email}
-                      </div>
+                    <div className="text-xs text-neutral-600 product-text">
+                      {getOrderOriginDetail(order)}
                     </div>
-                  )}
+                  </div>
+                )}
 
-                  {/* Date */}
-                  {columns.find(c => c.id === 'date')?.visible && (
-                    <div className="w-40 text-neutral-500 text-xs">
-                      {formatDate(order.date_created)}
+                {/* Customer */}
+                {columns.find(c => c.id === 'customer')?.visible && (
+                  <div className="flex-1 min-w-0">
+                    <div className="text-neutral-400 text-sm product-text">
+                      {order.billing.first_name} {order.billing.last_name}
                     </div>
-                  )}
+                    <div className="text-xs text-neutral-600 truncate product-text">
+                      {order.billing.email}
+                    </div>
+                  </div>
+                )}
 
-                  {/* Status */}
-                  {columns.find(c => c.id === 'status')?.visible && (
-                    <div className="w-32 text-neutral-500 text-xs">
+                {/* Date */}
+                {columns.find(c => c.id === 'date')?.visible && (
+                  <div className="w-40 text-neutral-500 text-xs product-text">
+                    {formatDate(order.date_created)}
+                  </div>
+                )}
+
+                {/* Status */}
+                {columns.find(c => c.id === 'status')?.visible && (
+                  <div className="w-32">
+                    <span className="px-2 py-1 bg-neutral-800/50 text-neutral-400 text-xs rounded product-text">
                       {formatStatus(order.status)}
-                    </div>
-                  )}
+                    </span>
+                  </div>
+                )}
 
-                  {/* Total */}
-                  {columns.find(c => c.id === 'total')?.visible && (
-                    <div className="w-32 text-neutral-400 text-sm">
-                      {order.currency} {order.total}
-                    </div>
-                  )}
+                {/* Total */}
+                {columns.find(c => c.id === 'total')?.visible && (
+                  <div className="w-32 text-neutral-300 text-sm font-medium product-text">
+                    {order.currency} {order.total}
+                  </div>
+                )}
 
                   {/* Payment Method */}
                   {columns.find(c => c.id === 'payment')?.visible && (
@@ -632,11 +634,11 @@ export const OrdersView = React.forwardRef<OrdersViewRef, OrdersViewProps>(({
                   )}
                 </div>
 
-                {/* Expanded View */}
-                {expandedCards.has(order.id) && (
-                  <div className="mx-4 mb-2 rounded p-4 bg-neutral-800/30 hover:bg-neutral-800/50 row-hover border-t border-white/[0.02]">
-                    {/* Tab Controls */}
-                    <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/[0.08]">
+              {/* Expanded View */}
+              {expandedCards.has(order.id) && (
+                <div className="mx-4 mb-2 rounded p-4 bg-neutral-800/20 border border-white/[0.04] product-expanded-content">
+                  {/* Tab Controls */}
+                  <div className="flex items-center gap-2 mb-4 pb-3 border-b border-white/[0.04]">
                       <Button
                         onClick={() => setOrderTab(order.id, 'items')}
                         size="sm"
@@ -685,20 +687,20 @@ export const OrdersView = React.forwardRef<OrdersViewRef, OrdersViewProps>(({
                       {activeOrderTab[order.id] === 'items' && (
                         <>
                           <div className="lg:col-span-2 space-y-2">
-                            <div className="text-neutral-500 font-medium text-xs mb-2">
+                            <div className="text-neutral-500 font-medium text-xs mb-2 product-text">
                               Order Items
                             </div>
                             {order.line_items?.map((item) => (
-                              <div key={item.id} className="bg-neutral-900/40 rounded p-2">
+                              <div key={item.id} className="bg-neutral-900/40 rounded p-2 border border-white/[0.04] transition-all hover:border-white/[0.08] hover:bg-neutral-900/60">
                                 <div className="flex justify-between items-start">
                                   <div className="flex-1">
-                                    <div className="text-neutral-300 text-sm">{item.name}</div>
-                                    <div className="text-neutral-600 text-xs">SKU: {item.sku || 'N/A'}</div>
+                                    <div className="text-neutral-300 text-sm product-text">{item.name}</div>
+                                    <div className="text-neutral-600 text-xs product-text">SKU: {item.sku || 'N/A'}</div>
                                   </div>
-                                                                  <div className="text-right">
-                                  <div className="text-neutral-500 text-xs">Qty: {item.quantity}</div>
-                                  <div className="text-neutral-400 text-sm">{order.currency} {item.total}</div>
-                                </div>
+                                  <div className="text-right">
+                                    <div className="text-neutral-500 text-xs product-text">Qty: {item.quantity}</div>
+                                    <div className="text-neutral-400 text-sm font-medium product-text">{order.currency} {item.total}</div>
+                                  </div>
                                 </div>
                               </div>
                             ))}

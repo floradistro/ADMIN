@@ -137,9 +137,9 @@ export function Header({
         <div className="relative flex items-center h-full px-1.5">
           
           {/* MOBILE LAYOUT (< 768px) */}
-          <div className="md:hidden flex items-center justify-between w-full">
+          <div className="md:hidden flex items-center w-full gap-1">
             {/* Mobile Hamburger Menu */}
-            <div className="relative" ref={mobileMenuRef}>
+            <div className="relative flex-shrink-0" ref={mobileMenuRef}>
               <IconButton
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 variant={isMobileMenuOpen ? 'active' : 'default'}
@@ -245,9 +245,9 @@ export function Header({
               )}
             </div>
             
-            {/* Mobile Search */}
-            <div className="flex-1 mx-2">
-              {isProductsTab && (
+            {/* Mobile Search - Flexible */}
+            <div className="flex-1 min-w-0">
+              {isProductsTab ? (
                 <div className="relative h-8 bg-neutral-800/60 border border-white/[0.08] rounded-md flex items-center">
                   <div className="flex items-center justify-center px-2">
                     <svg className="w-3.5 h-3.5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -258,12 +258,11 @@ export function Header({
                     type="text"
                     value={filterState.searchQuery}
                     onChange={(e) => onFilterChange({ searchQuery: e.target.value })}
-                    placeholder="Search products..."
+                    placeholder="Search..."
                     className="flex-1 h-full bg-transparent text-xs text-neutral-300 placeholder-neutral-600 outline-none pr-2"
                   />
                 </div>
-              )}
-              {!isProductsTab && (
+              ) : (
                 <div className="relative h-8 bg-neutral-800/60 border border-white/[0.08] rounded-md flex items-center">
                   <div className="flex items-center justify-center px-2">
                     <svg className="w-3.5 h-3.5 text-neutral-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -282,39 +281,102 @@ export function Header({
             </div>
             
             {/* Mobile Right Actions */}
-            <div className="flex items-center gap-1">
-              {isProductsTab && bulkEditCount > 0 && (
-                <IconButton onClick={onBulkSave} title="Save">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                  </svg>
-                </IconButton>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {isProductsTab && (
+                <>
+                  {/* Filters Dropdown */}
+                  <div className="relative flex-shrink-0" ref={filtersDropdownRef}>
+                    <IconButton
+                      onClick={() => setIsFiltersDropdownOpen(!isFiltersDropdownOpen)}
+                      variant={filterState.hideZeroQuantity || filterState.showSelectedOnly ? 'active' : 'default'}
+                      title="Filters"
+                      size="sm"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                      </svg>
+                    </IconButton>
+                    
+                    {isFiltersDropdownOpen && (
+                      <div className="absolute top-full right-0 mt-1 bg-neutral-800 border border-white/[0.08] rounded-lg shadow-xl z-50 w-36">
+                        <div className="p-1 space-y-0.5">
+                          <button
+                            onClick={() => {
+                              onHideZeroQuantityChange?.(!filterState.hideZeroQuantity);
+                              setIsFiltersDropdownOpen(false);
+                            }}
+                            className={`w-full text-left px-2 py-1.5 text-xs rounded transition ${
+                              filterState.hideZeroQuantity ? 'bg-blue-500/20 text-blue-300' : 'text-neutral-400 hover:bg-white/[0.05]'
+                            }`}
+                          >
+                            Hide Zero Stock
+                          </button>
+                          <button
+                            onClick={() => {
+                              onShowSelectedOnlyChange?.(!filterState.showSelectedOnly);
+                              setIsFiltersDropdownOpen(false);
+                            }}
+                            className={`w-full text-left px-2 py-1.5 text-xs rounded transition ${
+                              filterState.showSelectedOnly ? 'bg-green-500/20 text-green-300' : 'text-neutral-400 hover:bg-white/[0.05]'
+                            }`}
+                          >
+                            Selected Only
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Add Product */}
+                  <div className="relative flex-shrink-0">
+                    <IconButton
+                      onClick={() => setIsCreateDropdownOpen(!isCreateDropdownOpen)}
+                      variant={isCreateDropdownOpen ? 'active' : 'default'}
+                      title="Add"
+                      size="sm"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                    </IconButton>
+                    
+                    <ProductCreateDropdown
+                      isOpen={isCreateDropdownOpen}
+                      onClose={() => setIsCreateDropdownOpen(false)}
+                      onCreateProduct={() => {}}
+                      onBulkImport={() => {}}
+                    />
+                  </div>
+
+                  {/* Bulk Actions */}
+                  <BulkActionsDropdown
+                    selectedCount={selectedProductsCount}
+                    onAction={onBulkAction || (() => {})}
+                    onClearSelection={onClearSelection || (() => {})}
+                  />
+
+                  {bulkEditCount > 0 && (
+                    <IconButton onClick={onBulkSave} title="Save">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                      </svg>
+                    </IconButton>
+                  )}
+
+                  {selectedProductsCount > 0 && (
+                    <IconButton onClick={onSyncProducts} disabled={syncLoading} title="Sync" size="sm">
+                      <svg className={`w-3.5 h-3.5 ${syncLoading ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </IconButton>
+                  )}
+                </>
               )}
-              <IconButton
-                onClick={async () => {
-                  if (!onRefresh || isRefreshing) return;
-                  setIsRefreshing(true);
-                  try {
-                    await onRefresh();
-                  } catch (error) {
-                    console.error('Refresh error:', error);
-                  } finally {
-                    setTimeout(() => setIsRefreshing(false), 800);
-                  }
-                }}
-                variant="default"
-                disabled={!onRefresh || isRefreshing}
-                title="Refresh"
-              >
-                <svg className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-              </IconButton>
             </div>
           </div>
           
           {/* DESKTOP LAYOUT (>= 768px) */}
-          <div className="hidden md:flex items-center w-full">
+          <div className="hidden md:flex items-center w-full pr-2">
             {/* LEFT SECTION - Tabs & Stats */}
             <div className="flex items-center gap-1.5 min-w-0 flex-1">
               {/* Tabs */}

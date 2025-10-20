@@ -132,35 +132,34 @@ export function ProductGridHeader({
 
 
   return (
-    <div className="px-4 py-1 border-b border-white/[0.04] bg-neutral-900 flex-shrink-0 fixed top-10 left-0 right-0 z-20">
-      <div className="flex items-center justify-between w-full">
+    <div className="px-2 md:px-4 py-2 border-b border-white/[0.04] bg-neutral-900 flex-shrink-0 fixed top-10 left-0 right-0 z-20">
+      <div className="flex items-center gap-2 w-full overflow-x-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-transparent hover:scrollbar-thumb-neutral-600">
         {/* Left section - Product counts */}
-        <div className="flex items-center gap-2">
-          {/* Product count badge */}
+        <div className="flex items-center gap-2 flex-shrink-0">
           <span className="px-2 py-1 bg-white/[0.05] text-neutral-400 text-xs rounded product-text">
-            {selectedProductIds.length} total
+            {selectedProductIds.length}
           </span>
           {selectedProductsCount > 0 && (
             <span className="px-2 py-1 bg-white/[0.08] text-neutral-300 text-xs rounded product-text">
-              {selectedProductsCount} selected
+              {selectedProductsCount} sel
             </span>
           )}
           {bulkEditCount > 0 && (
             <span className="px-2 py-1 bg-blue-500/20 text-blue-300 text-xs rounded product-text">
-              {bulkEditCount} editing
+              {bulkEditCount} edit
             </span>
           )}
         </div>
 
-        {/* Center section - Location and Category filters */}
-        <div className="flex items-center gap-2 mx-auto">
+        {/* Filters - All in one scrollable row */}
+        <div className="flex items-center gap-2 flex-shrink-0">
             {/* Location Filter */}
             <LocationSelector
               selectedLocation={selectedLocationId}
               onLocationChange={onLocationChange || (() => {})}
               locations={locations}
               showAggregation={true}
-              className="min-w-[160px] max-w-[200px]"
+              className="min-w-[120px] flex-shrink-0"
             />
 
             {/* Category Filter */}
@@ -170,14 +169,14 @@ export function ProductGridHeader({
                 onCategoryChange?.(e.target.value);
               }}
               options={categoryOptions}
-              className="min-w-[140px] max-w-[180px]"
+              className="min-w-[120px] flex-shrink-0"
             />
 
             {/* Zero Quantity Filter Toggle */}
             <IconButton
               onClick={() => onHideZeroQuantityChange?.(!hideZeroQuantity)}
               variant={hideZeroQuantity ? 'active' : 'default'}
-              title={hideZeroQuantity ? 'Show all products (including zero quantity)' : 'Hide products with zero quantity'}
+              title={hideZeroQuantity ? 'Show all' : 'Hide zero stock'}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L8.464 8.464M9.878 9.878l.707-.707M14.121 14.121l.707-.707M14.121 14.121L15.536 15.536M14.121 14.121l.707.707" />
@@ -188,7 +187,7 @@ export function ProductGridHeader({
             <IconButton
               onClick={() => onShowSelectedOnlyChange?.(!showSelectedOnly)}
               variant={showSelectedOnly ? 'active' : 'default'}
-              title={showSelectedOnly ? 'Show all products' : 'Show only selected products'}
+              title={showSelectedOnly ? 'Show all' : 'Selected only'}
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
@@ -196,8 +195,8 @@ export function ProductGridHeader({
             </IconButton>
           </div>
 
-        {/* Action Buttons - Right section */}
-        <div className="flex items-center gap-2 ml-auto pr-4">
+        {/* Action Buttons */}
+        <div className="flex items-center gap-2 flex-shrink-0">
             {/* Save All - Only show when products are in bulk edit mode */}
             {bulkEditCount > 0 && (
               <>

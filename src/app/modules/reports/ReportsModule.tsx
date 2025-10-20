@@ -40,15 +40,15 @@ export const ReportsModule = forwardRef<ReportsModuleRef, ReportsModuleProps>(
     return (
       <div className="flex-1 flex flex-col bg-neutral-900 overflow-hidden">
         {/* Report Navigation */}
-        <div className="flex border-b border-white/[0.08]">
+        <div className="flex border-b border-white/[0.04]">
           {reportTabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveReport(tab.id as any)}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium product-text transition-all duration-200 ${
                 activeReport === tab.id
-                  ? 'text-white border-b-2 border-neutral-400'
-                  : 'text-neutral-400 hover:text-neutral-300'
+                  ? 'text-white border-b-2 border-neutral-300 bg-white/[0.02]'
+                  : 'text-neutral-400 hover:text-neutral-300 hover:bg-white/[0.01]'
               }`}
             >
               {tab.label}
@@ -77,19 +77,19 @@ export const ReportsModule = forwardRef<ReportsModuleRef, ReportsModuleProps>(
             {activeReport === 'sales-by-day' && <SalesByDayReport refreshing={refreshing} />}
             
             {activeReport === 'sales-by-product' && (
-              <div className="flex-1 flex items-center justify-center">
-                <div className="text-center text-neutral-400">
-                  <h3 className="text-lg font-medium mb-2">Sales by Product Report</h3>
-                  <p className="text-sm">Coming soon...</p>
+              <div className="flex-1 flex items-center justify-center fade-in">
+                <div className="text-center text-neutral-400 glass-effect rounded-lg p-8 border border-white/[0.04]">
+                  <h3 className="text-lg font-medium mb-2 product-text">Sales by Product Report</h3>
+                  <p className="text-sm product-text">Coming soon...</p>
                 </div>
               </div>
             )}
             
             {activeReport === 'inventory-report' && (
-              <div className="flex-1 flex items-center justify-center">
-                <div className="text-center text-neutral-400">
-                  <h3 className="text-lg font-medium mb-2">Inventory Report</h3>
-                  <p className="text-sm">Coming soon...</p>
+              <div className="flex-1 flex items-center justify-center fade-in">
+                <div className="text-center text-neutral-400 glass-effect rounded-lg p-8 border border-white/[0.04]">
+                  <h3 className="text-lg font-medium mb-2 product-text">Inventory Report</h3>
+                  <p className="text-sm product-text">Coming soon...</p>
                 </div>
               </div>
             )}

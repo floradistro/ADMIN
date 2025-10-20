@@ -571,6 +571,42 @@ html, body {
   background-color: rgba(255, 255, 255, 0.3);
 }
 
+/* Thin scrollbar styling for horizontal scrolling */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  height: 4px;
+  width: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+}
+
+.scrollbar-thumb-neutral-700::-webkit-scrollbar-thumb {
+  background-color: rgb(64, 64, 64);
+}
+
+.scrollbar-thumb-neutral-600::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(82, 82, 82);
+}
+
+.scrollbar-track-transparent::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 /* Fixed layout content area */
 .fixed-content-area {
   flex: 1;
@@ -655,14 +691,123 @@ html, body {
     min-height: 44px;
   }
   
-  /* Product card mobile spacing */
+  /* Product card mobile spacing - edge to edge */
   .product-card {
-    margin-bottom: 1px;
+    margin-bottom: 0;
+    margin-left: 0;
+    margin-right: 0;
     border-radius: 0;
+    border-left: none;
+    border-right: none;
   }
   
   /* Better mobile product row padding */
   .product-card-row {
-    min-height: 60px;
+    min-height: 44px;
   }
+  
+  /* Mobile product list - full width */
+  .scrollable-container {
+    padding: 0;
+  }
+}
+
+/* ============================================
+   GLOBAL ANIMATION & EFFECT UTILITIES
+   ============================================ */
+
+/* Smooth hover effect for all interactive elements */
+.smooth-hover {
+  transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Glass morphism effect */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* Subtle gradient backgrounds */
+.gradient-dark {
+  background: linear-gradient(135deg, 
+    rgba(42, 42, 42, 0.95) 0%, 
+    rgba(50, 50, 50, 0.98) 50%, 
+    rgba(42, 42, 42, 0.95) 100%);
+}
+
+.gradient-card {
+  background: linear-gradient(135deg, 
+    rgba(38, 38, 38, 0.4) 0%, 
+    rgba(42, 42, 42, 0.6) 100%);
+}
+
+/* Shimmer loading effect */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.loading-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.03) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Fade in animation for new content */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 300ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Scale on hover */
+.hover-scale:hover {
+  transform: scale(1.02);
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Glow effect on hover */
+.hover-glow:hover {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1),
+              0 0 40px rgba(255, 255, 255, 0.05);
+}
+
+/* Smooth border color transition */
+.border-transition {
+  transition: border-color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Text gradient */
+.text-gradient {
+  background: linear-gradient(135deg, #e0e0e0 0%, #a0a0a0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Backdrop blur for modals/overlays */
+.backdrop-blur-elegant {
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  background-color: rgba(0, 0, 0, 0.4);
 }

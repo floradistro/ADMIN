@@ -409,20 +409,20 @@ export const ProductTableRow = React.memo(function ProductTableRow({
     switch (column.id) {
       case 'product':
                   return (
-            <div className={`${column.width || 'flex-1'} min-w-0 transition-all duration-200 ${
+            <div className={`${column.width || 'flex-[2]'} min-w-0 transition-all duration-200 ${
               isEditMode ? 'border border-white/[0.08] rounded px-2 py-1' : ''
             }`}>
-            <div className="flex items-center gap-2 md:gap-0">
+            <div className="flex items-center gap-1.5 md:gap-0 min-w-0">
               {/* Product Image - Show on mobile */}
               {product.images && product.images.length > 0 && (
                 <img 
                   src={product.images[0].src} 
                   alt={product.name}
-                  className="w-10 h-10 md:hidden rounded object-cover flex-shrink-0"
+                  className="w-8 h-8 md:hidden rounded object-cover flex-shrink-0"
                   loading="lazy"
                 />
               )}
-              <div className="truncate">
+              <div className="truncate flex-1 min-w-0">
                 {isEditMode && isFieldVisible('name') ? (
                   <input
                     type="text"
@@ -443,11 +443,19 @@ export const ProductTableRow = React.memo(function ProductTableRow({
                 ) : isEditMode && !isFieldVisible('name') ? (
                   <span className="text-neutral-600 text-sm md:text-sm font-normal italic">Name field hidden</span>
                 ) : (
-                  <span className={`text-sm md:text-sm font-normal truncate select-none product-name ${
-                    isEditMode ? 'text-yellow-400 bg-yellow-900/20 px-1 rounded' : 'text-neutral-400'
-                  }`}>
-                    {isEditMode ? `${editData.name} (PREVIEW)` : product.name}
-                  </span>
+                  <div className="truncate">
+                    <span className={`text-xs md:text-sm font-normal truncate select-none product-name ${
+                      isEditMode ? 'text-yellow-400 bg-yellow-900/20 px-1 rounded' : 'text-neutral-300'
+                    }`}>
+                      {isEditMode ? `${editData.name} (PREVIEW)` : product.name}
+                    </span>
+                    {/* Inline category badge on mobile */}
+                    {product.categories && product.categories.length > 0 && (
+                      <span className="md:hidden ml-1 text-neutral-600 text-[8px] bg-neutral-800/50 px-1 py-px rounded inline-block">
+                        {product.categories[0].name}
+                      </span>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
@@ -456,9 +464,9 @@ export const ProductTableRow = React.memo(function ProductTableRow({
 
       case 'category':
         return (
-          <div className={column.width || 'w-24 md:w-32'}>
+          <div className={`${column.width || 'w-24 md:w-32'} hidden md:block`}>
             {product.categories && product.categories.length > 0 ? (
-              <span className="text-neutral-600 text-[11px] md:text-xs bg-neutral-800/50 px-2 py-0.5 rounded truncate block">
+              <span className="text-neutral-600 text-xs bg-neutral-800/50 px-2 py-0.5 rounded truncate block">
                 {product.categories[0].name}
               </span>
             ) : (
@@ -469,21 +477,21 @@ export const ProductTableRow = React.memo(function ProductTableRow({
 
       case 'stock':
         return (
-          <div className={`${column.width || 'w-20 md:w-24'}`}>
-            <div className="text-[11px] md:text-xs text-neutral-400 font-mono">{stockValue} units</div>
+          <div className={`${column.width || 'w-auto md:w-24'} flex-shrink-0`}>
+            <div className="text-[10px] md:text-xs text-neutral-400 font-mono text-right whitespace-nowrap">{stockValue} units</div>
           </div>
         );
 
 
 
       default:
-        // Handle blueprint fields
+        // Handle blueprint fields - hide on mobile
         if (column.type === 'blueprint' && column.blueprint_field_name && getBlueprintFieldValue && formatBlueprintFieldValue) {
           const value = getBlueprintFieldValue(product, column.blueprint_field_name);
           const formattedValue = formatBlueprintFieldValue(value, column.blueprint_field_type || 'text');
           
           return (
-            <div className={column.width || 'w-32'}>
+            <div className={`${column.width || 'w-32'} hidden md:block`}>
               <span className="text-neutral-500 text-xs truncate block" title={formattedValue}>
                 {formattedValue}
               </span>
@@ -1255,15 +1263,15 @@ export const ProductTableRow = React.memo(function ProductTableRow({
 
   return (
         <div 
-      className={`group mb-2 rounded-lg border-b border-white/[0.02] product-card ${
-        isSelected ? 'selected bg-neutral-800/50 border-l-4 border-l-neutral-400' : 'border border-white/[0.04]'
+      className={`group mb-0 md:mb-2 rounded-none md:rounded-lg border-b border-white/[0.02] product-card ${
+        isSelected ? 'selected bg-neutral-800/50 md:border-l-4 md:border-l-neutral-400' : 'border-x-0 md:border-x border border-white/[0.04]'
       } ${
         isExpanded ? 'expanded' : ''
       }`}
     >
       {/* Row 1: Main product info */}
       <div 
-        className="flex items-center gap-2 md:gap-3 px-2 md:px-4 py-3 md:py-2 cursor-pointer select-none product-card-row"
+        className="flex items-center gap-1 md:gap-3 px-2 md:px-4 py-2 md:py-2 cursor-pointer select-none product-card-row"
         onClick={(e) => {
           // Only trigger selection if clicking on the main row area, not on interactive elements
           const target = e.target as HTMLElement;
@@ -1304,10 +1312,10 @@ export const ProductTableRow = React.memo(function ProductTableRow({
             e.stopPropagation();
             onToggleExpand();
           }}
-          className="flex-shrink-0 w-8 h-8 md:w-6 md:h-6 flex items-center justify-center text-neutral-600 rounded-md expand-button touch-target"
+          className="flex-shrink-0 w-6 h-6 md:w-6 md:h-6 flex items-center justify-center text-neutral-600 rounded-md expand-button"
         >
           <svg
-            className={`w-4 h-4 md:w-3 md:h-3 expand-icon ${isExpanded ? 'rotate-90' : ''}`}
+            className={`w-3 h-3 md:w-3 md:h-3 expand-icon ${isExpanded ? 'rotate-90' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -1333,7 +1341,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
            isExpanded ? 'max-h-[1200px] opacity-100 expanded' : 'max-h-0 opacity-0 collapsed'
          }`}
        >
-         <div className="mx-4 mb-2 rounded p-4 border border-white/[0.04]">
+         <div className="mx-2 md:mx-4 mb-0 md:mb-2 rounded-none md:rounded p-3 md:p-4 border-t md:border border-white/[0.04]">
            <div className={`product-expanded-content ${isExpanded ? 'opacity-100' : 'opacity-0'}`}>
           
           {/* Edit Mode Controls */}
@@ -1411,7 +1419,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
           )}
 
           {/* Stock Action Buttons */}
-          <div className="flex items-center gap-2 mb-4 pb-3">
+          <div className="flex items-center gap-2 mb-4 pb-3 overflow-x-auto scrollbar-thin scrollbar-thumb-neutral-700 scrollbar-track-transparent hover:scrollbar-thumb-neutral-600">
             <Button
               onClick={(e) => {
                 e.stopPropagation();
@@ -1419,7 +1427,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
               }}
               size="sm"
               variant={stockViewMode === 'details' ? 'primary' : 'ghost'}
-              className="text-xs select-none product-card-button"
+              className="text-xs select-none product-card-button flex-shrink-0"
             >
               Details
             </Button>
@@ -1430,7 +1438,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
               }}
               size="sm"
               variant={stockViewMode === 'update' ? 'primary' : 'ghost'}
-              className="text-xs flex items-center gap-1 select-none product-card-button"
+              className="text-xs flex items-center gap-1 select-none product-card-button flex-shrink-0"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -1444,7 +1452,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
               }}
               size="sm"
               variant={stockViewMode === 'transfer' ? 'primary' : 'ghost'}
-              className="text-xs flex items-center gap-1 select-none product-card-button"
+              className="text-xs flex items-center gap-1 select-none product-card-button flex-shrink-0"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
@@ -1458,7 +1466,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
               }}
               size="sm"
               variant={stockViewMode === 'convert' ? 'primary' : 'ghost'}
-              className="text-xs flex items-center gap-1 select-none product-card-button"
+              className="text-xs flex items-center gap-1 select-none product-card-button flex-shrink-0"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -1478,7 +1486,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
               }}
               size="sm"
               variant={isEditMode ? 'primary' : 'ghost'}
-              className="text-xs flex items-center gap-1 select-none product-card-button"
+              className="text-xs flex items-center gap-1 select-none product-card-button flex-shrink-0"
             >
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />

@@ -10,6 +10,8 @@ export interface WordPressUser {
   email: string;
   roles: string[];
   display_name: string;
+  first_name?: string;
+  last_name?: string;
 }
 
 class UsersService {
@@ -38,14 +40,24 @@ class UsersService {
       const data = await response.json();
       
       // Data is already in the correct format from UsersMatrix API
-      const users: WordPressUser[] = data.map((user: any) => ({
-        id: user.id,
-        name: user.name || user.display_name,
-        username: user.username,
-        email: user.email || '',
-        roles: user.roles || [],
-        display_name: user.display_name || user.name || user.username
-      }));
+      const users: WordPressUser[] = data.map((user: any) => {
+        // Build full name from first_name and last_name if available
+        let fullName = '';
+        if (user.first_name || user.last_name) {
+          fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+        }
+        
+        return {
+          id: user.id,
+          name: fullName || user.name || user.display_name,
+          username: user.username,
+          email: user.email || '',
+          roles: user.roles || [],
+          display_name: user.display_name || fullName || user.name || user.username,
+          first_name: user.first_name || '',
+          last_name: user.last_name || ''
+        };
+      });
 
       return users;
     } catch (error) {
