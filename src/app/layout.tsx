@@ -31,10 +31,9 @@ export const metadata: Metadata = {
       { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
     ],
   },
-  themeColor: "#2a2a2a",
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "black",
     title: "[Classified]",
     startupImage: [
       {
@@ -46,7 +45,7 @@ export const metadata: Metadata = {
   other: {
     "mobile-web-app-capable": "yes",
     "apple-mobile-web-app-capable": "yes",
-    "apple-mobile-web-app-status-bar-style": "black-translucent",
+    "apple-mobile-web-app-status-bar-style": "black",
     "apple-mobile-web-app-title": "[Classified]",
   },
 }
@@ -54,7 +53,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#171717",
+  maximumScale: 1,
+  viewportFit: "cover",
+  themeColor: "#2a2a2a",
 }
 
 export default function RootLayout({
