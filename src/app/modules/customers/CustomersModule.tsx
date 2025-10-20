@@ -1,6 +1,6 @@
-import React, { useRef, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, forwardRef, useImperativeHandle, useState } from 'react';
 import { CustomersView, CustomersViewRef } from '../../../components/features/CustomersView';
-import { CustomersGridHeader } from '../../../components/features/CustomersGridHeader';
+import { CustomerTools } from '../../../components/features/CustomerTools';
 import { FloraLocation } from '../../../services/inventory-service';
 import { useCustomers } from './useCustomers';
 
@@ -15,6 +15,7 @@ export interface CustomersModuleRef {
 
 export const CustomersModule = forwardRef<CustomersModuleRef, CustomersModuleProps>(({ floraLocations, onClose }, ref) => {
   const customersViewRef = useRef<CustomersViewRef>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   
   const {
     selectedCustomers,
@@ -39,18 +40,20 @@ export const CustomersModule = forwardRef<CustomersModuleRef, CustomersModulePro
 
   return (
     <div className="flex-1 bg-neutral-900 flex flex-col min-h-0">
-      {/* Only show header after initial data load */}
+      {/* Only show toolbar after initial data load */}
       {!isInitialLoading && (
-        <CustomersGridHeader
+        <CustomerTools
           totalCustomers={totalCustomers}
-          selectedCustomersCount={selectedCustomers.size}
-          onClearSelection={clearSelection}
+          selectedCount={selectedCustomers.size}
           selectedLocationId={customersLocationId}
           onLocationChange={setCustomersLocationId}
           locations={floraLocations}
           showSelectedOnly={customersShowSelectedOnly}
           onShowSelectedOnlyChange={setCustomersShowSelectedOnly}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
           onAddCustomer={() => customersViewRef.current?.handleAddNew()}
+          onClearSelection={clearSelection}
           onRefresh={() => customersViewRef.current?.handleRefresh()}
         />
       )}

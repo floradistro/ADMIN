@@ -300,6 +300,45 @@ export class InventoryService {
   }
 
   /**
+   * Get product variations for a variable product
+   */
+  async getProductVariations(productId: number, filters: { search?: string; per_page?: number; page?: number } = {}): Promise<FloraApiResponse<any[]>> {
+    try {
+      const params = new URLSearchParams({
+        per_page: (filters.per_page || 100).toString(),
+        page: (filters.page || 1).toString(),
+        ...(filters.search && { search: filters.search })
+      });
+
+      const response = await fetch(`/api/products/${productId}/variations?${params}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch variations: ${response.status} ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      return {
+        success: result.success,
+        data: result.data || [],
+        meta: result.meta || { total: 0, pages: 1, page: 1, per_page: filters.per_page || 100 }
+      };
+    } catch (error) {
+      console.error('Error fetching product variations:', error);
+      return {
+        success: false,
+        data: [],
+        meta: { total: 0, pages: 0, page: 1, per_page: filters.per_page || 100 }
+      };
+    }
+  }
+
+  /**
    * Get inventory overview/dashboard data from Magic2 API
    */
   async getInventoryOverview(): Promise<FloraApiResponse<FloraInventoryOverview>> {

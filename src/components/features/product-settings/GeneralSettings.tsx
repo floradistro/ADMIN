@@ -19,11 +19,9 @@ export function GeneralSettings({
   const { data: session } = useSession();
 
   const handleExport = () => {
-    // TODO: Implement export functionality
   };
 
   const handleImport = () => {
-    // TODO: Implement import functionality
   };
 
   const handleLogout = async () => {

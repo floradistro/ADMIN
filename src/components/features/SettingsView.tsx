@@ -66,9 +66,7 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
     setLoading(true);
     setError(null);
     try {
-      console.log('Loading locations with bustCache:', bustCache);
       const response = await locationsService.getLocations(bustCache);
-      console.log('Locations loaded:', response);
       if (response.success) {
         setLocations(response.data);
       } else {
@@ -123,20 +121,13 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
   // Load available pricing rules (separate from fields)
   const loadAvailablePricingRules = async () => {
     try {
-      console.log('🔍 Loading pricing rules from /api/pricing/rules...');
       const response = await fetch('/api/pricing/rules?per_page=100');
-      
-      console.log('📡 Pricing API Response Status:', response.status);
-      console.log('📡 Pricing API Response OK:', response.ok);
       
       if (response.ok) {
         const pricingData = await response.json();
-        console.log('📊 Raw pricing response:', pricingData);
-        console.log('📊 Response keys:', Object.keys(pricingData || {}));
         
         // Check if response has rules property (correct structure)
         if (pricingData && pricingData.rules && Array.isArray(pricingData.rules)) {
-          console.log('✅ Found rules array with', pricingData.rules.length, 'pricing rules');
           
           const formattedRules = pricingData.rules.map((rule: any, index: number) => {
             // Parse the conditions JSON to get more details
@@ -167,11 +158,9 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
             };
           });
           
-          console.log('✅ Formatted rules:', formattedRules);
           setAvailablePricingRules(formattedRules);
         } else if (Array.isArray(pricingData)) {
           // Fallback if response is direct array
-          console.log('✅ Processing direct array with', pricingData.length, 'pricing rules');
           const formattedRules = pricingData.map((rule, index) => ({
             rule_id: rule.id,
             rule_name: rule.name || rule.rule_name || `Pricing Rule ${rule.id || index + 1}`,
@@ -278,7 +267,6 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
 
   // Handle edit location
   const handleEditLocation = (location: Location) => {
-    console.log('Edit location:', location);
     // This will be handled by the LocationCard component internally
   };
 
@@ -372,13 +360,10 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
   // Load blueprint pricing rules
   const loadBlueprintPricing = async (blueprintId: number) => {
     try {
-      console.log('🔍 Loading pricing rules for blueprint:', blueprintId);
-      
       // Get all pricing rules and filter by blueprint
       const allRulesResponse = await fetch('/api/pricing/rules?per_page=100');
       if (allRulesResponse.ok) {
         const pricingData = await allRulesResponse.json();
-        console.log('📊 All pricing rules response:', pricingData);
         
         if (pricingData && pricingData.rules && Array.isArray(pricingData.rules)) {
           // Filter rules that are associated with this blueprint
@@ -396,10 +381,6 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
               rule.blueprint_id == blueprintId || 
               parsedConditions.blueprint_id == blueprintId ||
               (rule.filters && rule.filters.blueprint_id == blueprintId);
-            
-            if (isAssociated) {
-              console.log('✅ Found associated rule:', rule.rule_name, 'for blueprint', blueprintId);
-            }
             
             return isAssociated;
           });
@@ -433,7 +414,6 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
             };
           });
           
-          console.log('✅ Formatted blueprint rules:', formattedRules);
           return formattedRules;
         }
       }
@@ -509,8 +489,6 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
 
   const handleSavePricingRule = async (updatedRule: any) => {
     try {
-      console.log('💾 Saving pricing rule:', updatedRule.rule_id);
-      
       // Prepare the data in the format expected by the API
       const saveData = {
         rule_name: updatedRule.rule_name,
@@ -533,8 +511,6 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
         status: updatedRule.active ? 'active' : 'inactive',
         scope: 'product'
       };
-      
-      console.log('📤 Sending save data:', saveData);
 
       const response = await fetch(`/api/pricing/rules/${updatedRule.rule_id}`, {
         method: 'PUT',
@@ -544,11 +520,8 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
         body: JSON.stringify(saveData),
       });
 
-      console.log('📡 Save response status:', response.status);
-
       if (response.ok) {
         const responseData = await response.json();
-        console.log('✅ Save successful:', responseData);
         
         // Refresh the pricing rules
         await loadAvailablePricingRules();
@@ -587,7 +560,6 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
 
   const handleSaveField = async (updatedField: any) => {
     try {
-      console.log('💾 Saving blueprint field:', updatedField.field_id);
       
       const saveData = {
         field_name: updatedField.field_name,
@@ -600,8 +572,6 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
         is_searchable: updatedField.is_searchable,
         sort_order: updatedField.sort_order || 0
       };
-      
-      console.log('📤 Sending field save data:', saveData);
 
       const response = await fetch(`/api/flora/blueprint-fields/${updatedField.field_id}`, {
         method: 'PUT',
@@ -611,11 +581,8 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
         body: JSON.stringify(saveData),
       });
 
-      console.log('📡 Field save response status:', response.status);
-
       if (response.ok) {
         const responseData = await response.json();
-        console.log('✅ Field save successful:', responseData);
         
         // Refresh the available fields
         await loadAvailableFields();
@@ -655,7 +622,6 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
   const handleSaveCategory = async (updatedCategory: any) => {
     try {
       const isNewCategory = updatedCategory.id === 0;
-      console.log(isNewCategory ? '💾 Creating new category' : '💾 Updating category:', updatedCategory.id);
       
       const saveData = {
         name: updatedCategory.name,
@@ -666,8 +632,6 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
         menu_order: updatedCategory.menu_order,
         unit: updatedCategory.unit
       };
-      
-      console.log('📤 Sending category save data:', saveData);
 
       // Use POST for new categories, PUT for existing ones
       const url = isNewCategory ? '/api/flora/categories' : `/api/flora/categories/${updatedCategory.id}`;
@@ -681,11 +645,8 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
         body: JSON.stringify(saveData),
       });
 
-      console.log('📡 Category save response status:', response.status);
-
       if (response.ok) {
         const responseData = await response.json();
-        console.log(isNewCategory ? '✅ Category created successfully:' : '✅ Category updated successfully:', responseData);
         
         // Refresh the categories
         await loadCategories();
@@ -772,8 +733,6 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
       async () => {
 
     try {
-      console.log('🗑️ Deleting categories:', Array.from(selectedCategories));
-
       const response = await fetch('/api/flora/categories', {
         method: 'PUT',
         headers: {
@@ -787,7 +746,6 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
 
       if (response.ok) {
         const responseData = await response.json();
-        console.log('✅ Categories deleted successfully:', responseData);
         
         // Clear selection and refresh categories
         setSelectedCategories(new Set());

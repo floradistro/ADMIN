@@ -837,7 +837,7 @@ export const MediaModule = React.forwardRef<MediaModuleRef, MediaModuleProps>(
                 }
               }}
               isProcessing={aiProcessing.size > 0}
-              processingProgress={0} // TODO: Add progress tracking for bulk AI processing
+              processingProgress={0}
             />
 
             {/* Bulk Actions */}

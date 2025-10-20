@@ -95,7 +95,6 @@ export function BulkActionsDropdown({
       {/* Bulk actions dropdown trigger */}
       <button
         onClick={() => {
-          console.log('🔧 Tools clicked, selectedCount:', selectedCount);
           setIsOpen(!isOpen);
         }}
         className={`flex items-center justify-center w-7 h-7 rounded-md transition-all ${

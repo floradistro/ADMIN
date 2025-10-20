@@ -83,7 +83,6 @@ export const InstantProductItem = React.memo(function InstantProductItem({
 
   const loadBlueprintPricing = async () => {
     try {
-      // TODO: Implement BlueprintPricingService
       // const pricingData = await BlueprintPricingService.getBlueprintPricingForProduct(product.id, product);
       // setBlueprintPricing(pricingData);
     } catch (error) {

@@ -23,6 +23,13 @@
 # misc
 .DS_Store
 *.pem
+.ssh_key*
+*.key
+*.pem
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # uploaded files
 /public/uploads/

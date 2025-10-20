@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useCallback, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useCallback, useMemo, useState } from 'react';
 import { Header } from '../components';
 import { StatusBar } from '../components/layout/StatusBar';
 import { useAppContext, useFilterContext, useProductContext } from '../contexts';
@@ -10,8 +10,6 @@ import { BulkEditFieldProvider } from '../contexts/BulkEditFieldContext';
 import { useTabManagementV2 } from '../hooks/useTabManagementV2';
 import { TabViewManager, createTabRegistry, TAB_COMPONENTS } from '../components/features/TabViewManager';
 import { Tab } from '../components/ui/TabBar';
-import { ProtectedRoute } from '../components/auth';
-import { Product } from '../types';
 
 // Tab configuration registry
 const TAB_CONFIGS = {
@@ -324,7 +322,7 @@ export function AppContent() {
     onOpenSettings: handleSettingsToggle,
     onOpenCustomers: handleCustomersToggle,
     onOpenOrders: handleOrdersToggle,
-    onOpenAudit: () => {/* TODO: Implement audit functionality */},
+    onOpenAudit: () => {},
     onOpenCoa: handleCoaToggle,
     onOpenMedia: handleMediaToggle,
     onOpenReports: handleReportsToggle,
@@ -354,7 +352,7 @@ export function AppContent() {
               handleViewChange(newViews);
             }
           }}
-          onAuditToggle={() => {/* TODO: Implement audit toggle */}}
+          onAuditToggle={() => {}}
           onSettingsToggle={handleSettingsToggle}
           activeSettingsTab={activeSettingsTab}
           onSettingsTabChange={setActiveSettingsTab}

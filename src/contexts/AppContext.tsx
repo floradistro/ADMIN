@@ -83,19 +83,15 @@ export function AppProvider({ children }: AppProviderProps) {
 
   // Action handlers
   const handleEditProduct = useCallback((product: Product) => {
-    // TODO: Implement edit product functionality
   }, []);
 
   const handleManageInventory = useCallback((product: Product) => {
-    // TODO: Implement manage inventory functionality
   }, []);
 
   const handleBulkInventory = useCallback(() => {
-    // TODO: Implement bulk inventory functionality
   }, []);
 
   const handleBulkAction = useCallback((action: 'update' | 'transfer' | 'convert' | 'delete' | 'edit') => {
-    // TODO: Implement bulk action functionality
   }, []);
 
   // Bulk edit handlers

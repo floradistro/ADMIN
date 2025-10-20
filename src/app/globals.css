@@ -863,3 +863,49 @@ html, body {
   -webkit-backdrop-filter: blur(12px) saturate(180%);
   background-color: rgba(0, 0, 0, 0.4);
 }
+
+/* iOS-style bottom sheet animations */
+@keyframes slideInFromBottom {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-in {
+  animation-fill-mode: both;
+}
+
+.slide-in-from-bottom {
+  animation-name: slideInFromBottom;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+.fade-in {
+  animation-name: fadeIn;
+  animation-timing-function: ease-out;
+}
+
+.duration-200 {
+  animation-duration: 200ms;
+}
+
+.duration-300 {
+  animation-duration: 300ms;
+}
+
+/* Safe area support for iOS */
+.pb-safe {
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+}

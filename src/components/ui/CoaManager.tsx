@@ -169,11 +169,7 @@ export function CoaManager({
     setAttachedCoa(currentCoa || null);
     setAttachedCoaFilename(currentCoaFilename || null);
     const quantixUrl = getQuantixUrl(currentCoaFilename || null);
-    console.log('COA initialized/updated:', { 
-      pdfUrl: currentCoa, 
-      filename: currentCoaFilename,
-      quantixUrl: quantixUrl 
-    });
+    // Removed console.log to prevent spam in console
   }, [currentCoa, currentCoaFilename]);
 
   // Handle body scroll lock when COA viewer is open

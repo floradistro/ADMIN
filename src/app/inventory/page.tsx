@@ -2,11 +2,13 @@
 
 import { useState } from 'react';
 import { useInventoryData } from '@/hooks/useInventoryData';
-import { InventoryPageHeader } from '@/components/features/InventoryPageHeader';
+import { InventoryTools } from '@/components/features/InventoryTools';
 import { InventoryTable } from '@/components/features/InventoryTable';
 
 export default function InventoryPage() {
   const [hideZeroQuantity, setHideZeroQuantity] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedLocationId, setSelectedLocationId] = useState('');
   
   const {
     locations,
@@ -83,19 +85,24 @@ export default function InventoryPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <InventoryPageHeader
-        itemCount={totalItems}
+    <div className="min-h-screen bg-neutral-900">
+      <InventoryTools
+        totalItems={totalItems}
         locationCount={locations.length}
-        onAddInventory={handleAddInventory}
-        onRefresh={refresh}
+        selectedLocationId={selectedLocationId}
+        onLocationChange={setSelectedLocationId}
+        locations={locations}
         hideZeroQuantity={hideZeroQuantity}
         onHideZeroQuantityChange={setHideZeroQuantity}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        onAddInventory={handleAddInventory}
+        onRefresh={refresh}
       />
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <div className="bg-neutral-800 rounded-lg border border-white/[0.08] overflow-hidden">
           <InventoryTable
             groupedInventory={filteredGroupedInventory}
             onEditQuantity={handleUpdateQuantity}

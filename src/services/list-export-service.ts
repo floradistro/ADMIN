@@ -1,101 +1,30 @@
 import { ProductList } from '../types/lists';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import { generatePDFHTML } from './pdf-generator';
 
 export class ListExportService {
   static async exportToPDF(list: ProductList): Promise<Blob> {
-    const doc = new jsPDF({
-      orientation: list.columns.length > 6 ? 'landscape' : 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-
-    // Set dark theme colors
-    const darkBg = [26, 26, 26];
-    const lightText = [255, 255, 255];
-    const mutedText = [180, 180, 180];
-    const accentColor = [59, 130, 246]; // Blue
-
-    // Add header
-    doc.setFillColor(darkBg[0], darkBg[1], darkBg[2]);
-    doc.rect(0, 0, doc.internal.pageSize.width, 40, 'F');
-    
-    doc.setTextColor(lightText[0], lightText[1], lightText[2]);
-    doc.setFontSize(20);
-    doc.text(list.name, 15, 15);
-    
-    if (list.description) {
-      doc.setFontSize(10);
-      doc.setTextColor(mutedText[0], mutedText[1], mutedText[2]);
-      doc.text(list.description, 15, 25);
+    const printWindow = window.open('', '', 'width=1200,height=800');
+    if (!printWindow) {
+      throw new Error('Could not open print window. Please allow pop-ups.');
     }
 
-    doc.setFontSize(8);
-    doc.setTextColor(mutedText[0], mutedText[1], mutedText[2]);
-    doc.text(`${list.products.length} products · Generated ${new Date().toLocaleString()}`, 15, 35);
+    const html = generatePDFHTML(list);
+    printWindow.document.write(html);
+    printWindow.document.close();
 
-    // Prepare table data
-    const headers = list.columns.map(col => col.label);
-    const rows = list.products.map(product => {
-      return list.columns.map(column => {
-        let value = product.snapshot[column.field];
-        
-        // If not in snapshot and it's a blueprint field, try to get from blueprint_fields
-        if (value === undefined && column.type === 'blueprint') {
-          const blueprintField = product.productData?.blueprint_fields?.find(
-            (bf: any) => bf.field_name === column.field
-          );
-          value = blueprintField?.field_value;
-        }
-        
-        // Fallback to direct property access
-        if (value === undefined) {
-          value = product.productData[column.field as keyof typeof product.productData];
-        }
-        
-        return this.formatCellValue(value, column.field);
-      });
+    await new Promise((resolve) => {
+      printWindow.onload = resolve;
+      setTimeout(resolve, 300);
     });
 
-    // Add table
-    autoTable(doc, {
-      head: [headers],
-      body: rows,
-      startY: 45,
-      theme: 'grid',
-      styles: {
-        fillColor: [42, 42, 42],
-        textColor: [220, 220, 220],
-        lineColor: [60, 60, 60],
-        lineWidth: 0.1,
-        fontSize: 8,
-        cellPadding: 3,
-      },
-      headStyles: {
-        fillColor: [59, 130, 246],
-        textColor: [255, 255, 255],
-        fontStyle: 'bold',
-        fontSize: 9,
-      },
-      alternateRowStyles: {
-        fillColor: [35, 35, 35],
-      },
-      margin: { top: 45, left: 10, right: 10 },
-      didDrawPage: (data: any) => {
-        // Footer
-        const pageCount = (doc as any).getNumberOfPages();
-        doc.setFontSize(8);
-        doc.setTextColor(mutedText[0], mutedText[1], mutedText[2]);
-        doc.text(
-          `Page ${data.pageNumber} of ${pageCount}`,
-          doc.internal.pageSize.width / 2,
-          doc.internal.pageSize.height - 10,
-          { align: 'center' }
-        );
-      }
-    });
+    printWindow.focus();
+    printWindow.print();
 
-    return doc.output('blob');
+    setTimeout(() => {
+      printWindow.close();
+    }, 200);
+
+    return new Blob([''], { type: 'application/pdf' });
   }
 
   static async exportToCSV(list: ProductList): Promise<Blob> {
@@ -104,7 +33,6 @@ export class ListExportService {
       return list.columns.map(column => {
         let value = product.snapshot[column.field];
         
-        // If not in snapshot and it's a blueprint field, try to get from blueprint_fields
         if (value === undefined && column.type === 'blueprint') {
           const blueprintField = product.productData?.blueprint_fields?.find(
             (bf: any) => bf.field_name === column.field
@@ -112,7 +40,6 @@ export class ListExportService {
           value = blueprintField?.field_value;
         }
         
-        // Fallback to direct property access
         if (value === undefined) {
           value = product.productData[column.field as keyof typeof product.productData];
         }
@@ -121,11 +48,9 @@ export class ListExportService {
       });
     });
 
-    // Create CSV content
     let csv = headers.join(',') + '\n';
     rows.forEach(row => {
       csv += row.map(cell => {
-        // Escape quotes and wrap in quotes if contains comma
         const escaped = String(cell).replace(/"/g, '""');
         return escaped.includes(',') ? `"${escaped}"` : escaped;
       }).join(',') + '\n';
@@ -173,4 +98,3 @@ export class ListExportService {
     return String(value);
   }
 }
-

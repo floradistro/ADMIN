@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, IconButton } from '../ui';
-import { OrdersGridHeader } from './OrdersGridHeader';
 
 interface OrdersViewProps {
   onClose?: () => void;
@@ -57,11 +56,18 @@ interface WooCommerceOrder {
     id: number;
     name: string;
     product_id: number;
+    variation_id?: number;
     quantity: number;
     total: string;
     subtotal: string;
     sku: string;
     price: number;
+    meta_data?: Array<{
+      key: string;
+      value: string;
+      display_key: string;
+      display_value: string;
+    }>;
   }>;
   shipping_lines: Array<{
     method_title: string;
@@ -702,7 +708,19 @@ export const OrdersView = React.forwardRef<OrdersViewRef, OrdersViewProps>(({
                                 <div className="flex justify-between items-start">
                                   <div className="flex-1">
                                     <div className="text-neutral-300 text-sm product-text">{item.name}</div>
-                                    <div className="text-neutral-600 text-xs product-text">SKU: {item.sku || 'N/A'}</div>
+                                    <div className="text-neutral-600 text-xs product-text">
+                                      SKU: {item.sku || 'N/A'}
+                                      {item.variation_id && <span className="ml-2 text-neutral-500">(Variation ID: {item.variation_id})</span>}
+                                    </div>
+                                    {item.meta_data && item.meta_data.length > 0 && (
+                                      <div className="mt-1 space-y-0.5">
+                                        {item.meta_data.map((meta, idx) => (
+                                          <div key={idx} className="text-neutral-600 text-xs product-text">
+                                            {meta.display_key}: <span className="text-neutral-500">{meta.display_value}</span>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    )}
                                   </div>
                                   <div className="text-right">
                                     <div className="text-neutral-500 text-xs product-text">Qty: {item.quantity}</div>

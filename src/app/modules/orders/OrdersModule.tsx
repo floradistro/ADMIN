@@ -1,6 +1,6 @@
-import React, { useRef, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, forwardRef, useImperativeHandle, useState } from 'react';
 import { OrdersView, OrdersViewRef } from '../../../components/features/OrdersView';
-import { OrdersGridHeader } from '../../../components/features/OrdersGridHeader';
+import { OrderTools } from '../../../components/features/OrderTools';
 import { FloraLocation } from '../../../services/inventory-service';
 import { useOrders } from './useOrders';
 
@@ -15,6 +15,7 @@ export interface OrdersModuleRef {
 
 export const OrdersModule = forwardRef<OrdersModuleRef, OrdersModuleProps>(({ floraLocations, onClose }, ref) => {
   const ordersViewRef = useRef<OrdersViewRef>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   
   const {
     ordersStatusFilter,
@@ -54,26 +55,29 @@ export const OrdersModule = forwardRef<OrdersModuleRef, OrdersModuleProps>(({ fl
 
   return (
     <div className="flex-1 bg-neutral-900 flex flex-col min-h-0">
-      {/* Only show header after initial data load */}
+      {/* Only show toolbar after initial data load */}
       {!isInitialLoading && (
-        <OrdersGridHeader
+        <OrderTools
+          totalOrders={totalOrders}
+          selectedCount={selectedOrders.size}
           statusFilter={ordersStatusFilter}
           onStatusFilterChange={setOrdersStatusFilter}
-          totalOrders={totalOrders}
-          selectedOrdersCount={selectedOrders.size}
-          onClearSelection={clearSelection}
           selectedLocationId={ordersLocationId}
           onLocationChange={setOrdersLocationId}
           locations={floraLocations}
-          selectedEmployee={ordersEmployee}
-          onEmployeeChange={setOrdersEmployee}
-          employeeOptions={[]} // Employee options loaded from user management
           dateFrom={ordersDateFrom}
           dateTo={ordersDateTo}
           onDateFromChange={setOrdersDateFrom}
           onDateToChange={setOrdersDateTo}
+          selectedEmployee={ordersEmployee}
+          onEmployeeChange={setOrdersEmployee}
+          employeeOptions={[]}
           showSelectedOnly={ordersShowSelectedOnly}
           onShowSelectedOnlyChange={setOrdersShowSelectedOnly}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          onClearSelection={clearSelection}
+          onRefresh={() => ordersViewRef.current?.handleRefresh()}
         />
       )}
       

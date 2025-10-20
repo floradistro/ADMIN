@@ -47,7 +47,14 @@ export function EmailListDialog({
       await onSend(emailList, subject, message);
       handleClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send email');
+      const errorMsg = err instanceof Error ? err.message : 'Failed to send email';
+      if (errorMsg.includes('WordPress') || errorMsg.includes('Plugin') || errorMsg.includes('503')) {
+        setError('⚠️ WordPress plugin not installed. Upload flora-email-service.zip to WordPress admin first!');
+      } else if (errorMsg.includes('401') || errorMsg.includes('Unauthorized')) {
+        setError('WordPress email plugin not activated. Check WordPress plugins page.');
+      } else {
+        setError(errorMsg);
+      }
     } finally {
       setSending(false);
     }

@@ -294,7 +294,7 @@ interface ProductTableRowProps {
   isBulkEditMode?: boolean;
 }
 
-type StockViewMode = 'details' | 'update' | 'transfer' | 'convert';
+type StockViewMode = 'details' | 'update' | 'transfer' | 'convert' | 'variations';
 
 export const ProductTableRow = React.memo(function ProductTableRow({ 
   product, 
@@ -396,6 +396,8 @@ export const ProductTableRow = React.memo(function ProductTableRow({
   const [isSearching, setIsSearching] = useState(false);
   const [outputSearchResults, setOutputSearchResults] = useState<any[]>([]);
   const [isOutputSearching, setIsOutputSearching] = useState(false);
+  const [viewingVariationsForProduct, setViewingVariationsForProduct] = useState<number | null>(null);
+  const [viewingOutputVariationsForProduct, setViewingOutputVariationsForProduct] = useState<number | null>(null);
   const [isConverting, setIsConverting] = useState(false);
   const [convertMessage, setConvertMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   
@@ -403,6 +405,11 @@ export const ProductTableRow = React.memo(function ProductTableRow({
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [loadingRecipes, setLoadingRecipes] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+
+  // Variations state
+  const [productVariations, setProductVariations] = useState<any[]>([]);
+  const [loadingVariations, setLoadingVariations] = useState(false);
+  const [variationsMessage, setVariationsMessage] = useState<string | null>(null);
 
   // Function to render column content
   const renderColumnContent = (column: ColumnConfig) => {
@@ -510,6 +517,13 @@ export const ProductTableRow = React.memo(function ProductTableRow({
     }
   }, [stockViewMode]);
 
+  // Load variations when variations mode is activated
+  useEffect(() => {
+    if (stockViewMode === 'variations' && productVariations.length === 0) {
+      loadProductVariations();
+    }
+  }, [stockViewMode]);
+
   // Load recipes for this product
   const loadRecipes = async () => {
     setLoadingRecipes(true);
@@ -528,6 +542,31 @@ export const ProductTableRow = React.memo(function ProductTableRow({
       setRecipes([]);
     } finally {
       setLoadingRecipes(false);
+    }
+  };
+
+  // Load variations for this product
+  const loadProductVariations = async () => {
+    setLoadingVariations(true);
+    setVariationsMessage(null);
+    try {
+      const response = await inventoryService.getProductVariations(product.id);
+      if (response.success) {
+        setProductVariations(response.data);
+        // Check for message (e.g., backend error info)
+        if (response.data.length === 0 && (response as any).message) {
+          setVariationsMessage((response as any).message);
+        }
+      } else {
+        setProductVariations([]);
+        setVariationsMessage('Failed to load variations. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error loading variations:', error);
+      setProductVariations([]);
+      setVariationsMessage('Error loading variations. There may be a backend issue.');
+    } finally {
+      setLoadingVariations(false);
     }
   };
 
@@ -584,11 +623,6 @@ export const ProductTableRow = React.memo(function ProductTableRow({
 
   // Handle save product edits
   const handleSaveEdits = async () => {
-    console.log('=== SAVE BUTTON CLICKED ===');
-    console.log('Product ID:', product.id);
-    console.log('Current editData state:', editData);
-    console.log('Current editBlueprintFields state:', editBlueprintFields);
-    console.log('Original product data:', product);
     
     setIsSaving(true);
     try {
@@ -604,7 +638,6 @@ export const ProductTableRow = React.memo(function ProductTableRow({
         blueprint_fields: blueprintFieldsData,
       };
       
-      console.log('Request being sent to API:', requestData);
       
       const response = await fetch(`/api/flora/products/${product.id}`, {
         method: 'PUT',
@@ -635,7 +668,6 @@ export const ProductTableRow = React.memo(function ProductTableRow({
       
       // Small delay to ensure server has processed the update
       await new Promise(resolve => setTimeout(resolve, 100));
-      // await fetchFullProductData(); // TODO: Implement fetchFullProductData
       
       // Also trigger parent refresh if needed
       if (onRefresh) {
@@ -661,7 +693,6 @@ export const ProductTableRow = React.memo(function ProductTableRow({
     });
     
     // Reset blueprint fields to original values
-    // TODO: Implement blueprintFields
     // if (blueprintFields && blueprintFields.length > 0) {
     //   const fieldValues: Record<string, any> = {};
     //   blueprintFields.forEach(field => {
@@ -986,14 +1017,34 @@ export const ProductTableRow = React.memo(function ProductTableRow({
     }
   };
 
+  // Handle viewing variations for a product
+  const handleViewVariations = async (productId: number) => {
+    setIsSearching(true);
+    setViewingVariationsForProduct(productId);
+    try {
+      const response = await inventoryService.getProductVariations(productId, { per_page: 50 });
+      if (response.success && response.data.length > 0) {
+        setSearchResults(response.data);
+      } else {
+        setSearchResults([]);
+      }
+    } catch (error) {
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
   // Handle product search for convert functionality
   const handleProductSearch = async (searchTerm: string) => {
     if (!searchTerm.trim()) {
       setSearchResults([]);
+      setViewingVariationsForProduct(null);
       return;
     }
 
     setIsSearching(true);
+    setViewingVariationsForProduct(null);
     try {
       const response = await inventoryService.getFilteredProducts({
         search: searchTerm,
@@ -1012,14 +1063,34 @@ export const ProductTableRow = React.memo(function ProductTableRow({
     }
   };
 
+  // Handle viewing variations for output product
+  const handleViewOutputVariations = async (productId: number) => {
+    setIsOutputSearching(true);
+    setViewingOutputVariationsForProduct(productId);
+    try {
+      const response = await inventoryService.getProductVariations(productId, { per_page: 50 });
+      if (response.success && response.data.length > 0) {
+        setOutputSearchResults(response.data);
+      } else {
+        setOutputSearchResults([]);
+      }
+    } catch (error) {
+      setOutputSearchResults([]);
+    } finally {
+      setIsOutputSearching(false);
+    }
+  };
+
   // Handle output product search for convert functionality
   const handleOutputProductSearch = async (searchTerm: string) => {
     if (!searchTerm.trim()) {
       setOutputSearchResults([]);
+      setViewingOutputVariationsForProduct(null);
       return;
     }
 
     setIsOutputSearching(true);
+    setViewingOutputVariationsForProduct(null);
     try {
       const response = await inventoryService.getFilteredProducts({
         search: searchTerm,
@@ -1330,7 +1401,7 @@ export const ProductTableRow = React.memo(function ProductTableRow({
        {/* Expanded View with Optimized Animation */}
        <div 
          className={`overflow-hidden expand-animation smooth-expand ${
-           isExpanded ? 'max-h-[1200px] opacity-100 expanded' : 'max-h-0 opacity-0 collapsed'
+           isExpanded ? 'max-h-[9999px] opacity-100 expanded' : 'max-h-0 opacity-0 collapsed'
          }`}
        >
          <div className="mx-2 md:mx-4 mb-0 md:mb-2 rounded-none md:rounded p-3 md:p-4 border-t md:border border-white/[0.04]">
@@ -1464,6 +1535,20 @@ export const ProductTableRow = React.memo(function ProductTableRow({
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
               Convert
+            </Button>
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
+                setStockViewMode('variations');
+              }}
+              size="sm"
+              variant={stockViewMode === 'variations' ? 'primary' : 'ghost'}
+              className="text-xs flex items-center gap-1 select-none product-card-button flex-shrink-0"
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+              </svg>
+              Variations
             </Button>
             <Button
               onClick={(e) => {
@@ -1986,22 +2071,69 @@ export const ProductTableRow = React.memo(function ProductTableRow({
                         className="w-full px-3 py-1.5 border border-white/[0.04] rounded text-sm text-neutral-400 placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-white/20"
                       />
                       {outputSearchResults.length > 0 && (
-                        <div className="absolute top-full left-0 right-0 mt-1 bg-black/90 rounded max-h-40 overflow-y-auto z-10">
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-black/90 rounded max-h-60 overflow-y-auto z-10 border border-white/[0.08]">
+                          {viewingOutputVariationsForProduct && (
+                            <div className="px-3 py-2 border-b border-white/[0.08] bg-neutral-800/50">
+                              <button
+                                onClick={() => {
+                                  setViewingOutputVariationsForProduct(null);
+                                  handleOutputProductSearch(convertData.outputProductSearch);
+                                }}
+                                className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1"
+                              >
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                </svg>
+                                Back to products
+                              </button>
+                            </div>
+                          )}
                           {outputSearchResults.map((result) => (
                             <div
                               key={result.id}
-                              className="px-3 py-2 cursor-pointer text-sm text-neutral-400 "
-                              onClick={() => {
-                                setConvertData(prev => ({
-                                  ...prev,
-                                  outputProductSearch: result.name,
-                                  selectedOutputProduct: result
-                                }));
-                                setOutputSearchResults([]);
-                              }}
+                              className="border-b border-white/[0.04] last:border-0"
                             >
-                              <div className="font-medium">{result.name}</div>
-                              <div className="text-xs text-neutral-500">ID: {result.id}</div>
+                              <div
+                                className="px-3 py-2 cursor-pointer text-sm text-neutral-400 hover:bg-white/[0.05] transition-colors"
+                                onClick={() => {
+                                  setConvertData(prev => ({
+                                    ...prev,
+                                    outputProductSearch: result.name,
+                                    selectedOutputProduct: result
+                                  }));
+                                  setOutputSearchResults([]);
+                                  setViewingOutputVariationsForProduct(null);
+                                }}
+                              >
+                                <div className="flex items-center justify-between gap-2">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-medium truncate">
+                                      {result.name}
+                                      {result.variation && <span className="ml-2 text-xs text-blue-400">(Variation)</span>}
+                                    </div>
+                                    <div className="text-xs text-neutral-600">
+                                      {result.sku ? `SKU: ${result.sku}` : `ID: ${result.id}`}
+                                      {result.price && <span className="ml-2">${result.price}</span>}
+                                    </div>
+                                    {result.attributes && result.attributes.length > 0 && (
+                                      <div className="text-xs text-neutral-500 mt-0.5">
+                                        {result.attributes.map((attr: any) => attr.option).join(', ')}
+                                      </div>
+                                    )}
+                                  </div>
+                                  {!result.variation && result.type === 'variable' && !viewingOutputVariationsForProduct && (
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleViewOutputVariations(result.id);
+                                      }}
+                                      className="flex-shrink-0 px-2 py-1 text-xs text-blue-400 hover:text-blue-300 border border-blue-500/30 rounded hover:bg-blue-500/10 transition-colors"
+                                    >
+                                      Variations
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -2030,22 +2162,69 @@ export const ProductTableRow = React.memo(function ProductTableRow({
                         className="w-full px-3 py-1.5 border border-white/[0.04] rounded text-sm text-neutral-400 placeholder-neutral-600 focus:outline-none focus:ring-1 focus:ring-white/20"
                       />
                       {searchResults.length > 0 && (
-                        <div className="absolute top-full left-0 right-0 mt-1 bg-black/90 rounded max-h-40 overflow-y-auto z-10">
+                        <div className="absolute top-full left-0 right-0 mt-1 bg-black/90 rounded max-h-60 overflow-y-auto z-10 border border-white/[0.08]">
+                          {viewingVariationsForProduct && (
+                            <div className="px-3 py-2 border-b border-white/[0.08] bg-neutral-800/50">
+                              <button
+                                onClick={() => {
+                                  setViewingVariationsForProduct(null);
+                                  handleProductSearch(convertData.targetProductSearch);
+                                }}
+                                className="text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1"
+                              >
+                                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                </svg>
+                                Back to products
+                              </button>
+                            </div>
+                          )}
                           {searchResults.map((result) => (
                             <div
                               key={result.id}
-                              className="px-3 py-2 cursor-pointer text-sm text-neutral-400 "
-                              onClick={() => {
-                                setConvertData(prev => ({
-                                  ...prev,
-                                  targetProductSearch: result.name,
-                                  selectedTargetProduct: result
-                                }));
-                                setSearchResults([]);
-                              }}
+                              className="border-b border-white/[0.04] last:border-0"
                             >
-                              <div className="font-medium">{result.name}</div>
-                              <div className="text-xs text-neutral-600">SKU: {result.sku}</div>
+                              <div
+                                className="px-3 py-2 cursor-pointer text-sm text-neutral-400 hover:bg-white/[0.05] transition-colors"
+                                onClick={() => {
+                                  setConvertData(prev => ({
+                                    ...prev,
+                                    targetProductSearch: result.name,
+                                    selectedTargetProduct: result
+                                  }));
+                                  setSearchResults([]);
+                                  setViewingVariationsForProduct(null);
+                                }}
+                              >
+                                <div className="flex items-center justify-between gap-2">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-medium truncate">
+                                      {result.name}
+                                      {result.variation && <span className="ml-2 text-xs text-blue-400">(Variation)</span>}
+                                    </div>
+                                    <div className="text-xs text-neutral-600">
+                                      {result.sku ? `SKU: ${result.sku}` : `ID: ${result.id}`}
+                                      {result.price && <span className="ml-2">${result.price}</span>}
+                                    </div>
+                                    {result.attributes && result.attributes.length > 0 && (
+                                      <div className="text-xs text-neutral-500 mt-0.5">
+                                        {result.attributes.map((attr: any) => attr.option).join(', ')}
+                                      </div>
+                                    )}
+                                  </div>
+                                  {!result.variation && result.type === 'variable' && !viewingVariationsForProduct && (
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleViewVariations(result.id);
+                                      }}
+                                      className="flex-shrink-0 px-2 py-1 text-xs text-blue-400 hover:text-blue-300 border border-blue-500/30 rounded hover:bg-blue-500/10 transition-colors"
+                                    >
+                                      Variations
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -2147,6 +2326,142 @@ export const ProductTableRow = React.memo(function ProductTableRow({
                   </Button>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Variations View */}
+          {stockViewMode === 'variations' && (
+            <div className="space-y-4">
+              <div className="text-neutral-400 text-sm font-medium">Product Variations</div>
+              
+              {loadingVariations ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="flex items-center gap-2 text-neutral-500">
+                    <svg className="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    </svg>
+                    <span>Loading variations...</span>
+                  </div>
+                </div>
+              ) : productVariations.length === 0 ? (
+                <div className="border border-white/[0.04] rounded p-8 text-center">
+                  <div className="text-neutral-500 mb-2">No variations found</div>
+                  <div className="text-neutral-600 text-xs">
+                    {variationsMessage || "This product doesn't have any variations, or it's not a variable product."}
+                  </div>
+                  {variationsMessage && variationsMessage.includes('backend error') && (
+                    <div className="mt-4 text-xs text-yellow-400">
+                      <div className="flex items-center justify-center gap-2">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1-1.964-1-2.732 0L3.732 15c-.77 1 .192 3 1.732 3z" />
+                        </svg>
+                        <span>There's a PHP error in the Flora backend API that needs to be fixed</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {productVariations.map((variation, index) => (
+                    <div 
+                      key={variation.id || index} 
+                      className="border border-white/[0.04] rounded p-4 hover:border-white/[0.08] transition-all hover:bg-neutral-800/30"
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        {/* Variation Details */}
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-center gap-3">
+                            {variation.image && (
+                              <div className="w-16 h-16 rounded overflow-hidden border border-white/[0.04] flex-shrink-0">
+                                <Image
+                                  src={variation.image}
+                                  alt={variation.name || 'Variation'}
+                                  width={64}
+                                  height={64}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            )}
+                            <div className="flex-1">
+                              <div className="text-neutral-300 text-sm font-medium mb-1">
+                                {variation.name || `Variation #${variation.id}`}
+                              </div>
+                              {variation.attributes && variation.attributes.length > 0 && (
+                                <div className="flex flex-wrap gap-1">
+                                  {variation.attributes.map((attr: any, idx: number) => (
+                                    <span 
+                                      key={idx}
+                                      className="inline-flex items-center px-2 py-0.5 bg-white/[0.06] rounded text-xs text-neutral-400"
+                                    >
+                                      {attr.name}: <span className="ml-1 text-neutral-300">{attr.option}</span>
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+                            <div className="bg-neutral-800/40 rounded p-2">
+                              <div className="text-neutral-600 mb-1">SKU</div>
+                              <div className="text-neutral-400 font-mono">{variation.sku || 'N/A'}</div>
+                            </div>
+                            <div className="bg-neutral-800/40 rounded p-2">
+                              <div className="text-neutral-600 mb-1">Price</div>
+                              <div className="text-neutral-300 font-medium">
+                                ${variation.price || variation.regular_price || '0.00'}
+                              </div>
+                            </div>
+                            <div className="bg-neutral-800/40 rounded p-2">
+                              <div className="text-neutral-600 mb-1">Stock</div>
+                              <div className={`font-medium ${
+                                variation.stock_quantity === 0 
+                                  ? 'text-red-400' 
+                                  : variation.stock_quantity < 10 
+                                    ? 'text-yellow-400' 
+                                    : 'text-green-400'
+                              }`}>
+                                {variation.manage_stock ? `${variation.stock_quantity || 0} units` : 'Not tracked'}
+                              </div>
+                            </div>
+                            <div className="bg-neutral-800/40 rounded p-2">
+                              <div className="text-neutral-600 mb-1">Status</div>
+                              <div className={`font-medium capitalize ${
+                                variation.stock_status === 'instock' 
+                                  ? 'text-green-400' 
+                                  : variation.stock_status === 'outofstock'
+                                    ? 'text-red-400'
+                                    : 'text-yellow-400'
+                              }`}>
+                                {variation.stock_status?.replace('_', ' ') || 'Unknown'}
+                              </div>
+                            </div>
+                          </div>
+
+                          {variation.description && (
+                            <div className="text-xs text-neutral-500 pt-2 border-t border-white/[0.04]">
+                              {variation.description}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Quick Actions */}
+                        <div className="flex flex-col gap-2">
+                          <button
+                            onClick={() => {
+                              // TODO: Add edit variation functionality
+                              console.log('Edit variation:', variation.id);
+                            }}
+                            className="px-3 py-1.5 text-xs text-blue-400 hover:text-blue-300 border border-blue-500/30 rounded hover:bg-blue-500/10 transition-colors"
+                          >
+                            Edit
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
           </div>

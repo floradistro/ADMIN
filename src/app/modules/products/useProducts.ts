@@ -55,39 +55,27 @@ export function useProducts() {
     filterState: FilterState, 
     allProducts: Product[] = products
   ) => {
-    console.log('🔍 Filtering products:', {
-      total: allProducts.length,
-      selectedCategory: filterState.selectedCategory,
-      selectedLocation: filterState.selectedLocationId
-    });
-    
     let filtered = allProducts;
     
     // Apply category filter - INSTANT CLIENT-SIDE
     if (filterState.selectedCategory) {
-      const before = filtered.length;
       filtered = filtered.filter(product => {
         if (!product.categories || product.categories.length === 0) return false;
         return product.categories.some(cat => cat.id?.toString() === filterState.selectedCategory);
       });
-      console.log(`  Category filter: ${before} → ${filtered.length} products (category: ${filterState.selectedCategory})`);
     }
     
     // Apply location filter - INSTANT CLIENT-SIDE
     if (filterState.selectedLocationId) {
-      const before = filtered.length;
       filtered = filtered.filter(product => {
         if (!product.inventory || product.inventory.length === 0) return false;
         return product.inventory.some(inv => inv.location_id?.toString() === filterState.selectedLocationId);
       });
-      console.log(`  Location filter: ${before} → ${filtered.length} products (location: ${filterState.selectedLocationId})`);
     }
     
     // Apply selected products filter
     if (filterState.showSelectedOnly) {
-      const before = filtered.length;
       filtered = filtered.filter(product => bulkActions.selectedProducts.has(product.id));
-      console.log(`  Selected Only filter: ${before} → ${filtered.length} products (${bulkActions.selectedProducts.size} selected)`);
     }
     
     // Apply zero quantity filter
@@ -164,8 +152,6 @@ export function useProducts() {
       const response = await bulkApiService.getProducts(filters);
 
       if (response.success) {
-        console.log(`📦 Fetched ${response.data?.length} products`);
-        
         // Bulk API returns data in the correct format already
         const convertedProducts = response.data.map((product: any) => ({
           id: product.id,
@@ -187,10 +173,8 @@ export function useProducts() {
         }));
         
         if (reset || page === 1) {
-          console.log(`📝 Setting ${convertedProducts.length} products (RESET)`);
           setProducts(convertedProducts);
         } else {
-          console.log(`📝 Appending ${convertedProducts.length} products`);
           setProducts(prev => [...prev, ...convertedProducts]);
         }
 
@@ -265,14 +249,8 @@ export function useProducts() {
   // Listen for field updates from Settings
   useEffect(() => {
     const handleFieldsUpdate = async () => {
-      console.log('🎧 categoryFieldsUpdated event received!');
-      console.log('Current products count:', products.length);
-      console.log('🔄 Re-fetching page', pagination.currentPage, 'with reset=true');
-      
       // Force complete refresh
       await fetchProducts(1, true);
-      
-      console.log('✅ Fetch complete - new products count:', products.length);
     };
 
     window.addEventListener('categoryFieldsUpdated', handleFieldsUpdate);

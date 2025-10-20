@@ -5,6 +5,7 @@ import { Product } from '../../types';
 import { Button, Select, IconButton, ColumnSelector } from '../ui';
 
 import { ProductTableRow } from './ProductTableRow';
+import { ProductCardMobile } from './ProductCardMobile';
 import { BulkActionPanel } from './BulkActionPanel';
 import { FloraLocation } from '../../services/inventory-service';
 import { useColumnManager } from '../../hooks/useColumnManager';
@@ -59,6 +60,21 @@ export function ProductList({
   
   // Get dialogs from product context
   const { dialogs } = useProductContext();
+  
+  // Mobile FAB menu state
+  const [isMobileFabOpen, setIsMobileFabOpen] = useState(false);
+  
+  // Prevent body scroll when mobile FAB menu is open
+  useEffect(() => {
+    if (isMobileFabOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileFabOpen]);
   
   // Column management (passed from parent)
   const {
@@ -266,11 +282,9 @@ export function ProductList({
     >
       {/* Table View */}
       <div className="min-w-full">
-            {/* Table Header - Completely separate mobile/desktop */}
-            <div className="sticky top-0 bg-neutral-900 backdrop-blur border-b border-white/[0.08] z-10">
-              
-              {/* MOBILE: Clean horizontal layout - NO column labels */}
-              <div className="md:hidden px-3 py-2.5 flex items-center justify-between">
+            {/* Table Header - Desktop only */}
+            <div className="hidden md:block sticky top-0 bg-neutral-900 backdrop-blur border-b border-white/[0.08] z-10">
+              <div className="px-3 py-2.5 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <button
                     onClick={handleSelectAll}
@@ -380,6 +394,97 @@ export function ProductList({
         {!isLoading && products.length === 0 && (
           <div className="flex justify-center py-12">
             <div className="text-white/60">No products found</div>
+          </div>
+        )}
+
+        {/* Mobile Floating Action Button */}
+        <button
+          onClick={() => setIsMobileFabOpen(true)}
+          className="md:hidden fixed bottom-6 left-6 z-40 w-14 h-14 rounded-2xl shadow-2xl flex items-center justify-center transition-all active:scale-95 bg-neutral-800/95 backdrop-blur-xl border border-white/[0.1] mobile-fab-menu"
+        >
+          {selectedProducts.size > 0 ? (
+            <div className="relative">
+              <svg className="w-6 h-6 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+              <span className="absolute -top-2 -right-2 w-5 h-5 bg-white/[0.15] text-neutral-300 text-[10px] font-bold rounded-full flex items-center justify-center border border-white/[0.1]">
+                {selectedProducts.size}
+              </span>
+            </div>
+          ) : (
+            <svg className="w-6 h-6 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          )}
+        </button>
+
+        {/* Mobile List Options Bottom Sheet */}
+        {isMobileFabOpen && (
+          <div className="fixed inset-0 z-50 md:hidden mobile-fab-menu">
+            {/* Backdrop */}
+            <div 
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
+              onClick={() => setIsMobileFabOpen(false)}
+            />
+            
+            {/* Sheet */}
+            <div className="absolute bottom-0 left-0 right-0 bg-neutral-900 rounded-t-3xl shadow-2xl animate-in slide-in-from-bottom duration-300 max-h-[85vh] overflow-hidden flex flex-col">
+              {/* Handle */}
+              <div className="flex justify-center py-3">
+                <div className="w-10 h-1 bg-white/[0.2] rounded-full" />
+              </div>
+
+              {/* Header */}
+              <div className="px-6 pb-4 border-b border-white/[0.06]">
+                <h3 className="text-xl font-semibold text-white">List Options</h3>
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3 pb-safe">
+                {/* Select All / Deselect All */}
+                <div>
+                  <button
+                    onClick={() => {
+                      handleSelectAll();
+                      setIsMobileFabOpen(false);
+                    }}
+                    className="w-full px-4 py-3.5 rounded-xl text-left text-[15px] font-medium transition-all bg-white/[0.05] text-neutral-300 hover:bg-white/[0.08] active:scale-[0.98]"
+                  >
+                    {selectedProducts.size === products.length && products.length > 0 ? 'Deselect All' : 'Select All'}
+                  </button>
+                </div>
+
+                {/* Expand/Collapse Selected */}
+                {selectedProducts.size > 0 && (
+                  <div>
+                    <label className="block text-sm font-semibold text-neutral-400 mb-2.5 uppercase tracking-wider">
+                      Selection Actions ({selectedProducts.size})
+                    </label>
+                    <div className="space-y-2">
+                      <button
+                        onClick={() => {
+                          handleBulkToggleExpand();
+                          setIsMobileFabOpen(false);
+                        }}
+                        className="w-full px-4 py-3.5 rounded-xl text-left text-[15px] font-medium transition-all bg-white/[0.05] text-neutral-300 hover:bg-white/[0.08] active:scale-[0.98]"
+                      >
+                        {allSelectedExpanded ? 'Collapse Selected' : 'Expand Selected'}
+                      </button>
+                      
+                      <button
+                        onClick={() => {
+                          clearSelection();
+                          setIsMobileFabOpen(false);
+                        }}
+                        className="w-full px-4 py-3.5 rounded-xl text-left text-[15px] font-medium transition-all bg-white/[0.05] text-neutral-300 hover:bg-white/[0.08] active:scale-[0.98]"
+                      >
+                        Clear Selection
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
     </div>

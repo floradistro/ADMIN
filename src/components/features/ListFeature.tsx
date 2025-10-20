@@ -48,9 +48,6 @@ export function ListFeature({
   ) => {
     const newList = createList(name, description, selectedProducts, columns, settings);
     onClearSelection?.();
-    
-    // Show success message
-    console.log('List created:', newList.name);
   };
 
   const handleExport = async (listId: string, format: 'pdf' | 'csv') => {
@@ -73,6 +70,7 @@ export function ListFeature({
       recordExport(listId);
     } catch (error) {
       console.error('Export failed:', error);
+      throw error;
     }
   };
 
@@ -98,11 +96,14 @@ export function ListFeature({
         })
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        throw new Error('Failed to send email');
+        console.error('Email API error:', data);
+        throw new Error(data.error || data.message || 'Failed to send email');
       }
 
-      console.log('Email sent successfully');
+      console.log('Email sent successfully:', data);
       recordExport(emailingList.id);
     } catch (error) {
       console.error('Email failed:', error);
@@ -165,7 +166,7 @@ export function ListFeature({
         onSend={handleSendEmail}
       />
 
-      {/* Control Buttons */}
+      {/* Desktop Control Buttons */}
       <div className="hidden md:flex fixed bottom-6 right-6 gap-2 z-40">
         {lists.length > 0 && (
           <button
@@ -190,6 +191,41 @@ export function ListFeature({
             </svg>
             <span className="text-sm font-medium">Create List</span>
             <span className="px-1.5 py-0.5 bg-black/20 rounded text-xs">{selectedProducts.length}</span>
+          </button>
+        )}
+      </div>
+
+      {/* Mobile Control Buttons */}
+      <div className="md:hidden fixed bottom-6 right-6 flex flex-col gap-2 z-40">
+        {lists.length > 0 && (
+          <button
+            onClick={() => setIsManaging(true)}
+            className="w-14 h-14 bg-neutral-800/95 backdrop-blur-xl border border-white/[0.1] rounded-2xl shadow-2xl flex items-center justify-center transition-all active:scale-95"
+          >
+            <div className="relative">
+              <svg className="w-6 h-6 text-neutral-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-white/[0.15] text-neutral-300 text-[10px] font-bold rounded-full flex items-center justify-center border border-white/[0.1]">
+                {lists.length}
+              </span>
+            </div>
+          </button>
+        )}
+        
+        {selectedProducts.length > 0 && (
+          <button
+            onClick={() => setIsCreatingList(true)}
+            className="w-14 h-14 bg-white/90 rounded-2xl shadow-2xl flex items-center justify-center transition-all active:scale-95"
+          >
+            <div className="relative">
+              <svg className="w-6 h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              <span className="absolute -top-1 -right-1 w-5 h-5 bg-black/20 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                {selectedProducts.length}
+              </span>
+            </div>
           </button>
         )}
       </div>
