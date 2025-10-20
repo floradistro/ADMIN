@@ -147,7 +147,7 @@ export function ProductsModule({
   const isInitialLoading = isLoading && products.length === 0;
 
   return (
-    <div className="w-full h-full bg-neutral-900 flex flex-col relative">
+    <div className="w-full h-full bg-neutral-900 flex flex-col relative overflow-hidden">
       {/* Full Screen Loading Overlay */}
       {isInitialLoading && (
         <div className="fixed inset-0 bg-neutral-900 flex items-center justify-center z-50" style={{ top: 0, left: 0, right: 0, bottom: 0 }}>

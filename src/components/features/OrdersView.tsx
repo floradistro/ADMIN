@@ -397,7 +397,14 @@ export const OrdersView = React.forwardRef<OrdersViewRef, OrdersViewProps>(({
       )}
       
       {/* Content Area */}
-      <div className="flex-1 overflow-y-auto scrollable-container p-0 bg-neutral-900 min-h-0">
+      <div 
+        className="flex-1 overflow-y-scroll scrollable-container p-0 bg-neutral-900 min-h-0 relative"
+        style={{ 
+          WebkitOverflowScrolling: 'touch', 
+          overscrollBehavior: 'contain',
+          height: '100%'
+        }}
+      >
         
         {/* Error Display */}
         {error && (

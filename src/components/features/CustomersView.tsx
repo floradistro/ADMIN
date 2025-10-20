@@ -177,7 +177,14 @@ export const CustomersView = React.forwardRef<CustomersViewRef, CustomersViewPro
       )}
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto scrollable-container p-4 bg-neutral-900 min-h-0">
+      <div 
+        className="flex-1 overflow-y-scroll scrollable-container p-4 bg-neutral-900 min-h-0 relative"
+        style={{ 
+          WebkitOverflowScrolling: 'touch', 
+          overscrollBehavior: 'contain',
+          height: '100%'
+        }}
+      >
         {/* Table Header */}
         <div className="sticky top-0 bg-neutral-900 backdrop-blur border-b border-white/[0.08] px-2 md:px-4 py-3 mb-2 z-10 -mx-4 -mt-4">
           <div className="flex items-center gap-2 md:gap-3 text-xs font-medium text-neutral-500 uppercase tracking-wider product-text overflow-hidden">
