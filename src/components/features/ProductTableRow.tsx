@@ -413,15 +413,6 @@ export const ProductTableRow = React.memo(function ProductTableRow({
               isEditMode ? 'border border-white/[0.08] rounded px-2 py-1' : ''
             }`}>
             <div className="flex items-center gap-1.5 md:gap-0 min-w-0">
-              {/* Product Image - Show on mobile */}
-              {product.image && (
-                <img 
-                  src={product.image} 
-                  alt={product.name}
-                  className="w-8 h-8 md:hidden rounded object-cover flex-shrink-0"
-                  loading="lazy"
-                />
-              )}
               <div className="truncate flex-1 min-w-0">
                 {isEditMode && isFieldVisible('name') ? (
                   <input
