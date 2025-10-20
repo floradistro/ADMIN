@@ -196,9 +196,14 @@ export function useProducts() {
 
         // Update pagination state
         if (response.meta) {
+          // If we're loading all products (per_page >= total), there's only 1 page
+          const totalPages = pagination.itemsPerPage === -1 || response.meta.per_page >= response.meta.total 
+            ? 1 
+            : Math.ceil(response.meta.total / response.meta.per_page);
+          
           pagination.updatePagination({
             total: response.meta.total,
-            pages: Math.ceil(response.meta.total / pagination.itemsPerPage),
+            pages: totalPages,
             current_page: page,
             per_page: response.meta.per_page,
           });
@@ -526,9 +531,12 @@ export function useProducts() {
         // Update pagination state
         pagination.goToPage(1);
         if (response.meta) {
+          // If we're loading all products (per_page >= total), there's only 1 page
+          const totalPages = response.meta.per_page >= response.meta.total ? 1 : Math.ceil(response.meta.total / response.meta.per_page);
+          
           pagination.updatePagination({
             total: response.meta.total,
-            pages: Math.ceil(response.meta.total / 100),
+            pages: totalPages,
             current_page: 1,
             per_page: response.meta.per_page,
           });

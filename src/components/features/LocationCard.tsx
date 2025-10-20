@@ -258,7 +258,7 @@ export const LocationCard = React.memo(function LocationCard({
           className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-neutral-600"
         >
           <svg
-            className={`w-3 h-3 transition-transform duration-300 ease-out ${isExpanded ? 'rotate-90' : ''}`}
+            className={`w-2 h-2 transition-transform duration-300 ease-out ${isExpanded ? 'rotate-90' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

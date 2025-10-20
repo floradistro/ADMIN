@@ -993,7 +993,7 @@ const CategoryItem = React.memo(function CategoryItem({
           className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-neutral-500 hover:text-neutral-400 smooth-hover"
         >
           <svg
-            className={`w-3 h-3 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
+            className={`w-2 h-2 transition-transform ${isExpanded ? 'rotate-90' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

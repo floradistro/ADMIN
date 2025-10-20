@@ -299,12 +299,71 @@ export function ProductCreateDropdown({
   if (!isOpen) return null;
 
   return (
-    <div 
-      ref={dropdownRef}
-      className={`absolute right-0 top-full mt-1 bg-neutral-900/95 border border-white/[0.08] rounded-lg shadow-2xl backdrop-blur-sm z-50 overflow-hidden transition-all duration-200 product-card ${
-        showCreateForm ? 'w-96' : 'w-64'
-      }`}
-    >
+    <>
+      {/* Mobile: Bottom sheet style */}
+      <div className="md:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-[9999] flex items-end" onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}>
+        <div 
+          ref={dropdownRef}
+          className="w-full bg-neutral-900/95 border-t border-white/[0.08] rounded-t-2xl shadow-2xl max-h-[70vh] overflow-auto transition-all duration-200 product-card"
+          onClick={(e) => e.stopPropagation()}
+        >
+      {!showCreateForm ? (
+        // Menu View
+        <div className="p-4">
+          <div className="text-neutral-400 text-xs font-medium mb-3 px-1">Add Products</div>
+          
+          <div className="space-y-2">
+            {/* New Product */}
+            <button
+              onClick={handleCreateProduct}
+              className="w-full flex items-center gap-3 px-3 py-3 text-left rounded-md hover:bg-white/[0.05] active:bg-white/[0.08] transition-colors group touch-manipulation"
+            >
+              <div className="flex-shrink-0 w-8 h-8 bg-white/[0.08] rounded-md flex items-center justify-center group-hover:bg-white/[0.12] transition-colors">
+                <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+              </div>
+              <div>
+                <div className="text-neutral-300 text-sm font-medium">New Products</div>
+              </div>
+            </button>
+            {/* Bulk Import */}
+            <button
+              onClick={() => {
+                onBulkImport();
+                onClose();
+              }}
+              className="w-full flex items-center gap-3 px-3 py-3 text-left rounded-md hover:bg-white/[0.05] active:bg-white/[0.08] transition-colors group touch-manipulation"
+            >
+              <div className="flex-shrink-0 w-8 h-8 bg-white/[0.08] rounded-md flex items-center justify-center group-hover:bg-white/[0.12] transition-colors">
+                <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+              </div>
+              <div>
+                <div className="text-neutral-300 text-sm font-medium">Bulk Import</div>
+                <div className="text-neutral-500 text-xs mt-0.5">Import multiple products</div>
+              </div>
+            </button>
+          </div>
+        </div>
+      ) : (
+        // Form content for mobile
+        <div className="p-4">
+          {/* Mobile form */}
+          {/* Copy desktop form structure here if needed */}
+        </div>
+      )}
+        </div>
+      </div>
+
+      {/* Desktop: Normal dropdown */}
+      <div 
+        ref={dropdownRef}
+        className={`hidden md:block absolute right-0 top-full mt-1 bg-neutral-900/95 border border-white/[0.08] rounded-lg shadow-2xl backdrop-blur-sm z-50 overflow-hidden transition-all duration-200 product-card ${
+          showCreateForm ? 'w-96' : 'w-64'
+        }`}
+      >
       {!showCreateForm ? (
         // Menu View
         <div className="p-3">
@@ -471,6 +530,7 @@ export function ProductCreateDropdown({
           </form>
         </div>
       )}
+      </div>
       
       {/* Dialog Components */}
       <AlertDialog
@@ -480,6 +540,6 @@ export function ProductCreateDropdown({
         message={dialogs.alertDialog.message}
         variant={dialogs.alertDialog.variant}
       />
-    </div>
+    </>
   );
 }

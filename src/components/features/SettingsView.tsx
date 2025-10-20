@@ -1049,8 +1049,8 @@ export function SettingsView({ onClose, activeTab = 'locations', onTabChange }: 
                                     {blueprint.description || 'No description'}
                                   </p>
                                 </div>
-                                <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                <svg className="w-2 h-2 text-neutral-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5l7 7-7 7" />
                                 </svg>
                               </div>
                             </div>

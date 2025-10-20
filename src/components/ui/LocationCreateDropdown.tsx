@@ -123,12 +123,52 @@ export function LocationCreateDropdown({
   if (!isOpen) return null;
 
   return (
-    <div 
-      ref={dropdownRef}
-      className={`absolute right-0 top-full mt-1 bg-neutral-900/95 border border-white/[0.08] rounded-lg shadow-2xl backdrop-blur-sm z-50 overflow-hidden transition-all duration-200 ${
-        showCreateForm ? 'w-96' : 'w-64'
-      }`}
-    >
+    <>
+      {/* Mobile: Bottom sheet style */}
+      <div className="md:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-[9999] flex items-end" onClick={(e) => { if (e.target === e.currentTarget) handleClose(); }}>
+        <div 
+          ref={dropdownRef}
+          className="w-full bg-neutral-900/95 border-t border-white/[0.08] rounded-t-2xl shadow-2xl max-h-[70vh] overflow-auto transition-all duration-200"
+          onClick={(e) => e.stopPropagation()}
+        >
+      {!showCreateForm ? (
+        <div className="p-4">
+          <div className="text-neutral-400 text-xs font-medium mb-3 px-1">Add Locations</div>
+          
+          <div className="space-y-2">
+            <button
+              onClick={handleCreateLocationClick}
+              className="w-full flex items-center gap-3 px-3 py-3 text-left rounded-md hover:bg-white/[0.05] active:bg-white/[0.08] transition-colors group touch-manipulation"
+            >
+              <div className="flex-shrink-0 w-8 h-8 bg-white/[0.08] rounded-md flex items-center justify-center group-hover:bg-white/[0.12] transition-colors">
+                <svg className="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </div>
+              <div>
+                <div className="text-neutral-300 text-sm font-medium">New Location</div>
+                <div className="text-neutral-500 text-xs">Create a new warehouse or retail location</div>
+              </div>
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="p-4">
+          {/* Mobile form - simplified for now */}
+          <div className="text-neutral-400 text-sm">Form view on mobile</div>
+        </div>
+      )}
+        </div>
+      </div>
+
+      {/* Desktop: Normal dropdown */}
+      <div 
+        ref={dropdownRef}
+        className={`hidden md:block absolute right-0 top-full mt-1 bg-neutral-900/95 border border-white/[0.08] rounded-lg shadow-2xl backdrop-blur-sm z-50 overflow-hidden transition-all duration-200 ${
+          showCreateForm ? 'w-96' : 'w-64'
+        }`}
+      >
       {!showCreateForm ? (
         <div className="p-3">
           <div className="text-neutral-400 text-xs font-medium mb-3 px-1">Add Locations</div>
@@ -282,6 +322,7 @@ export function LocationCreateDropdown({
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 }

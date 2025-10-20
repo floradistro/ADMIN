@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { IntegratedSearchBar, IconButton, Divider, AuditDropdown, ViewsDropdown, FilesDropdown, SettingsDropdown, ProductCreateDropdown, BulkActionsDropdown } from '../ui';
+import { IntegratedSearchBar, IconButton, Divider, AuditDropdown, ViewsDropdown, FilesDropdown, SettingsDropdown, ProductCreateDropdown, BulkActionsDropdown, MobileFiltersDropdown } from '../ui';
 import { TabBar, Tab } from '../ui/TabBar';
 import { FilterState, ViewState } from '../../types';
 import { FloraLocation } from '../../services/inventory-service';
@@ -98,6 +98,13 @@ export function Header({
   const [isFiltersDropdownOpen, setIsFiltersDropdownOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
+  // Close mobile menu when opening filters
+  useEffect(() => {
+    if (isFiltersDropdownOpen) {
+      setIsMobileMenuOpen(false);
+    }
+  }, [isFiltersDropdownOpen]);
+  
   const filtersDropdownRef = useRef<HTMLDivElement>(null);
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
@@ -137,23 +144,27 @@ export function Header({
         <div className="relative flex items-center h-full px-3 py-2">
           
           {/* MOBILE LAYOUT (< 768px) */}
-          <div className="md:hidden flex items-center w-full gap-2">
+          <div className="md:hidden flex items-center w-full gap-1.5">
             {/* Left: Menu */}
-            <IconButton
+            <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              variant={isMobileMenuOpen ? 'active' : 'default'}
+              className={`flex items-center justify-center w-7 h-7 rounded-md transition-all ${
+                isMobileMenuOpen 
+                  ? 'bg-white/[0.08] text-neutral-300' 
+                  : 'bg-transparent text-neutral-600 hover:text-neutral-400 hover:bg-white/[0.03]'
+              }`}
               title="Menu"
-              size="sm"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6h16M4 12h16M4 18h16" />
               </svg>
-            </IconButton>
+            </button>
             
             {/* Mobile Menu Dropdown */}
             {isMobileMenuOpen && (
-              <div ref={mobileMenuRef} className="absolute top-full left-0 mt-1 bg-neutral-800/98 border border-white/[0.08] rounded-lg shadow-2xl z-[9999] w-56 backdrop-blur-sm">
-                <div className="p-2 space-y-1">
+              <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[9999] flex items-end" onClick={(e) => { if (e.target === e.currentTarget) setIsMobileMenuOpen(false); }}>
+                <div ref={mobileMenuRef} className="w-full bg-neutral-800/98 border-t border-white/[0.08] rounded-t-2xl shadow-2xl max-h-[70vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
+                  <div className="p-3 space-y-1">
                   <div className="px-2 py-1 text-[10px] text-neutral-600 uppercase font-bold">Views</div>
                   <button onClick={() => { onProductsToggle?.(); setIsMobileMenuOpen(false); }} className="w-full text-left px-3 py-2.5 text-sm text-neutral-300 hover:bg-white/[0.05] rounded transition flex items-center gap-2">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
@@ -183,19 +194,20 @@ export function Header({
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                     COA Files
                   </button>
-                  <button onClick={() => { onSettingsToggle?.(); setIsMobileMenuOpen(false); }} className="w-full text-left px-3 py-2.5 text-sm text-neutral-300 hover:bg-white/[0.05] rounded transition flex items-center gap-2">
+                  <button onClick={() => { onSettingsToggle?.(); setIsMobileMenuOpen(false); }} className="w-full text-left px-3 py-2.5 text-sm text-neutral-300 hover:bg-white/[0.05] active:bg-white/[0.08] rounded transition flex items-center gap-2 touch-manipulation">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                     Settings
                   </button>
+                  </div>
                 </div>
               </div>
             )}
 
             {/* Center: Search */}
             <div className="flex-1 min-w-0">
-              <div className="relative h-8 bg-neutral-800/40 border border-white/[0.06] rounded-lg flex items-center">
-                <svg className="w-3.5 h-3.5 text-neutral-600 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <div className="relative h-7 bg-neutral-800/30 border border-white/[0.04] rounded-md flex items-center">
+                <svg className="w-3 h-3 text-neutral-700 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <input
                   type="text"
@@ -208,73 +220,46 @@ export function Header({
             </div>
 
             {/* Right: Actions */}
-            <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="flex items-center gap-1.5 flex-shrink-0">
               {/* Filters (for products) */}
               {isProductsTab && (
                 <div className="relative flex-shrink-0" ref={filtersDropdownRef}>
-                  <IconButton
+                  <button
                     onClick={() => setIsFiltersDropdownOpen(!isFiltersDropdownOpen)}
-                    variant={filterState.hideZeroQuantity || filterState.showSelectedOnly ? 'active' : 'default'}
+                    className={`flex items-center justify-center w-7 h-7 rounded-md transition-all ${
+                      filterState.hideZeroQuantity || filterState.showSelectedOnly || filterState.selectedLocationId || filterState.selectedCategory
+                        ? 'bg-white/[0.08] text-neutral-300' 
+                        : 'bg-transparent text-neutral-600 hover:text-neutral-400 hover:bg-white/[0.03]'
+                    }`}
                     title="Filters"
-                    size="sm"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
                     </svg>
-                  </IconButton>
+                  </button>
                   
-                  {isFiltersDropdownOpen && (
-                    <div className="absolute top-full right-2 mt-2 bg-neutral-800/98 border border-white/[0.08] rounded-lg shadow-2xl z-[99999] w-40 backdrop-blur-sm pointer-events-auto">
-                      <div className="p-1.5 space-y-0.5">
-                        <button
-                          type="button"
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            const newValue = !filterState.hideZeroQuantity;
-                            console.log('🔍 Hide Zero:', newValue);
-                            onHideZeroQuantityChange?.(newValue);
-                          }}
-                          className={`w-full text-left px-2.5 py-2 text-xs rounded transition product-text flex items-center justify-between touch-manipulation ${
-                            filterState.hideZeroQuantity ? 'bg-white/[0.1] text-neutral-300' : 'text-neutral-400 hover:bg-white/[0.05]'
-                          }`}
-                        >
-                          <span>Hide Zero</span>
-                          <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${
-                            filterState.hideZeroQuantity ? 'bg-neutral-400 border-neutral-400' : 'border-neutral-600 bg-neutral-800'
-                          }`}>
-                            {filterState.hideZeroQuantity && (
-                              <svg className="w-2.5 h-2.5 text-neutral-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                              </svg>
-                            )}
-                          </div>
-                        </button>
-                        <button
-                          type="button"
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            const newValue = !filterState.showSelectedOnly;
-                            console.log('🔍 Selected Only:', newValue);
-                            onShowSelectedOnlyChange?.(newValue);
-                          }}
-                          className={`w-full text-left px-2.5 py-2 text-xs rounded transition product-text flex items-center justify-between touch-manipulation ${
-                            filterState.showSelectedOnly ? 'bg-white/[0.1] text-neutral-300' : 'text-neutral-400 hover:bg-white/[0.05]'
-                          }`}
-                        >
-                          <span>Selected Only</span>
-                          <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${
-                            filterState.showSelectedOnly ? 'bg-neutral-400 border-neutral-400' : 'border-neutral-600 bg-neutral-800'
-                          }`}>
-                            {filterState.showSelectedOnly && (
-                              <svg className="w-2.5 h-2.5 text-neutral-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth={3}>
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                              </svg>
-                            )}
-                          </div>
-                        </button>
-                      </div>
-                    </div>
-                  )}
+                  <MobileFiltersDropdown
+                    isOpen={isFiltersDropdownOpen}
+                    onClose={() => setIsFiltersDropdownOpen(false)}
+                    selectedLocation={filterState.selectedLocationId}
+                    onLocationChange={(locationId) => {
+                      onLocationChange?.(locationId);
+                    }}
+                    locations={floraLocations}
+                    selectedCategory={filterState.selectedCategory}
+                    onCategoryChange={(category) => {
+                      onCategoryChange?.(category);
+                    }}
+                    categoryOptions={categoryOptions}
+                    hideZeroQuantity={filterState.hideZeroQuantity}
+                    onHideZeroQuantityChange={(hide) => {
+                      onHideZeroQuantityChange?.(hide);
+                    }}
+                    showSelectedOnly={filterState.showSelectedOnly}
+                    onShowSelectedOnlyChange={(show) => {
+                      onShowSelectedOnlyChange?.(show);
+                    }}
+                  />
                 </div>
               )}
               
@@ -288,11 +273,15 @@ export function Header({
                   />
                   
                   {bulkEditCount > 0 && (
-                    <IconButton onClick={onBulkSave} title="Save" size="sm">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                    <button 
+                      onClick={onBulkSave} 
+                      className="flex items-center justify-center w-7 h-7 rounded-md transition-all bg-green-500/15 text-green-400 hover:bg-green-500/20"
+                      title="Save"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
                       </svg>
-                    </IconButton>
+                    </button>
                   )}
                 </>
               )}
@@ -300,16 +289,19 @@ export function Header({
               {/* Add Product (always visible for products) */}
               {isProductsTab && (
                 <div className="relative">
-                  <IconButton
+                  <button
                     onClick={() => setIsCreateDropdownOpen(!isCreateDropdownOpen)}
-                    variant={isCreateDropdownOpen ? 'active' : 'default'}
+                    className={`flex items-center justify-center w-7 h-7 rounded-md transition-all ${
+                      isCreateDropdownOpen 
+                        ? 'bg-white/[0.08] text-neutral-300' 
+                        : 'bg-transparent text-neutral-600 hover:text-neutral-400 hover:bg-white/[0.03]'
+                    }`}
                     title="Add"
-                    size="sm"
                   >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                     </svg>
-                  </IconButton>
+                  </button>
                   
                   <ProductCreateDropdown
                     isOpen={isCreateDropdownOpen}
@@ -321,7 +313,7 @@ export function Header({
               )}
               
               {/* Refresh */}
-              <IconButton
+              <button
                 onClick={async () => {
                   if (!onRefresh || isRefreshing) return;
                   setIsRefreshing(true);
@@ -331,15 +323,20 @@ export function Header({
                     setTimeout(() => setIsRefreshing(false), 800);
                   }
                 }}
-                variant="default"
                 disabled={!onRefresh || isRefreshing}
+                className={`flex items-center justify-center w-7 h-7 rounded-md transition-all ${
+                  isRefreshing ? 'bg-white/[0.05]' : ''
+                } ${
+                  onRefresh && !isRefreshing 
+                    ? 'text-neutral-600 hover:text-neutral-400 hover:bg-white/[0.03]' 
+                    : 'text-neutral-800 cursor-not-allowed'
+                }`}
                 title="Refresh"
-                size="sm"
               >
-                <svg className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                <svg className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-              </IconButton>
+              </button>
             </div>
           </div>
           

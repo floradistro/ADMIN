@@ -116,62 +116,103 @@ export function BulkActionsDropdown({
           console.log('🔧 Tools clicked, selectedCount:', selectedCount);
           setIsOpen(!isOpen);
         }}
-        className="flex items-center gap-1 px-2 py-1.5 bg-white/[0.05] text-neutral-300 rounded-lg hover:bg-white/[0.08] transition text-xs border border-white/[0.08] product-text flex-shrink-0"
+        className={`flex items-center justify-center w-7 h-7 rounded-md transition-all ${
+          isOpen 
+            ? 'bg-white/[0.08] text-neutral-300' 
+            : 'bg-transparent text-neutral-600 hover:text-neutral-400 hover:bg-white/[0.03]'
+        }`}
         title="Tools"
       >
           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-          <svg 
-            className={`w-3 h-3 transition-transform ${isOpen ? 'rotate-180' : ''}`} 
-            fill="none" 
-            stroke="currentColor" 
-            viewBox="0 0 24 24"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
           </svg>
       </button>
 
-      {/* Dropdown menu - Compact */}
+      {/* Dropdown menu - Mobile Optimized */}
       {isOpen && (
-        <div className="absolute right-2 top-full mt-1 w-44 bg-neutral-900/98 border border-white/[0.08] rounded-lg shadow-2xl backdrop-blur-sm z-[9999] overflow-hidden">
-          <div className="p-2">
-            {/* Actions */}
-            <div className="space-y-0.5">
-              {BULK_ACTIONS.map((action) => (
-                <button
-                  key={action.id}
-                  onClick={() => handleActionClick(action.id)}
-                  className="w-full flex items-center gap-2 px-3 py-2 text-left rounded-md transition-all hover:bg-white/[0.08] group"
-                >
-                  <div className="flex-shrink-0 text-neutral-500 group-hover:text-neutral-400 transition-colors">
-                    {action.icon}
-                  </div>
-                  <div className="text-neutral-400 text-xs product-text group-hover:text-neutral-300">
-                    {action.label}
-                  </div>
-                </button>
-              ))}
-            </div>
+        <>
+          {/* Mobile: Bottom sheet style */}
+          <div className="md:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-[9999] flex items-end" onClick={(e) => { if (e.target === e.currentTarget) setIsOpen(false); }}>
+            <div className="w-full bg-neutral-900/98 border-t border-white/[0.08] rounded-t-2xl shadow-2xl max-h-[70vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="p-4">
+                {/* Actions */}
+                <div className="space-y-0.5">
+                  {BULK_ACTIONS.map((action) => (
+                    <button
+                      key={action.id}
+                      onClick={() => handleActionClick(action.id)}
+                      className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-md transition-all hover:bg-white/[0.08] active:bg-white/[0.12] group touch-manipulation"
+                    >
+                      <div className="flex-shrink-0 text-neutral-500 group-hover:text-neutral-400 transition-colors">
+                        {action.icon}
+                      </div>
+                      <div className="text-neutral-400 text-xs product-text group-hover:text-neutral-300">
+                        {action.label}
+                      </div>
+                    </button>
+                  ))}
+                </div>
 
-            {/* Clear */}
-            <div className="border-t border-white/[0.04] mt-1.5 pt-1.5">
-              <button
-                onClick={handleClearSelection}
-                className="w-full flex items-center gap-2 px-3 py-2 text-left rounded-md transition-all hover:bg-white/[0.08] group"
-              >
-                <div className="flex-shrink-0 text-neutral-500 group-hover:text-neutral-400 transition-colors">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                {/* Clear */}
+                <div className="border-t border-white/[0.04] mt-1.5 pt-1.5">
+                  <button
+                    onClick={handleClearSelection}
+                    className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-md transition-all hover:bg-white/[0.08] active:bg-white/[0.12] group touch-manipulation"
+                  >
+                    <div className="flex-shrink-0 text-neutral-500 group-hover:text-neutral-400 transition-colors">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </div>
+                    <div className="text-neutral-400 text-xs product-text group-hover:text-neutral-300">
+                      Clear Selection
+                    </div>
+                  </button>
                 </div>
-                <div className="text-neutral-400 text-xs product-text group-hover:text-neutral-300">
-                  Clear Selection
-                </div>
-              </button>
+              </div>
             </div>
           </div>
-        </div>
+
+          {/* Desktop: Normal dropdown */}
+          <div className="hidden md:block absolute right-2 top-full mt-1 w-44 bg-neutral-900/98 border border-white/[0.08] rounded-lg shadow-2xl backdrop-blur-sm z-[9999] overflow-hidden">
+            <div className="p-2">
+              {/* Actions */}
+              <div className="space-y-0.5">
+                {BULK_ACTIONS.map((action) => (
+                  <button
+                    key={action.id}
+                    onClick={() => handleActionClick(action.id)}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 text-left rounded-md transition-all hover:bg-white/[0.08] active:bg-white/[0.12] group"
+                  >
+                    <div className="flex-shrink-0 text-neutral-500 group-hover:text-neutral-400 transition-colors">
+                      {action.icon}
+                    </div>
+                    <div className="text-neutral-400 text-xs product-text group-hover:text-neutral-300">
+                      {action.label}
+                    </div>
+                  </button>
+                ))}
+              </div>
+
+              {/* Clear */}
+              <div className="border-t border-white/[0.04] mt-1.5 pt-1.5">
+                <button
+                  onClick={handleClearSelection}
+                  className="w-full flex items-center gap-2.5 px-3 py-2 text-left rounded-md transition-all hover:bg-white/[0.08] active:bg-white/[0.12] group"
+                >
+                  <div className="flex-shrink-0 text-neutral-500 group-hover:text-neutral-400 transition-colors">
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </div>
+                  <div className="text-neutral-400 text-xs product-text group-hover:text-neutral-300">
+                    Clear Selection
+                  </div>
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

@@ -47,13 +47,7 @@ export function StatusBar({
 
   return (
     <div 
-      className="bg-transparent border-t border-white/[0.04] h-10 md:h-8 flex items-center justify-between text-[10px] md:text-xs text-neutral-500 flex-shrink-0 font-tiempos sticky bottom-0 z-20"
-      style={{
-        paddingLeft: 'max(env(safe-area-inset-left), 16px)',
-        paddingRight: 'max(env(safe-area-inset-right), 16px)',
-        paddingBottom: 'max(env(safe-area-inset-bottom), 8px)',
-        paddingTop: '8px'
-      }}
+      className="hidden md:flex bg-transparent border-t border-white/[0.04] h-8 items-center justify-between text-xs text-neutral-500 flex-shrink-0 font-tiempos sticky bottom-0 z-20 px-4 py-2"
     >
       {/* Left section */}
       <div className="flex items-center space-x-2 md:space-x-4 min-w-0">

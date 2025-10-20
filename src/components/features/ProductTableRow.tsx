@@ -1303,14 +1303,14 @@ export const ProductTableRow = React.memo(function ProductTableRow({
             e.stopPropagation();
             onToggleExpand();
           }}
-          className="flex-shrink-0 w-8 h-8 md:w-6 md:h-6 flex items-center justify-center text-neutral-700 hover:text-neutral-500 rounded-md expand-button transition-colors"
+          className="flex-shrink-0 w-8 h-8 md:w-6 md:h-6 flex items-center justify-center text-neutral-800 hover:text-neutral-600 rounded-md expand-button transition-colors"
         >
           <svg
-            className={`w-2.5 h-2.5 md:w-2.5 md:h-2.5 expand-icon ${isExpanded ? 'rotate-90' : ''}`}
+            className={`w-2 h-2 md:w-1.5 md:h-1.5 expand-icon ${isExpanded ? 'rotate-90' : ''}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
-            strokeWidth={2}
+            strokeWidth={1.5}
           >
             <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
           </svg>

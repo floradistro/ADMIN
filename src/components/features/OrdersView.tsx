@@ -551,10 +551,10 @@ export const OrdersView = React.forwardRef<OrdersViewRef, OrdersViewProps>(({
                       e.stopPropagation();
                       toggleExpand(order.id);
                     }}
-                    className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-neutral-600 rounded-md expand-button"
+                    className="flex-shrink-0 w-6 h-6 flex items-center justify-center text-neutral-800 hover:text-neutral-600 rounded-md expand-button transition-colors"
                   >
                   <svg
-                    className={`w-3 h-3 expand-icon ${expandedCards.has(order.id) ? 'rotate-90' : ''}`}
+                    className={`w-2 h-2 expand-icon ${expandedCards.has(order.id) ? 'rotate-90' : ''}`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"

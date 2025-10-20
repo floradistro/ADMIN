@@ -88,52 +88,100 @@ export function ViewsDropdown({
   ];
 
   return (
-    <div 
-      ref={dropdownRef}
-      className="absolute right-0 top-full mt-1 w-64 bg-neutral-900/95 border border-white/[0.08] rounded-lg shadow-2xl backdrop-blur-sm z-50 overflow-hidden"
-    >
-      <div className="p-2">
-        <div className="text-xs font-medium text-white/60 px-2 py-1 mb-1 font-tiempos">
-          Views
-        </div>
-        
-        {viewItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => {
-              item.onClick?.();
-              onClose();
-            }}
-            className={`
-              w-full flex items-center gap-3 px-2 py-2 rounded text-xs transition-all duration-150 font-tiempos
-              ${item.isActive 
-                ? 'bg-white/[0.08] text-white border border-white/[0.12]' 
-                : 'text-neutral-400 hover:bg-white/[0.05] hover:text-neutral-300'
-              }
-            `}
-          >
-            <div className={`
-              flex-shrink-0 transition-colors
-              ${item.isActive ? 'text-white' : 'text-neutral-400'}
-            `}>
-              {item.icon}
+    <>
+      {/* Mobile: Bottom sheet style */}
+      <div className="md:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-[9999] flex items-end" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+        <div className="w-full bg-neutral-900/95 border-t border-white/[0.08] rounded-t-2xl shadow-2xl max-h-[70vh] overflow-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="p-4">
+            <div className="text-xs font-medium text-white/60 px-2 py-1 mb-1 font-tiempos">
+              Views
             </div>
             
-            <div className="flex-1 text-left">
+            {viewItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => {
+                  item.onClick?.();
+                  onClose();
+                }}
+                className={`
+                  w-full flex items-center gap-3 px-2 py-2.5 rounded text-xs transition-all duration-150 font-tiempos touch-manipulation
+                  ${item.isActive 
+                    ? 'bg-white/[0.08] text-white border border-white/[0.12]' 
+                    : 'text-neutral-400 hover:bg-white/[0.05] active:bg-white/[0.08] hover:text-neutral-300'
+                  }
+                `}
+              >
+                <div className={`
+                  flex-shrink-0 transition-colors
+                  ${item.isActive ? 'text-white' : 'text-neutral-400'}
+                `}>
+                  {item.icon}
+                </div>
+                
+                <div className="flex-1 text-left">
+                  <div className={`
+                    font-medium
+                    ${item.isActive ? 'text-white' : 'text-neutral-400'}
+                  `}>
+                    {item.label}
+                  </div>
+                </div>
+                
+                {item.isActive && (
+                  <div className="flex-shrink-0 w-2 h-2 bg-white rounded-full"></div>
+                )}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Desktop: Normal dropdown */}
+      <div className="hidden md:block absolute right-0 top-full mt-1 w-64 bg-neutral-900/95 border border-white/[0.08] rounded-lg shadow-2xl backdrop-blur-sm z-50 overflow-hidden">
+        <div className="p-2">
+          <div className="text-xs font-medium text-white/60 px-2 py-1 mb-1 font-tiempos">
+            Views
+          </div>
+          
+          {viewItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => {
+                item.onClick?.();
+                onClose();
+              }}
+              className={`
+                w-full flex items-center gap-3 px-2 py-2 rounded text-xs transition-all duration-150 font-tiempos
+                ${item.isActive 
+                  ? 'bg-white/[0.08] text-white border border-white/[0.12]' 
+                  : 'text-neutral-400 hover:bg-white/[0.05] hover:text-neutral-300'
+                }
+              `}
+            >
               <div className={`
-                font-medium
+                flex-shrink-0 transition-colors
                 ${item.isActive ? 'text-white' : 'text-neutral-400'}
               `}>
-                {item.label}
+                {item.icon}
               </div>
-            </div>
-            
-            {item.isActive && (
-              <div className="flex-shrink-0 w-2 h-2 bg-white rounded-full"></div>
-            )}
-          </button>
-        ))}
+              
+              <div className="flex-1 text-left">
+                <div className={`
+                  font-medium
+                  ${item.isActive ? 'text-white' : 'text-neutral-400'}
+                `}>
+                  {item.label}
+                </div>
+              </div>
+              
+              {item.isActive && (
+                <div className="flex-shrink-0 w-2 h-2 bg-white rounded-full"></div>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

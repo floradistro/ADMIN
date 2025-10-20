@@ -80,45 +80,88 @@ export function SettingsDropdown({ isOpen, onClose, activeTab, onTabChange, onNa
   ];
 
   return (
-    <div 
-      ref={dropdownRef}
-      className="absolute right-0 top-full mt-1 w-64 bg-neutral-900/95 border border-white/[0.08] rounded-lg shadow-2xl backdrop-blur-sm z-50 overflow-hidden"
-      style={{
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05)'
-      }}
-    >
-      <div className="p-2">
-        <div className="text-xs font-medium text-white/60 px-2 py-1 mb-1">
-          Settings
-        </div>
-        
-        {settingsItems.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => {
-              onNavigateToSettings(item.id);
-              onClose();
-            }}
-            className={`
-              w-full flex items-center gap-3 px-2 py-2 rounded-md text-sm transition-all duration-150
-              ${activeTab === item.id 
-                ? 'bg-white/[0.08] text-white border border-white/[0.08]' 
-                : 'text-white/80 hover:bg-white/[0.05] hover:text-white'
-              }
-            `}
-          >
-            <div className="flex-shrink-0 text-white/60 transition-colors">
-              {item.icon}
+    <>
+      {/* Mobile: Bottom sheet style */}
+      <div className="md:hidden fixed inset-0 bg-black/20 backdrop-blur-sm z-[9999] flex items-end" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
+        <div className="w-full bg-neutral-900/95 border-t border-white/[0.08] rounded-t-2xl shadow-2xl max-h-[70vh] overflow-auto" onClick={(e) => e.stopPropagation()}
+          style={{
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05)'
+          }}
+        >
+          <div className="p-4">
+            <div className="text-xs font-medium text-white/60 px-2 py-1 mb-1">
+              Settings
             </div>
             
-            <div className="flex-1 text-left">
-              <div className="font-medium text-white/90">
-                {item.label}
-              </div>
-            </div>
-          </button>
-        ))}
+            {settingsItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => {
+                  onNavigateToSettings(item.id);
+                  onClose();
+                }}
+                className={`
+                  w-full flex items-center gap-3 px-2 py-2.5 rounded-md text-sm transition-all duration-150 touch-manipulation
+                  ${activeTab === item.id 
+                    ? 'bg-white/[0.08] text-white border border-white/[0.08]' 
+                    : 'text-white/80 hover:bg-white/[0.05] active:bg-white/[0.08] hover:text-white'
+                  }
+                `}
+              >
+                <div className="flex-shrink-0 text-white/60 transition-colors">
+                  {item.icon}
+                </div>
+                
+                <div className="flex-1 text-left">
+                  <div className="font-medium text-white/90">
+                    {item.label}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
-    </div>
+
+      {/* Desktop: Normal dropdown */}
+      <div className="hidden md:block absolute right-0 top-full mt-1 w-64 bg-neutral-900/95 border border-white/[0.08] rounded-lg shadow-2xl backdrop-blur-sm z-50 overflow-hidden"
+        style={{
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05)'
+        }}
+      >
+        <div className="p-2">
+          <div className="text-xs font-medium text-white/60 px-2 py-1 mb-1">
+            Settings
+          </div>
+          
+          {settingsItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => {
+                onNavigateToSettings(item.id);
+                onClose();
+              }}
+              className={`
+                w-full flex items-center gap-3 px-2 py-2 rounded-md text-sm transition-all duration-150
+                ${activeTab === item.id 
+                  ? 'bg-white/[0.08] text-white border border-white/[0.08]' 
+                  : 'text-white/80 hover:bg-white/[0.05] hover:text-white'
+                }
+              `}
+            >
+              <div className="flex-shrink-0 text-white/60 transition-colors">
+                {item.icon}
+              </div>
+              
+              <div className="flex-1 text-left">
+                <div className="font-medium text-white/90">
+                  {item.label}
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </>
   );
 }

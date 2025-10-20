@@ -44,6 +44,8 @@ export { SiriGlowBorder } from './SiriGlowBorder';
 export { TabHero } from './TabHero';
 export { ColumnSelector } from './ColumnSelector';
 export { BulkActionsDropdown } from './BulkActionsDropdown';
+export { MobileFiltersDropdown } from './MobileFiltersDropdown';
+export { MobileOrderFiltersDropdown } from './MobileOrderFiltersDropdown';
 export { BackgroundRemovalDropdown } from './BackgroundRemovalDropdown';
 export { AIToolsDropdown } from './AIToolsDropdown';
 export { DalleGeneratorDropdown } from './DalleGeneratorDropdown';

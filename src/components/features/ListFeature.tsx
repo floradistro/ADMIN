@@ -165,7 +165,7 @@ export function ListFeature({
       />
 
       {/* Control Buttons */}
-      <div className="fixed bottom-6 right-6 flex gap-2 z-40">
+      <div className="hidden md:flex fixed bottom-6 right-6 gap-2 z-40">
         {lists.length > 0 && (
           <button
             onClick={() => setIsManaging(true)}
